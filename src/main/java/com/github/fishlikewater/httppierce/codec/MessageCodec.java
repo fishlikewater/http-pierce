@@ -2,7 +2,6 @@ package com.github.fishlikewater.httppierce.codec;
 
 import cn.hutool.core.util.ObjectUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 
