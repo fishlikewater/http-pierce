@@ -1,6 +1,5 @@
 package com.github.fishlikewater.httppierce.config;
 
-import com.github.fishlikewater.httppierce.client.ClientBoot;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,11 +19,41 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("http.pierce")
 public class HttpPierceConfig {
 
+    /**
+     * 启动的服务类型，包括客户端与服务端
+     * */
     private BootType bootType;
 
+    /**
+     * 服务端监听的地址
+     * */
+    private String address = "0.0.0.0";
+
+    /**
+     * 服务端与客户端通信的端口
+     * */
+    private int transferPort;
+
+    /**
+     * 开放给公网的http端口
+     * */
+    private int httpServerPort;
 
 
-    private enum BootType{
+    /**
+     * 心跳检测间隔，默认30s
+     * */
+    private long timeout = 30;
+
+
+    /**
+     * 是否开启日志
+     * */
+    private boolean logger;
+
+
+
+    public enum BootType{
         client,server;
     }
 

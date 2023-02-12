@@ -14,4 +14,5 @@ module http.pierce {
     requires io.netty.all;
     requires lombok;
     requires hutool.all;
+    requires spring.context;
 }
