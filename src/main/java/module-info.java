@@ -15,4 +15,5 @@ module http.pierce {
     requires lombok;
     requires hutool.all;
     requires spring.context;
+    requires jdk.unsupported;
 }

@@ -51,6 +51,11 @@ public class HttpPierceConfig {
      * */
     private boolean logger;
 
+    /**
+     * 验证token
+     * */
+    private String token;
+
 
 
     public enum BootType{

@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  服务端启动器
+ *  http服务端启动器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 @RequiredArgsConstructor
-public class ServerBoot {
+public class HttpBoot {
 
     /**
      * 处理连接
@@ -44,21 +44,21 @@ public class ServerBoot {
 
         final ServerBootstrap serverBootstrap = BootStrapFactory.getServerBootstrap();
         if (EpollKit.epollIsAvailable()) {
-            bossGroup = new EpollEventLoopGroup(0, new NamedThreadFactory("epoll-transfer-boss@"));
-            workerGroup = new EpollEventLoopGroup(0, new NamedThreadFactory("epoll-transfer-worker@"));
+            bossGroup = new EpollEventLoopGroup(0, new NamedThreadFactory("epoll-http-boss@"));
+            workerGroup = new EpollEventLoopGroup(0, new NamedThreadFactory("epoll-http-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(EpollServerSocketChannel.class);
         } else {
-            bossGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-transfer-boss@"));
-            workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-transfer-worker@"));
+            bossGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-http-boss@"));
+            workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-http-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
-        serverBootstrap.childHandler(new ServerInitializer(httpPierceConfig));
+        serverBootstrap.childHandler(new HttpInitializer(httpPierceConfig));
         try {
-            Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getTransferPort()).sync().channel();
-            log.info("⬢ start transfer server this port:{} and adress:{}",httpPierceConfig.getTransferPort(), httpPierceConfig.getAddress());
-            ch.closeFuture().addListener(t -> log.info("⬢  transfer server 服务开始关闭"));
+            Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getHttpServerPort()).sync().channel();
+            log.info("⬢ start http server this port:{} and adress:{}",httpPierceConfig.getHttpServerPort(), httpPierceConfig.getAddress());
+            ch.closeFuture().addListener(t -> log.info("⬢  http server 服务开始关闭"));
         } catch (InterruptedException e) {
-            log.error("⬢ start transfer server fail", e);
+            log.error("⬢ start http server fail", e);
         }
     }
 
@@ -66,7 +66,7 @@ public class ServerBoot {
      * 关闭服务
      */
     public void stop() {
-        log.info("⬢ transfer server shutdown ...");
+        log.info("⬢ http server shutdown ...");
         try {
             if (this.bossGroup != null) {
                 this.bossGroup.shutdownGracefully().sync();
@@ -74,9 +74,9 @@ public class ServerBoot {
             if (this.workerGroup != null) {
                 this.workerGroup.shutdownGracefully().sync();
             }
-            log.info("⬢ transfer server shutdown successful");
+            log.info("⬢ http server shutdown successful");
         } catch (Exception e) {
-            log.error("⬢ transfer server shutdown error", e);
+            log.error("⬢ http server shutdown error", e);
         }
     }
 
