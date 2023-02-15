@@ -2,7 +2,6 @@ package com.github.fishlikewater.httppierce.server;
 
 
 import sun.misc.Signal;
-import sun.misc.SignalHandler;
 
 /**
  * <p>
@@ -12,15 +11,14 @@ import sun.misc.SignalHandler;
  * @author fishlikewater@126.com
  * @since 2023年02月13日 22:08
  **/
-public class ShutDownSignalHandler implements SignalHandler {
+public class ShutDownSignalHandler{
 
-    public void registerSignal(String signalName) {
+    public void registerSignal(String signalName, Boot... boot) {
         Signal signal = new Signal(signalName);
-        Signal.handle(signal, this);
-    }
-
-    @Override
-    public void handle(Signal sig) {
-
+        Signal.handle(signal, (Signal sig)-> {
+            for (Boot boot1 : boot) {
+                boot1.stop();
+            }
+        });
     }
 }

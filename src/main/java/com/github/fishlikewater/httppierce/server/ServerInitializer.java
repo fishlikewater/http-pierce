@@ -29,7 +29,7 @@ public class ServerInitializer extends ChannelInitializer<Channel> {
     private final HttpPierceConfig httpPierceConfig;
 
     public ServerInitializer(HttpPierceConfig httpPierceConfig) {
-        log.info("init handler");
+        log.info("init transfer handler");
         this.httpPierceConfig = httpPierceConfig;
     }
 

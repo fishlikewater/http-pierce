@@ -25,6 +25,7 @@
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <netty.version>4.1.31.Final</netty.version>
         <hutool.version>5.8.8</hutool.version>
+        <slf4j-api-version>2.0.6</slf4j-api-version>
     </properties>
 
     <licenses>
@@ -72,6 +73,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

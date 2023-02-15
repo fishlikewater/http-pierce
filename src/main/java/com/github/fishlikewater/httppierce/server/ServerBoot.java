@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 @RequiredArgsConstructor
-public class ServerBoot {
+public class ServerBoot implements Boot{
 
     /**
      * 处理连接
@@ -39,7 +39,7 @@ public class ServerBoot {
 
     private final HttpPierceConfig httpPierceConfig;
 
-
+    @Override
     public void start() {
 
         final ServerBootstrap serverBootstrap = BootStrapFactory.getServerBootstrap();
@@ -56,7 +56,7 @@ public class ServerBoot {
         try {
             Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getTransferPort()).sync().channel();
             log.info("⬢ start transfer server this port:{} and adress:{}",httpPierceConfig.getTransferPort(), httpPierceConfig.getAddress());
-            ch.closeFuture().addListener(t -> log.info("⬢  transfer server 服务开始关闭"));
+            ch.closeFuture().addListener(t -> log.info("⬢  transfer server 关闭"));
         } catch (InterruptedException e) {
             log.error("⬢ start transfer server fail", e);
         }
@@ -65,6 +65,7 @@ public class ServerBoot {
     /**
      * 关闭服务
      */
+    @Override
     public void stop() {
         log.info("⬢ transfer server shutdown ...");
         try {
@@ -74,7 +75,6 @@ public class ServerBoot {
             if (this.workerGroup != null) {
                 this.workerGroup.shutdownGracefully().sync();
             }
-            log.info("⬢ transfer server shutdown successful");
         } catch (Exception e) {
             log.error("⬢ transfer server shutdown error", e);
         }

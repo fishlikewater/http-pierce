@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 @RequiredArgsConstructor
-public class HttpBoot {
+public class HttpBoot implements Boot{
 
     /**
      * 处理连接
@@ -40,6 +40,7 @@ public class HttpBoot {
     private final HttpPierceConfig httpPierceConfig;
 
 
+    @Override
     public void start() {
 
         final ServerBootstrap serverBootstrap = BootStrapFactory.getServerBootstrap();
@@ -56,7 +57,7 @@ public class HttpBoot {
         try {
             Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getHttpServerPort()).sync().channel();
             log.info("⬢ start http server this port:{} and adress:{}",httpPierceConfig.getHttpServerPort(), httpPierceConfig.getAddress());
-            ch.closeFuture().addListener(t -> log.info("⬢  http server 服务开始关闭"));
+            ch.closeFuture().addListener(t -> log.info("⬢  http server 关闭"));
         } catch (InterruptedException e) {
             log.error("⬢ start http server fail", e);
         }
@@ -65,6 +66,7 @@ public class HttpBoot {
     /**
      * 关闭服务
      */
+    @Override
     public void stop() {
         log.info("⬢ http server shutdown ...");
         try {
@@ -74,7 +76,6 @@ public class HttpBoot {
             if (this.workerGroup != null) {
                 this.workerGroup.shutdownGracefully().sync();
             }
-            log.info("⬢ http server shutdown successful");
         } catch (Exception e) {
             log.error("⬢ http server shutdown error", e);
         }

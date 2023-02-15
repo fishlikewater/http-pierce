@@ -1,6 +1,9 @@
 package com.github.fishlikewater.httppierce;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.server.HttpBoot;
+import com.github.fishlikewater.httppierce.server.ServerBoot;
+import com.github.fishlikewater.httppierce.server.ShutDownSignalHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,6 +25,14 @@ public class HttpPierceApplication implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-
+        if (httpPierceConfig.getBootType() == HttpPierceConfig.BootType.server){
+            final ServerBoot serverBoot = new ServerBoot(httpPierceConfig);
+            serverBoot.start();
+            final HttpBoot httpBoot = new HttpBoot(httpPierceConfig);
+            httpBoot.start();
+            final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
+            shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
+            shutDownSignalHandler.registerSignal("INT", serverBoot, httpBoot);
+        }
     }
 }
