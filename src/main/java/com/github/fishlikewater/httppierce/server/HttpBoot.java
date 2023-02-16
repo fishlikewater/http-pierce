@@ -1,6 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
-import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
 import com.github.fishlikewater.httppierce.kit.NamedThreadFactory;
@@ -37,7 +37,7 @@ public class HttpBoot implements Boot{
      */
     private EventLoopGroup workerGroup;
 
-    private final HttpPierceConfig httpPierceConfig;
+    private final HttpPierceServerConfig httpPierceServerConfig;
 
 
     @Override
@@ -53,10 +53,10 @@ public class HttpBoot implements Boot{
             workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-http-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
-        serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceConfig));
+        serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceServerConfig));
         try {
-            Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getHttpServerPort()).sync().channel();
-            log.info("⬢ start http server this port:{} and adress:{}",httpPierceConfig.getHttpServerPort(), httpPierceConfig.getAddress());
+            Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getHttpServerPort()).sync().channel();
+            log.info("⬢ start http server this port:{} and adress:{}", httpPierceServerConfig.getHttpServerPort(), httpPierceServerConfig.getAddress());
             ch.closeFuture().addListener(t -> log.info("⬢  http server 关闭"));
         } catch (InterruptedException e) {
             log.error("⬢ start http server fail", e);

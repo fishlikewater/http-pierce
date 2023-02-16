@@ -1,7 +1,7 @@
 package com.github.fishlikewater.httppierce.server;
 
 import com.github.fishlikewater.httppierce.codec.MessageCodec;
-import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.handler.AuthHandler;
 import com.github.fishlikewater.httppierce.handler.MessageTransferHandler;
 import com.github.fishlikewater.httppierce.handler.ServerHeartBeatHandler;
@@ -26,26 +26,26 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
 
-    private final HttpPierceConfig httpPierceConfig;
+    private final HttpPierceServerConfig httpPierceServerConfig;
 
-    public ServerHandlerInitializer(HttpPierceConfig httpPierceConfig) {
+    public ServerHandlerInitializer(HttpPierceServerConfig httpPierceServerConfig) {
         log.info("init transfer handler");
-        this.httpPierceConfig = httpPierceConfig;
+        this.httpPierceServerConfig = httpPierceServerConfig;
     }
 
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
-        p.addLast(new IdleStateHandler(0, 0, httpPierceConfig.getTimeout(), TimeUnit.SECONDS));
+        p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout(), TimeUnit.SECONDS));
         p.addLast(new ServerHeartBeatHandler());
         /* 是否打开日志*/
-        if (httpPierceConfig.isLogger()) {
+        if (httpPierceServerConfig.isLogger()) {
             p.addLast(new LoggingHandler());
         }
         p
                 .addLast(new LengthFieldBasedFrameDecoder(5*1024 * 1024, 0, 4))
                 .addLast(new MessageCodec())
-                .addLast(new AuthHandler(httpPierceConfig.getToken()))
+                .addLast(new AuthHandler(httpPierceServerConfig.getToken()))
                 .addLast(new MessageTransferHandler());
 
 

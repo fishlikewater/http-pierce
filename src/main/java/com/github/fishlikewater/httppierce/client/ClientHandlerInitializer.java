@@ -2,7 +2,7 @@ package com.github.fishlikewater.httppierce.client;
 
 
 import com.github.fishlikewater.httppierce.codec.MessageCodec;
-import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.handler.ClientHeartBeatHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -19,24 +19,24 @@ import java.util.concurrent.TimeUnit;
  **/
 public class ClientHandlerInitializer extends ChannelInitializer<Channel> {
 
-    private final HttpPierceConfig httpPierceConfig;
+    private final HttpPierceClientConfig httpPierceClientConfig;
 
 
-    public ClientHandlerInitializer(HttpPierceConfig httpPierceConfig) {
-        this.httpPierceConfig = httpPierceConfig;
+    public ClientHandlerInitializer(HttpPierceClientConfig httpPierceClientConfig) {
+        this.httpPierceClientConfig = httpPierceClientConfig;
     }
 
     @Override
     protected void initChannel(Channel ch) {
         ChannelPipeline pipeline = ch.pipeline();
         /* 是否打开日志*/
-        if (httpPierceConfig.isLogger()) {
+        if (httpPierceClientConfig.isLogger()) {
             pipeline.addLast(new LoggingHandler());
         }
         pipeline
                 .addLast(new LengthFieldBasedFrameDecoder(5*1024 * 1024, 0, 4))
                 .addLast(new MessageCodec())
-                .addLast(new IdleStateHandler(0, 0, httpPierceConfig.getTimeout(), TimeUnit.SECONDS))
+                .addLast(new IdleStateHandler(0, 0, httpPierceClientConfig.getTimeout(), TimeUnit.SECONDS))
                 .addLast(new ClientHeartBeatHandler());
 
     }

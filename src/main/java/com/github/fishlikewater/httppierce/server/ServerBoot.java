@@ -1,6 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
-import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
 import com.github.fishlikewater.httppierce.kit.NamedThreadFactory;
@@ -35,7 +35,7 @@ public class ServerBoot implements Boot{
      */
     private EventLoopGroup workerGroup;
 
-    private final HttpPierceConfig httpPierceConfig;
+    private final HttpPierceServerConfig httpPierceServerConfig;
 
     @Override
     public void start() {
@@ -50,10 +50,10 @@ public class ServerBoot implements Boot{
             workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-transfer-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
-        serverBootstrap.childHandler(new ServerHandlerInitializer(httpPierceConfig));
+        serverBootstrap.childHandler(new ServerHandlerInitializer(httpPierceServerConfig));
         try {
-            Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getTransferPort()).sync().channel();
-            log.info("⬢ start transfer server this port:{} and adress:{}",httpPierceConfig.getTransferPort(), httpPierceConfig.getAddress());
+            Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getTransferPort()).sync().channel();
+            log.info("⬢ start transfer server this port:{} and adress:{}", httpPierceServerConfig.getTransferPort(), httpPierceServerConfig.getAddress());
             ch.closeFuture().addListener(t -> log.info("⬢  transfer server 关闭"));
         } catch (InterruptedException e) {
             log.error("⬢ start transfer server fail", e);

@@ -1,6 +1,6 @@
 package com.github.fishlikewater.httppierce.client;
 
-import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
 import com.github.fishlikewater.httppierce.kit.NamedThreadFactory;
@@ -28,16 +28,22 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ClientBoot implements Boot {
 
-    private final HttpPierceConfig httpPierceConfig;
+    private final HttpPierceClientConfig httpPierceClientConfig;
+
+    /**
+     * 处理连接
+     */
+    private EventLoopGroup bossGroup;
+
+    private Bootstrap bootstrap;
 
     @Override
     public void start() {
-        final Bootstrap bootstrap = BootStrapFactory.bootstrapConfig();
+        bootstrap = BootStrapFactory.bootstrapConfig();
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2 * 60 * 1000);
         bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 64 * 1024));
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 
-        EventLoopGroup bossGroup;
         if (EpollKit.epollIsAvailable()) {
             bossGroup = new EpollEventLoopGroup(0, new NamedThreadFactory("client-epoll-boss@"));
             bootstrap.group(bossGroup).channel(EpollSocketChannel.class);
@@ -45,11 +51,35 @@ public class ClientBoot implements Boot {
             bossGroup = new NioEventLoopGroup(0, new NamedThreadFactory("client-nio-boss@"));
             bootstrap.group(bossGroup).channel(NioSocketChannel.class);
         }
-        bootstrap.handler(new ClientHandlerInitializer(httpPierceConfig));
+        bootstrap.handler(new ClientHandlerInitializer(httpPierceClientConfig));
+    }
+
+    /**
+     * 将连接及其后续操作单独提炼出来，方便重连操作
+     * @since 2023/2/16 19:33
+     * @author fishlikewater@126.com
+     */
+    public void connection(){
+        try {
+            bootstrap
+                    .connect(httpPierceClientConfig.getServerAddress(), httpPierceClientConfig.getServerPort())
+                    .addListener(new ReconnectionFutureListener(this))
+                    .sync();
+        }catch (Exception e){
+            log.error("start client fail", e);
+        }
+
     }
 
     @Override
     public void stop() {
-
+        log.info("⬢ client shutdown ...");
+        try {
+            if (this.bossGroup != null) {
+                this.bossGroup.shutdownGracefully().sync();
+            }
+        } catch (Exception e) {
+            log.error("⬢ client shutdown error", e);
+        }
     }
 }

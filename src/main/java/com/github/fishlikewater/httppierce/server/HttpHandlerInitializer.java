@@ -1,6 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
-import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
+import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.handler.HttpHeartBeatHandler;
 import com.github.fishlikewater.httppierce.handler.HttpServerHandler;
 import io.netty.channel.Channel;
@@ -26,20 +26,20 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
 
-    private final HttpPierceConfig httpPierceConfig;
+    private final HttpPierceServerConfig httpPierceServerConfig;
 
-    public HttpHandlerInitializer(HttpPierceConfig httpPierceConfig) {
+    public HttpHandlerInitializer(HttpPierceServerConfig httpPierceServerConfig) {
         log.info("init http handler");
-        this.httpPierceConfig = httpPierceConfig;
+        this.httpPierceServerConfig = httpPierceServerConfig;
     }
 
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
-        p.addLast(new IdleStateHandler(0, 0, httpPierceConfig.getTimeout(), TimeUnit.SECONDS));
+        p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout(), TimeUnit.SECONDS));
         p.addLast(new HttpHeartBeatHandler());
         /* 是否打开日志*/
-        if (httpPierceConfig.isLogger()) {
+        if (httpPierceServerConfig.isLogger()) {
             p.addLast(new LoggingHandler());
         }
         p.addLast("httpCode", new HttpServerCodec());
