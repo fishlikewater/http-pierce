@@ -21,15 +21,12 @@ public class KryoUtil {
 
     private static final String DEFAULT_ENCODING = "UTF-8";
 
-    private static final ThreadLocal<Kryo> KRYO_LOCAL = new ThreadLocal<Kryo>() {
-        @Override
-        protected Kryo initialValue() {
-            Kryo kryo = new Kryo();
-            kryo.setReferences(true);
-            kryo.setRegistrationRequired(false);
-            return kryo;
-        }
-    };
+    private static final ThreadLocal<Kryo> KRYO_LOCAL = ThreadLocal.withInitial(()->{
+        Kryo kryo = new Kryo();
+        kryo.setReferences(true);
+        kryo.setRegistrationRequired(false);
+        return kryo;
+    });
 
     /**
      * 获取kryo对象
@@ -105,13 +102,9 @@ public class KryoUtil {
         }
     }
 
-    //-----------------------------------------------
-    //  只序列化/反序列化对象
-    //  序列化的结果里，不包含类型的信息
-    //-----------------------------------------------
 
     /**
-     * 将对象序列化为字节数组
+     * 将对象序列化为字节数组 不包含类型的信息
      *
      * @param obj 任意对象
      * @param <T> 对象的类型
