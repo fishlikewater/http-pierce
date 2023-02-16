@@ -63,7 +63,15 @@ public class HttpPierceConfig {
 
 
     public enum BootType{
-        client,server;
+        /**
+         *
+         * ss
+         */
+        client,
+        /**
+         * ss
+         */
+        server;
     }
 
 

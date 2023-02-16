@@ -18,4 +18,5 @@ open module http.pierce {
     requires spring.context;
     requires jdk.unsupported;
     requires org.slf4j;
+    requires com.esotericsoftware.kryo;
 }

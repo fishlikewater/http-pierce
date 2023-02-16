@@ -1,15 +1,15 @@
 package com.github.fishlikewater.httppierce.server;
 
+import com.github.fishlikewater.httppierce.codec.MessageCodec;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
-import com.github.fishlikewater.httppierce.handler.HttpHeartBeatHandler;
-import com.github.fishlikewater.httppierce.handler.HttpServerHandler;
+import com.github.fishlikewater.httppierce.handler.AuthHandler;
+import com.github.fishlikewater.httppierce.handler.MessageTransferHandler;
+import com.github.fishlikewater.httppierce.handler.ServerHeartBeatHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,19 +17,19 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- *  http 服务端 处理器初始化
+ *  客户端与服务端 通信 处理器初始化
  * </p>
  *
  * @author fishlikewater@126.com
- * @since 2023年02月09日 22:41
+ * @since 2019年02月26日 21:47
  **/
 @Slf4j
-public class HttpInitializer extends ChannelInitializer<Channel> {
+public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
 
     private final HttpPierceConfig httpPierceConfig;
 
-    public HttpInitializer(HttpPierceConfig httpPierceConfig) {
-        log.info("init http handler");
+    public ServerHandlerInitializer(HttpPierceConfig httpPierceConfig) {
+        log.info("init transfer handler");
         this.httpPierceConfig = httpPierceConfig;
     }
 
@@ -37,14 +37,17 @@ public class HttpInitializer extends ChannelInitializer<Channel> {
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
         p.addLast(new IdleStateHandler(0, 0, httpPierceConfig.getTimeout(), TimeUnit.SECONDS));
-        p.addLast(new HttpHeartBeatHandler());
+        p.addLast(new ServerHeartBeatHandler());
         /* 是否打开日志*/
         if (httpPierceConfig.isLogger()) {
             p.addLast(new LoggingHandler());
         }
-        p.addLast("httpCode", new HttpServerCodec());
-        p.addLast(new ChunkedWriteHandler());
-        p.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 100));
-        p.addLast("httpServerHandler", new HttpServerHandler());
+        p
+                .addLast(new LengthFieldBasedFrameDecoder(5*1024 * 1024, 0, 4))
+                .addLast(new MessageCodec())
+                .addLast(new AuthHandler(httpPierceConfig.getToken()))
+                .addLast(new MessageTransferHandler());
+
+
     }
 }

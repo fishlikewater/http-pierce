@@ -12,7 +12,6 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author fishlikewater@126.com
  * @since 2023年02月09日 22:41
  **/
-@Setter
 @Slf4j
 @RequiredArgsConstructor
 public class ServerBoot implements Boot{
@@ -52,7 +50,7 @@ public class ServerBoot implements Boot{
             workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-transfer-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
-        serverBootstrap.childHandler(new ServerInitializer(httpPierceConfig));
+        serverBootstrap.childHandler(new ServerHandlerInitializer(httpPierceConfig));
         try {
             Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getTransferPort()).sync().channel();
             log.info("⬢ start transfer server this port:{} and adress:{}",httpPierceConfig.getTransferPort(), httpPierceConfig.getAddress());

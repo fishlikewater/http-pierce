@@ -24,7 +24,7 @@ public class HttpPierceApplication implements CommandLineRunner{
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (httpPierceConfig.getBootType() == HttpPierceConfig.BootType.server){
             final ServerBoot serverBoot = new ServerBoot(httpPierceConfig);
             serverBoot.start();

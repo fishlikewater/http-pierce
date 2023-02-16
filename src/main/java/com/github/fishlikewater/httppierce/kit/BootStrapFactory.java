@@ -18,20 +18,32 @@ public class BootStrapFactory {
 
     private static Bootstrap bootstrap = null;
 
+    public static Bootstrap bootstrapConfig(){
+        return bootstrapConfig(new Bootstrap());
+    }
+
     public static Bootstrap bootstrapConfig(ChannelHandlerContext ctx){
         if(bootstrap != null){
-            return bootstrap.clone();
+            final Bootstrap clone = bootstrap.clone();
+            clone.group(ctx.channel().eventLoop().parent());
+            return clone;
         }
         bootstrap = new Bootstrap();
+        bootstrap.group(ctx.channel().eventLoop().parent());
+        bootstrapConfig(bootstrap);
+        return bootstrap;
+    }
+
+    public static Bootstrap bootstrapConfig(Bootstrap bootstrap){
         bootstrap.option(ChannelOption.SO_REUSEADDR, true);
         bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
-        if (EpollKit.epollIsAvailable()) {//linux系统下使用epoll
+        if (EpollKit.epollIsAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
-        bootstrap.group(ctx.channel().eventLoop().parent());
+
         return bootstrap;
     }
 
@@ -49,7 +61,6 @@ public class BootStrapFactory {
         return bootstrap;
     }
 
-    //根据host和端口，创建一个连接web的连接
     public static Promise<Channel> createPromise(String host, int port, ChannelHandlerContext ctx) {
         Bootstrap bootstrap = BootStrapFactory.bootstrapConfig(ctx);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);

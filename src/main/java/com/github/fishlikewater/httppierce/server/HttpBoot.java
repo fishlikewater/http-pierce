@@ -53,7 +53,7 @@ public class HttpBoot implements Boot{
             workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-http-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
-        serverBootstrap.childHandler(new HttpInitializer(httpPierceConfig));
+        serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceConfig));
         try {
             Channel ch = serverBootstrap.bind(httpPierceConfig.getAddress(), httpPierceConfig.getHttpServerPort()).sync().channel();
             log.info("⬢ start http server this port:{} and adress:{}",httpPierceConfig.getHttpServerPort(), httpPierceConfig.getAddress());
