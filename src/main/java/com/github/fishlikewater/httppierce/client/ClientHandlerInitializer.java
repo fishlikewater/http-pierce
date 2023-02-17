@@ -4,6 +4,7 @@ package com.github.fishlikewater.httppierce.client;
 import com.github.fishlikewater.httppierce.codec.MessageCodec;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.handler.ClientHeartBeatHandler;
+import com.github.fishlikewater.httppierce.handler.ClientMessageHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -37,7 +38,8 @@ public class ClientHandlerInitializer extends ChannelInitializer<Channel> {
                 .addLast(new LengthFieldBasedFrameDecoder(5*1024 * 1024, 0, 4))
                 .addLast(new MessageCodec())
                 .addLast(new IdleStateHandler(0, 0, httpPierceClientConfig.getTimeout(), TimeUnit.SECONDS))
-                .addLast(new ClientHeartBeatHandler());
+                .addLast(new ClientHeartBeatHandler())
+                .addLast(new ClientMessageHandler(httpPierceClientConfig));
 
     }
 }

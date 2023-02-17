@@ -13,8 +13,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @since 2023年02月09日 22:37
  **/
 public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SysMessage msg) throws Exception {
 
     }
+
+
 }
