@@ -1,8 +1,8 @@
 package com.github.fishlikewater.httppierce.codec;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
@@ -51,8 +51,9 @@ public class SysMessage implements Message{
     private Command command;
 
     @Data
-    @Builder
+    @Accessors(chain = true)
     @EqualsAndHashCode
+    @NoArgsConstructor
     public static class Register{
         /**
          * 客户端注册名称

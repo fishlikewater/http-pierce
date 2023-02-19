@@ -52,17 +52,23 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                             final SysMessage registerMsg = new SysMessage();
                             registerMsg.setCommand(Command.REGISTER)
                                     .setId(IdUtil.getSnowflakeNextId())
-                                    .setRegister(SysMessage.Register.builder()
-                                            .registerName(k)
-                                            .newServerPort(v.isNewServerPort())
-                                            .newPort(v.getNewPort())
-                                            .build());
+                                    .setRegister(new SysMessage.Register()
+                                            .setRegisterName(k)
+                                            .setNewServerPort(v.isNewServerPort())
+                                            .setNewPort(v.getNewPort()));
                             ctx.writeAndFlush(registerMsg);
                         });
 
 
                     } else {
                         log.error("Token verification failed. Please check the configuration");
+                    }
+                }
+                case REGISTER -> {
+                    if (sysMessage.getState() == 1){
+                        log.info("Successfully registered the route name {}", sysMessage.getRegister().getRegisterName());
+                    }else {
+                        log.info("Failed to register  the route name {}", sysMessage.getRegister().getRegisterName());
                     }
                 }
                 case HEALTH -> log.debug("Heartbeat packet received");

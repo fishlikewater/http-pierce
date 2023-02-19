@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -48,5 +49,9 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         ctx.fireChannelRead(msg);
     }
 
-
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.channel().attr(CacheUtil.SERVER_FORWARD).set(new ConcurrentHashMap<>());
+        super.channelActive(ctx);
+    }
 }

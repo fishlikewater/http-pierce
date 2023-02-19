@@ -6,13 +6,12 @@ import com.github.fishlikewater.httppierce.kit.EpollKit;
 import com.github.fishlikewater.httppierce.kit.NamedThreadFactory;
 import com.github.fishlikewater.httppierce.server.Boot;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,12 +45,13 @@ public class ClientBoot implements Boot {
 
         if (EpollKit.epollIsAvailable()) {
             bossGroup = new EpollEventLoopGroup(0, new NamedThreadFactory("client-epoll-boss@"));
-            bootstrap.group(bossGroup).channel(EpollSocketChannel.class);
+            bootstrap.group(bossGroup);
         } else {
             bossGroup = new NioEventLoopGroup(0, new NamedThreadFactory("client-nio-boss@"));
-            bootstrap.group(bossGroup).channel(NioSocketChannel.class);
+            bootstrap.group(bossGroup);
         }
         bootstrap.handler(new ClientHandlerInitializer(httpPierceClientConfig));
+        connection();
     }
 
     /**
@@ -61,10 +61,11 @@ public class ClientBoot implements Boot {
      */
     public void connection(){
         try {
-            bootstrap
+            final ChannelFuture channelFuture = bootstrap
                     .connect(httpPierceClientConfig.getServerAddress(), httpPierceClientConfig.getServerPort())
                     .addListener(new ReconnectionFutureListener(this))
                     .sync();
+            channelFuture.channel().closeFuture().addListener(t -> log.info("⬢  client server closed"));
         }catch (Exception e){
             log.error("start client fail", e);
         }

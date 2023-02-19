@@ -57,7 +57,7 @@ public class HttpBoot implements Boot{
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getHttpServerPort()).sync().channel();
             log.info("⬢ start http server this port:{} and adress:{}", httpPierceServerConfig.getHttpServerPort(), httpPierceServerConfig.getAddress());
-            ch.closeFuture().addListener(t -> log.info("⬢  http server 关闭"));
+            ch.closeFuture().addListener(t -> log.info("⬢  http server closed"));
         } catch (InterruptedException e) {
             log.error("⬢ start http server fail", e);
         }

@@ -2,7 +2,6 @@ package com.github.fishlikewater.httppierce.server;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
-import com.github.fishlikewater.httppierce.kit.CacheUtil;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
 import com.github.fishlikewater.httppierce.kit.NamedThreadFactory;
 import io.netty.bootstrap.ServerBootstrap;
@@ -14,8 +13,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -57,8 +54,7 @@ public class ServerBoot implements Boot{
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getTransferPort()).sync().channel();
             log.info("⬢ start transfer server this port:{} and address:{}", httpPierceServerConfig.getTransferPort(), httpPierceServerConfig.getAddress());
-            ch.closeFuture().addListener(t -> log.info("⬢  transfer server 关闭"));
-            ch.attr(CacheUtil.SERVER_FORWARD).set(new ConcurrentHashMap<>());
+            ch.closeFuture().addListener(t -> log.info("⬢  transfer server closed"));
         } catch (InterruptedException e) {
             log.error("⬢ start transfer server fail", e);
         }

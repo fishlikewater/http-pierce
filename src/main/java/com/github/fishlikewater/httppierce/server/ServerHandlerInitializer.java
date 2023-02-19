@@ -4,6 +4,7 @@ import com.github.fishlikewater.httppierce.codec.MessageCodec;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.handler.AuthHandler;
 import com.github.fishlikewater.httppierce.handler.MessageTransferHandler;
+import com.github.fishlikewater.httppierce.handler.RegisterHandler;
 import com.github.fishlikewater.httppierce.handler.ServerHeartBeatHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -46,6 +47,7 @@ public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
                 .addLast(new LengthFieldBasedFrameDecoder(5*1024 * 1024, 0, 4))
                 .addLast(new MessageCodec())
                 .addLast(new AuthHandler(httpPierceServerConfig.getToken()))
+                .addLast(new RegisterHandler())
                 .addLast(new MessageTransferHandler());
 
 
