@@ -2,12 +2,22 @@ package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
+import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.codec.Message;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.CacheUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.concurrent.FutureListener;
+import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +40,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Message msg){
         if (msg instanceof SysMessage sysMessage) {
             switch (sysMessage.getCommand()) {
                 case AUTH -> {
@@ -55,18 +65,40 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                         log.error("Token verification failed. Please check the configuration");
                     }
                 }
-                case HEALTH -> {
-                    log.debug("Heartbeat packet received");
-                }
+                case HEALTH -> log.debug("Heartbeat packet received");
+
                 default -> {
                 }
+            }
+        }
+        if (msg instanceof DataMessage dataMessage){
+            if (dataMessage.getCommand() == Command.REQUEST){
+                final String dstServer = dataMessage.getDstServer();
+                final HttpPierceClientConfig.HttpMapping httpMapping = ctx.channel().attr(CacheUtil.CLIENT_FORWARD).get().get(dstServer);
+                String url = dataMessage.getUrl();
+                if (httpMapping.isDelRegisterName()){
+                    url = url.replaceAll("/" + httpMapping.getRegisterName(), "");
+                }
+                FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.valueOf(dataMessage.getVersion()), HttpMethod.valueOf(dataMessage.getMethod()), url);
+                dataMessage.getHeads().forEach((k,v)-> req.headers().add(k, v));
+                req.headers().set("Host", (httpMapping.getAddress() + ":" + httpMapping.getPort()));
+                req.content().writeBytes(dataMessage.getBytes());
+
+                Promise<Channel> promise = BootStrapFactory.createPromise(httpMapping.getAddress(), httpMapping.getPort(), ctx);
+                promise.addListener((FutureListener<Channel>) channelFuture -> {
+                    if (channelFuture.isSuccess()) {
+                        ChannelPipeline p = channelFuture.get().pipeline();
+                        p.addLast(new ClientResponseHandler(dataMessage.getId(), ctx.channel()));
+                        channelFuture.get().writeAndFlush(req);
+                    }
+                });
             }
         }
     }
 
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         ctx.channel().attr(CacheUtil.CLIENT_FORWARD).set(new ConcurrentHashMap<>());
         final HttpPierceClientConfig.HttpMapping[] httpMappings = httpPierceClientConfig.getHttpMappings();
         for (HttpPierceClientConfig.HttpMapping httpMapping : httpMappings) {
