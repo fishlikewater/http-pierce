@@ -29,7 +29,7 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
             ctx.channel().writeAndFlush(HEARTBEAT_SEQUENCE)
                     .addListener((future)->{
                         if(!future.isSuccess()){
-                            log.warn("发送心跳包失败...");
+                            log.warn("failed to send heartbeat packet...");
                         }
 
                     });//(ChannelFutureListener.CLOSE_ON_FAILURE);

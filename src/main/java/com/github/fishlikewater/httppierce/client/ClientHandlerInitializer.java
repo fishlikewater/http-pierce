@@ -30,7 +30,7 @@ public class ClientHandlerInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel ch) {
         ChannelPipeline pipeline = ch.pipeline();
-        /* 是否打开日志*/
+        /* open log*/
         if (httpPierceClientConfig.isLogger()) {
             pipeline.addLast(new LoggingHandler());
         }

@@ -5,9 +5,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>
@@ -30,50 +28,17 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
     }
 
     public void encode(Message msg, ByteBuf out){
-        //占位
         out.writeInt(0);
         if (msg instanceof DataMessage){
-            //写入数据类型
             out.writeByte(DATA_MSG);
-            final byte[] bytes = KryoUtil.writeObjectToByteArray(msg);
-            out.writeBytes(bytes);
-            final int length = out.readableBytes();
-            out.setInt(0, length-4);
         }
-        if (msg instanceof final SysMessage sysMessage){
-            //写入数据类型
+        if (msg instanceof SysMessage){
             out.writeByte(SYS_MSG);
-            //写入消息id
-            out.writeLong(sysMessage.getId());
-            //写入消息类型
-            out.writeInt(sysMessage.getCommand().getCode());
-            out.writeInt(sysMessage.getState());
-            switch (sysMessage.getCommand()){
-                case HEALTH ->{
-                    final int length = out.readableBytes();
-                    out.setInt(0, length-4);
-                }
-                case AUTH ->{
-                    byte[] bytes;
-                    final String token = sysMessage.getToken();
-                    bytes = token.getBytes(StandardCharsets.UTF_8);
-                    out.writeInt(bytes.length);
-                    out.writeBytes(bytes);
-                    final int length = out.readableBytes();
-                    out.setInt(0, length-4);
-                }
-                case REGISTER -> {
-                    byte[] bytes;
-                    final String registerNames = sysMessage.getRegisterNames();
-                    bytes = registerNames.getBytes(StandardCharsets.UTF_8);
-                    out.writeInt(bytes.length);
-                    out.writeBytes(bytes);
-                    final int length = out.readableBytes();
-                    out.setInt(0, length-4);
-                }
-                default -> {}
-            }
         }
+        final byte[] bytes = KryoUtil.writeObjectToByteArray(msg);
+        out.writeBytes(bytes);
+        final int length = out.readableBytes();
+        out.setInt(0, length-4);
     }
 
     @Override
@@ -81,40 +46,13 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
         if (in.isReadable()){
             in.readInt();
             final byte msgType = in.readByte();
+            final int readableBytes = in.readableBytes();
+            final byte[] bytes = new byte[readableBytes];
+            in.readBytes(bytes);
             if (msgType == SYS_MSG){
-                final SysMessage sysMessage = new SysMessage();
-                final long msgId = in.readLong();
-                final int command = in.readInt();
-                final int state = in.readInt();
-                sysMessage.setId(msgId);
-                sysMessage.setState(state);
-                final Command instance = Command.getInstance(command);
-                switch (Objects.requireNonNull(instance)){
-                    case HEALTH-> sysMessage.setCommand(Command.HEALTH);
-                    case AUTH -> {
-                        final int length = in.readInt();
-                        final byte[] bytes = new byte[length];
-                        in.readBytes(bytes);
-                        final String msg = new String(bytes, StandardCharsets.UTF_8);
-                        sysMessage.setCommand(Command.AUTH);
-                        sysMessage.setToken(msg);
-                    }
-                    case REGISTER -> {
-                        final int length = in.readInt();
-                        final byte[] bytes = new byte[length];
-                        in.readBytes(bytes);
-                        final String msg = new String(bytes, StandardCharsets.UTF_8);
-                        sysMessage.setCommand(Command.REGISTER);
-                        sysMessage.setRegisterNames(msg);
-                    }
-                    default -> {}
-                }
-                out.add(sysMessage);
+                out.add(KryoUtil.readObjectFromByteArray(bytes, SysMessage.class));
             }
             if (msgType == DATA_MSG){
-                final int readableBytes = in.readableBytes();
-                final byte[] bytes = new byte[readableBytes];
-                in.readBytes(bytes);
                 out.add(KryoUtil.readObjectFromByteArray(bytes, DataMessage.class));
             }
         }

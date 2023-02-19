@@ -1,6 +1,7 @@
 package com.github.fishlikewater.httppierce.kit;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
 import java.util.Map;
@@ -16,5 +17,8 @@ import java.util.Map;
 public class CacheUtil {
 
     public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
+
+
+    public final static AttributeKey<Map<String, Channel>> SERVER_FORWARD = AttributeKey.newInstance("SERVER_FORWARD");
 
 }

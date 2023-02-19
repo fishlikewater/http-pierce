@@ -17,10 +17,9 @@ public class ServerHeartBeatHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent event = (IdleStateEvent) evt;
+        if (evt instanceof IdleStateEvent event) {
             if (event.state() == IdleState.READER_IDLE) {
-                log.info("服务端主动关闭连接");
+                log.info("The server actively closes the connection");
                 ctx.close();
             }
         } else {
