@@ -11,8 +11,8 @@
     <groupId>com.github.fishlikewater</groupId>
     <artifactId>httppierce</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>http_pierce</name>
-    <description>http_pierce</description>
+    <name>http-pierce</name>
+    <description>http-pierce</description>
 
 
     <properties>
