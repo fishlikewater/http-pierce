@@ -39,7 +39,7 @@ public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
         ChannelPipeline p = channel.pipeline();
         p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout(), TimeUnit.SECONDS));
         p.addLast(new ServerHeartBeatHandler());
-        /* 是否打开日志*/
+        /* open log ?*/
         if (httpPierceServerConfig.isLogger()) {
             p.addLast(new LoggingHandler());
         }

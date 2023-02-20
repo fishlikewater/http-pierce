@@ -24,9 +24,8 @@ public class BootStrapFactory {
 
     public static Bootstrap bootstrapConfig(ChannelHandlerContext ctx){
         if(bootstrap != null){
-            final Bootstrap clone = bootstrap.clone();
-            clone.group(ctx.channel().eventLoop().parent());
-            return clone;
+            return bootstrap.clone();
+
         }
         bootstrap = new Bootstrap();
         bootstrap.group(ctx.channel().eventLoop().parent());

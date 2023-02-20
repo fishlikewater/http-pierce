@@ -3,13 +3,14 @@ package com.github.fishlikewater.httppierce.handler;
 import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
-import com.github.fishlikewater.httppierce.kit.CacheUtil;
+import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -35,12 +36,13 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 returnMsg.setId(IdUtil.getSnowflakeNextId());
                 returnMsg.setRegister(register);
                 final String registerName = register.getRegisterName();
-                final Channel channel = ctx.channel().attr(CacheUtil.SERVER_FORWARD).get().get(registerName);
+                final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
                 if (Objects.nonNull(channel)){
                     returnMsg.setState(0);
                 }else {
-                    ctx.channel().attr(CacheUtil.SERVER_FORWARD).get().put(registerName, ctx.channel());
+                    ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
                     returnMsg.setState(1);
+                    ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
                 }
                 ctx.channel().writeAndFlush(returnMsg);
             }
@@ -51,7 +53,14 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(CacheUtil.SERVER_FORWARD).set(new ConcurrentHashMap<>());
+        ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).set(new ArrayList<>());
         super.channelActive(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        final List<String> list = ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get();
+        list.forEach(ChannelUtil.ROUTE_MAPPING::remove);
+        super.channelInactive(ctx);
     }
 }

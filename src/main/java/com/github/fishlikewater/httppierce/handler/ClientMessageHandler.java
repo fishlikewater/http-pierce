@@ -7,15 +7,13 @@ import com.github.fishlikewater.httppierce.codec.Message;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
-import com.github.fishlikewater.httppierce.kit.CacheUtil;
+import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.util.concurrent.FutureListener;
 import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +45,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                     final int state = sysMessage.getState();
                     if (state == 1) {
                         /*  Verification successful, start registering service*/
-                        final Map<String, HttpPierceClientConfig.HttpMapping> mappingMap = ctx.channel().attr(CacheUtil.CLIENT_FORWARD).get();
+                        final Map<String, HttpPierceClientConfig.HttpMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
                         mappingMap.forEach((k, v) -> {
                             final SysMessage registerMsg = new SysMessage();
                             registerMsg.setCommand(Command.REGISTER)
@@ -80,7 +78,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         if (msg instanceof DataMessage dataMessage){
             if (dataMessage.getCommand() == Command.REQUEST){
                 final String dstServer = dataMessage.getDstServer();
-                final HttpPierceClientConfig.HttpMapping httpMapping = ctx.channel().attr(CacheUtil.CLIENT_FORWARD).get().get(dstServer);
+                final HttpPierceClientConfig.HttpMapping httpMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
                 String url = dataMessage.getUrl();
                 if (httpMapping.isDelRegisterName()){
                     url = url.replaceAll("/" + httpMapping.getRegisterName(), "");
@@ -94,6 +92,9 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 promise.addListener((FutureListener<Channel>) channelFuture -> {
                     if (channelFuture.isSuccess()) {
                         ChannelPipeline p = channelFuture.get().pipeline();
+                        p.addLast("http", new HttpRequestEncoder());
+                        p.addLast("aggregator", new HttpObjectAggregator(1024*1024*10));
+                        p.addLast("byte", new ByteArrayDecoder());
                         p.addLast(new ClientResponseHandler(dataMessage.getId(), ctx.channel()));
                         channelFuture.get().writeAndFlush(req);
                     }
@@ -105,10 +106,10 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        ctx.channel().attr(CacheUtil.CLIENT_FORWARD).set(new ConcurrentHashMap<>());
+        ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).set(new ConcurrentHashMap<>(16));
         final HttpPierceClientConfig.HttpMapping[] httpMappings = httpPierceClientConfig.getHttpMappings();
         for (HttpPierceClientConfig.HttpMapping httpMapping : httpMappings) {
-            ctx.channel().attr(CacheUtil.CLIENT_FORWARD).get().put(httpMapping.getRegisterName(), httpMapping);
+            ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().put(httpMapping.getRegisterName(), httpMapping);
         }
         final SysMessage sysMessage = new SysMessage();
         sysMessage.setCommand(Command.AUTH)

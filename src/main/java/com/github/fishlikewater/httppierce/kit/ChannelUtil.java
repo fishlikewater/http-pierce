@@ -1,0 +1,33 @@
+package com.github.fishlikewater.httppierce.kit;
+
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
+import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * <p>
+ *
+ * </p>
+ *
+ * @author fishlikewater@126.com
+ * @since 2023年02月17日 15:55
+ **/
+public class ChannelUtil {
+
+    public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(10000);
+
+    public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
+
+    public final static Map<String, Channel> ROUTE_MAPPING = new ConcurrentHashMap<>();
+
+    public final static AttributeKey<Long> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
+
+    public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
+
+}

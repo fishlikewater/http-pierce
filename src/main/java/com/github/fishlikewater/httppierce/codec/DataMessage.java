@@ -40,12 +40,6 @@ public class DataMessage implements Message{
 
     /**
      *
-     * 注册服务名[多服务以,分割]
-     */
-    private String registerName;
-
-    /**
-     *
      * url
      */
     private String url;

@@ -6,8 +6,9 @@ import com.github.fishlikewater.httppierce.handler.HttpServerHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -38,13 +39,14 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
         ChannelPipeline p = channel.pipeline();
         p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout(), TimeUnit.SECONDS));
         p.addLast(new HttpHeartBeatHandler());
-        /* 是否打开日志*/
+        /* open log ?*/
         if (httpPierceServerConfig.isLogger()) {
             p.addLast(new LoggingHandler());
         }
-        p.addLast("httpCode", new HttpServerCodec());
+        p.addLast("httpCode", new HttpRequestDecoder());
         p.addLast(new ChunkedWriteHandler());
         p.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 100));
+        p.addLast("byte", new ByteArrayEncoder());
         p.addLast("httpServerHandler", new HttpServerHandler());
     }
 }
