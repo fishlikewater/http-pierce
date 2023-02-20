@@ -1,4 +1,6 @@
 ### http 内网穿透工具
+![GitHub](https://img.shields.io/github/license/fishlikewater/http-pierce)  
+![jdk](https://img.shields.io/badge/jdk-graalvm22.3.1-blue)
 
 ***通过公网服务器将内网http服务映射到公网，可实现服务端通过统一端口，根据注册名称路由到各客户端，也可实现服务端动态创建http服务与客户端注册服务一一映射***
 
