@@ -1,15 +1,18 @@
 package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.server.DynamicHttpBoot;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -29,7 +32,21 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
             final SysMessage.Register register = msg.getRegister();
             final boolean newServerPort = register.isNewServerPort();
             if (newServerPort){
-
+                final Map<String, DynamicHttpBoot> dynamicHttpBootMap = ChannelUtil.DYNAMIC_HTTP_BOOT;
+                final DynamicHttpBoot dynamicHttpBoot1 = dynamicHttpBootMap.get("port" + register.getNewPort());
+                final SysMessage returnMsg = new SysMessage();
+                returnMsg.setCommand(Command.REGISTER);
+                returnMsg.setId(IdUtil.getSnowflakeNextId());
+                returnMsg.setRegister(register);
+                if (ObjectUtil.isNull(dynamicHttpBoot1)){
+                    final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
+                    dynamicHttpBoot.start();
+                    dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
+                    returnMsg.setState(1);
+                }else {
+                    returnMsg.setState(2);
+                }
+                ctx.channel().writeAndFlush(returnMsg);
             }else {
                 final SysMessage returnMsg = new SysMessage();
                 returnMsg.setCommand(Command.REGISTER);

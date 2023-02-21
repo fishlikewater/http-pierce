@@ -11,6 +11,8 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +27,25 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Setter
 @Slf4j
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class HttpBoot implements Boot{
 
     /**
      * 处理连接
      */
+    @Getter
     private EventLoopGroup bossGroup;
     /**
      * 处理连接后的channel
      */
+    @Getter
     private EventLoopGroup workerGroup;
 
-    private final HttpPierceServerConfig httpPierceServerConfig;
+    private HttpPierceServerConfig httpPierceServerConfig;
+
+    public HttpBoot(HttpPierceServerConfig httpPierceServerConfig){
+        this.httpPierceServerConfig = httpPierceServerConfig;
+    }
 
 
     @Override
@@ -53,10 +61,14 @@ public class HttpBoot implements Boot{
             workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-http-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
+        run(serverBootstrap);
+    }
+
+    public void run(ServerBootstrap serverBootstrap){
         serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceServerConfig));
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getHttpServerPort()).sync().channel();
-            log.info("⬢ start http server this port:{} and adress:{}", httpPierceServerConfig.getHttpServerPort(), httpPierceServerConfig.getAddress());
+            log.info("⬢ start http server this port:{} and address:{}", httpPierceServerConfig.getHttpServerPort(), httpPierceServerConfig.getAddress());
             ch.closeFuture().addListener(t -> log.info("⬢  http server closed"));
         } catch (InterruptedException e) {
             log.error("⬢ start http server fail", e);

@@ -37,8 +37,8 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/fishlikewater/http_pierce.git</url>
-        <connection>scm:https://github.com/fishlikewater/http_pierce.git</connection>
+        <url>https://github.com/fishlikewater/http-pierce.git</url>
+        <connection>scm:https://github.com/fishlikewater/http-pierce.git</connection>
     </scm>
     <developers>
         <developer>
@@ -81,6 +81,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -113,13 +114,6 @@
                         </goals>
                         <phase>package</phase>
                     </execution>
-                    <execution>
-                        <id>test-native</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <phase>test</phase>
-                    </execution>
                 </executions>
                 <configuration>
                     <mainClass>com.github.fishlikewater.httppierce.HttpPierceApplication</mainClass>
@@ -127,6 +121,10 @@
                     <buildArgs>
                         <buildArg>--verbose</buildArg>
                     </buildArgs>
+                    <classpath>
+                        <path>resource/</path>
+                        <path>conf/</path>
+                    </classpath>
                 </configuration>
             </plugin>
             <plugin>
@@ -234,13 +232,10 @@
     </profiles>
 
     <distributionManagement>
-        <snapshotRepository>
-            <id>oss</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </snapshotRepository>
         <repository>
-            <id>oss</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>dev</id>
+            <name>local</name>
+            <url>file:///${env.MAVEN_REPO}</url>
         </repository>
     </distributionManagement>
 

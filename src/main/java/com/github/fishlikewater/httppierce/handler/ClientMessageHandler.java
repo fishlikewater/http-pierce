@@ -64,9 +64,15 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 }
                 case REGISTER -> {
                     if (sysMessage.getState() == 1){
-                        log.info("Successfully registered the route name {}", sysMessage.getRegister().getRegisterName());
+                        log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
+                                sysMessage.getRegister().getRegisterName(),
+                                sysMessage.getRegister().isNewServerPort()?httpPierceClientConfig.getServerAddress()+":"+sysMessage.getRegister().getNewPort():
+                                        httpPierceClientConfig.getServerAddress()+":[defaultPort]");
+                    }else if (sysMessage.getState() == 2){
+                        log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
+                                sysMessage.getRegister().getRegisterName(), sysMessage.getRegister().getNewPort());
                     }else {
-                        log.info("Failed to register  the route name {}", sysMessage.getRegister().getRegisterName());
+                        log.info("Failed to register  the route name 【{}】", sysMessage.getRegister().getRegisterName());
                     }
                 }
                 case HEALTH -> log.debug("Heartbeat packet received");

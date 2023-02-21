@@ -3,6 +3,8 @@ package com.github.fishlikewater.httppierce.kit;
 import cn.hutool.cache.CacheUtil;
 import cn.hutool.cache.impl.TimedCache;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import com.github.fishlikewater.httppierce.server.Boot;
+import com.github.fishlikewater.httppierce.server.DynamicHttpBoot;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
@@ -29,5 +31,9 @@ public class ChannelUtil {
     public final static AttributeKey<Long> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
 
     public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
+
+    public final static Map<String, DynamicHttpBoot> DYNAMIC_HTTP_BOOT = new ConcurrentHashMap<>();
+
+
 
 }
