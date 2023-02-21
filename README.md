@@ -1,6 +1,6 @@
 ### http 内网穿透工具
   
-![jdk](https://img.shields.io/badge/jdk-graalvm22.3.1-blue) ![spring boot](https://img.shields.io/badge/spring%20boot-3.0.0--M7-blue)  ![netty](https://img.shields.io/badge/netty-4.1.31.Final-blue "netty")  ![kryo](https://img.shields.io/badge/kryo-5.4.0-blue)  ![GitHub](https://img.shields.io/github/license/fishlikewater/http-pierce)
+![jdk](https://img.shields.io/badge/jdk-graalvm22.3.1-blue) ![spring boot](https://img.shields.io/badge/spring%20boot-3.0.2-blue)  ![netty](https://img.shields.io/badge/netty-4.1.31.Final-blue "netty")  ![kryo](https://img.shields.io/badge/kryo-5.4.0-blue)  ![GitHub](https://img.shields.io/github/license/fishlikewater/http-pierce)
 
 ***通过公网服务器将内网http服务映射到公网，可实现服务端通过统一端口，根据注册名称路由到各客户端，也可实现服务端动态创建http服务与客户端注册服务一一映射***
 
