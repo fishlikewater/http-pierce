@@ -30,6 +30,8 @@ public class ChannelUtil {
 
     public final static AttributeKey<Long> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
 
+    public final static AttributeKey<List<DynamicHttpBoot>> CHANNEL_DYNAMIC_HTTP_BOOT = AttributeKey.newInstance("DYNAMIC_HTTP_BOOT");
+
     public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
 
     public final static Map<String, DynamicHttpBoot> DYNAMIC_HTTP_BOOT = new ConcurrentHashMap<>();

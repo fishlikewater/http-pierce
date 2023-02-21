@@ -3,6 +3,7 @@ package com.github.fishlikewater.httppierce.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DynamicHttpBoot extends HttpBoot{
 
+    @Getter
     private final int port;
     private final String registerName;
     private final Channel channel;
@@ -35,7 +37,7 @@ public class DynamicHttpBoot extends HttpBoot{
         try {
             Channel ch = serverBootstrap.bind(port).sync().channel();
             log.info("⬢ start dynamic http server this port:{}", port);
-            ch.closeFuture().addListener(t -> log.info("⬢ dynamic http server closed"));
+            ch.closeFuture().addListener(t -> log.info("⬢ dynamic http server【{}】 closed", port));
         } catch (InterruptedException e) {
             log.error("⬢ start dynamic http server fail", e);
         }
@@ -44,7 +46,7 @@ public class DynamicHttpBoot extends HttpBoot{
 
     @Override
     public void stop() {
-        log.info("⬢ dynamic http server shutdown ...");
+        log.info("⬢ dynamic http server【{}】 shutdown ...", port);
         try {
             if (super.getBossGroup() != null) {
                 super.getBossGroup().shutdownGracefully().sync();
@@ -53,7 +55,7 @@ public class DynamicHttpBoot extends HttpBoot{
                 super.getWorkerGroup().shutdownGracefully().sync();
             }
         } catch (Exception e) {
-            log.error("⬢ dynamic http server shutdown error", e);
+            log.error("⬢ dynamic http server【{}】 shutdown error", port, e);
         }
     }
 }

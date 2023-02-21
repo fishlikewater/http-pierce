@@ -69,9 +69,9 @@ public class HttpBoot implements Boot{
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getHttpServerPort()).sync().channel();
             log.info("⬢ start http server this port:{} and address:{}", httpPierceServerConfig.getHttpServerPort(), httpPierceServerConfig.getAddress());
-            ch.closeFuture().addListener(t -> log.info("⬢  http server closed"));
+            ch.closeFuture().addListener(t -> log.info("⬢  http server【{}】 closed", httpPierceServerConfig.getHttpServerPort()));
         } catch (InterruptedException e) {
-            log.error("⬢ start http server fail", e);
+            log.error("⬢ start http server【{}】 fail", httpPierceServerConfig.getHttpServerPort(), e);
         }
     }
 
@@ -80,7 +80,7 @@ public class HttpBoot implements Boot{
      */
     @Override
     public void stop() {
-        log.info("⬢ http server shutdown ...");
+        log.info("⬢ http server【{}】 shutdown ...", httpPierceServerConfig.getHttpServerPort());
         try {
             if (this.bossGroup != null) {
                 this.bossGroup.shutdownGracefully().sync();
@@ -89,7 +89,7 @@ public class HttpBoot implements Boot{
                 this.workerGroup.shutdownGracefully().sync();
             }
         } catch (Exception e) {
-            log.error("⬢ http server shutdown error", e);
+            log.error("⬢ http server【{}】 shutdown error", httpPierceServerConfig.getHttpServerPort(), e);
         }
     }
 

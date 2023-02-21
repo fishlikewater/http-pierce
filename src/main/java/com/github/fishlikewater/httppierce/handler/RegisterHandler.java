@@ -42,6 +42,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                     final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
                     dynamicHttpBoot.start();
                     dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
+                    ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);
                     returnMsg.setState(1);
                 }else {
                     returnMsg.setState(2);
@@ -71,6 +72,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).set(new ArrayList<>());
+        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).set(new ArrayList<>());
         super.channelActive(ctx);
     }
 
@@ -78,6 +80,11 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         final List<String> list = ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get();
         list.forEach(ChannelUtil.ROUTE_MAPPING::remove);
+        final List<DynamicHttpBoot> dynamicHttpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get();
+        dynamicHttpBoots.forEach(dynamicHttpBoot -> {
+            dynamicHttpBoot.stop();
+            ChannelUtil.DYNAMIC_HTTP_BOOT.remove("port"+dynamicHttpBoot.getPort());
+        });
         super.channelInactive(ctx);
     }
 }
