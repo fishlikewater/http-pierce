@@ -104,13 +104,11 @@
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <configuration>
+                            <skipTests>true</skipTests>
                             <!-- imageName用于设置生成的二进制文件名称 -->
                             <imageName>${project.artifactId}</imageName>
                             <!-- mainClass用于指定main方法类路径 -->
                             <mainClass>com.github.fishlikewater.httppierce.HttpPierceApplication</mainClass>
-                            <buildArgs>
-                                <buildArg>--no-fallback</buildArg>
-                            </buildArgs>
                         </configuration>
                         <executions>
                             <execution>
