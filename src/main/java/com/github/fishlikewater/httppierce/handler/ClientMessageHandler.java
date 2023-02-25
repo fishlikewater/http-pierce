@@ -1,6 +1,7 @@
 package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.util.IdUtil;
+import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.codec.Message;
@@ -8,10 +9,7 @@ import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.http.*;
 import io.netty.util.concurrent.FutureListener;
@@ -21,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -35,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
     private final HttpPierceClientConfig httpPierceClientConfig;
+    private final ClientBoot clientBoot;
 
 
     @Override
@@ -123,5 +123,12 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 .setId(IdUtil.getSnowflakeNextId());
         ctx.channel().writeAndFlush(sysMessage);
 
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        final EventLoop loop = ctx.channel().eventLoop();
+        loop.schedule(clientBoot::connection, 30, TimeUnit.SECONDS);
+        super.channelInactive(ctx);
     }
 }

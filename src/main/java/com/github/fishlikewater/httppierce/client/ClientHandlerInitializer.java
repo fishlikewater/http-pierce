@@ -21,10 +21,12 @@ import java.util.concurrent.TimeUnit;
 public class ClientHandlerInitializer extends ChannelInitializer<Channel> {
 
     private final HttpPierceClientConfig httpPierceClientConfig;
+    private final ClientBoot clientBoot;
 
 
-    public ClientHandlerInitializer(HttpPierceClientConfig httpPierceClientConfig) {
+    public ClientHandlerInitializer(HttpPierceClientConfig httpPierceClientConfig, ClientBoot clientBoot) {
         this.httpPierceClientConfig = httpPierceClientConfig;
+        this.clientBoot = clientBoot;
     }
 
     @Override
@@ -39,7 +41,7 @@ public class ClientHandlerInitializer extends ChannelInitializer<Channel> {
                 .addLast(new MessageCodec())
                 .addLast(new IdleStateHandler(0, 0, httpPierceClientConfig.getTimeout(), TimeUnit.SECONDS))
                 .addLast(new ClientHeartBeatHandler())
-                .addLast(new ClientMessageHandler(httpPierceClientConfig));
+                .addLast(new ClientMessageHandler(httpPierceClientConfig, clientBoot));
 
     }
 }

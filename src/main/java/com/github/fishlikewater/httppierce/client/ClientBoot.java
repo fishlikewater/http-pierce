@@ -50,7 +50,7 @@ public class ClientBoot implements Boot {
             bossGroup = new NioEventLoopGroup(0, new NamedThreadFactory("client-nio-boss@"));
             bootstrap.group(bossGroup);
         }
-        bootstrap.handler(new ClientHandlerInitializer(httpPierceClientConfig));
+        bootstrap.handler(new ClientHandlerInitializer(httpPierceClientConfig, this));
         connection();
     }
 
