@@ -2,8 +2,10 @@ package com.github.fishlikewater.httppierce.codec;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -17,7 +19,8 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode
 @Accessors(chain = true)
-public class DataMessage implements Message{
+@NoArgsConstructor
+public class DataMessage implements Message, Serializable {
 
     /**
      *

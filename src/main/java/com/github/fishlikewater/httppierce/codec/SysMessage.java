@@ -5,6 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  * <p>
  *  系统通用消息
@@ -16,7 +18,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode
 @Accessors(chain = true)
-public class SysMessage implements Message{
+public class SysMessage implements Message, Serializable {
 
     /**
      *
@@ -53,8 +55,7 @@ public class SysMessage implements Message{
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode
-    @NoArgsConstructor
-    public static class Register{
+    public static class Register implements Serializable{
         /**
          * 客户端注册名称
          **/
@@ -70,6 +71,10 @@ public class SysMessage implements Message{
          **/
         private int newPort;
 
+        public Register() {
+        }
     }
 
+    public SysMessage() {
+    }
 }
