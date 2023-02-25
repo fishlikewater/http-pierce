@@ -115,7 +115,7 @@
                     <mainClass>com.github.fishlikewater.httppierce.HttpPierceApplication</mainClass>
                     <imageName>native-app</imageName>
                     <buildArgs>
-                        <buildArg>--no-fallback</buildArg>
+                        <buildArg>--verbose</buildArg>
                         <arg>--initialize-at-build-time=org.springframework.boot.autoconfigure.SpringBootApplication</arg>
                     </buildArgs>
                 </configuration>
