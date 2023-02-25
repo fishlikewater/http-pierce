@@ -38,6 +38,9 @@
       "pattern":"\\Qcom/github/fishlikewater/httppierce/config/HttpPierceServerConfig.class\\E"
     }, 
     {
+      "pattern":"\\Qlogging-config.xml\\E"
+    }, 
+    {
       "pattern":"\\Qorg/springframework/beans/factory/config/BeanFactoryPostProcessor.class\\E"
     }, 
     {

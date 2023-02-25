@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 日志组件启动时，打印调试信息，并监控此文件变化，周期60秒 -->
+<configuration scan="false" scanPeriod="60 seconds" debug="true">
+
+    <!-- 项目名称及日志目录定义 -->
+    <property name="PROJECT_NAME" value="http-pierce"/>
+    <property name="LOG_HOME" value="/opt/logs/${PROJECT_NAME}"/>
+
+    <contextName>${CONTEXT_NAME}</contextName>
+
+    <!-- ===================================================================== -->
+    <!-- 以下是appender的定义 -->
+    <!-- ===================================================================== -->
+
+    <!-- 记录所有日志到文件 ${PROJECT_NAME}-all.log -->
+    <property name="ALL_LOG_FILE" value="${LOG_HOME}/all/${PROJECT_NAME}-all.log"/>
+    <appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${ALL_LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${ALL_LOG_FILE}.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>1024MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%X{REQUEST_ID}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 记录错误日志到单独文件 ${PROJECT_NAME}-error.log -->
+    <property name="ERROR_LOG_FILE" value="${LOG_HOME}/error/${PROJECT_NAME}-error.log"/>
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <file>${ERROR_LOG_FILE}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${ERROR_LOG_FILE}.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>1024MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%X{REQUEST_ID}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--警告日志-->
+    <property name="WARN_LOG" value="${LOG_HOME}/warn/${PROJECT_NAME}-warn.log"/>
+    <appender name="WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <file>${WARN_LOG}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${WARN_LOG}.%d{yyyy-MM-dd}.%i</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>1024MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{HH:mm:ss} [%X{REQUEST_ID}] [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%red(%d{yyyy-MM-dd HH:mm:ss.SSS}) %red([%X{REQUEST_ID}]) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger) - %cyan(%msg%n)</pattern>
+        </encoder>
+    </appender>
+    <logger name="com.github.fishlikewater.httppierce" level="info" />
+
+
+    <!-- ===================================================================== -->
+    <!-- Root logger的定义 -->
+    <!-- ===================================================================== -->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE_ALL" />
+        <appender-ref ref="WARN" />
+        <appender-ref ref="FILE_ERROR" />
+    </root>
+</configuration>

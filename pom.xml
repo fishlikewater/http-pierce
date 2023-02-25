@@ -109,6 +109,9 @@
                             <imageName>${project.artifactId}</imageName>
                             <!-- mainClass用于指定main方法类路径 -->
                             <mainClass>com.github.fishlikewater.httppierce.HttpPierceApplication</mainClass>
+                            <buildArgs>
+                                <buildArg>--no-fallback</buildArg>
+                            </buildArgs>
                         </configuration>
                         <executions>
                             <execution>
