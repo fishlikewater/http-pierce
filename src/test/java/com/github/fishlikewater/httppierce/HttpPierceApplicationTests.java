@@ -5,7 +5,6 @@ import com.github.fishlikewater.httppierce.codec.DataMessage;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 class HttpPierceApplicationTests {
 
     @Test
