@@ -8,15 +8,16 @@
  **/
 open module http.pierce {
 
-    requires spring.boot;
+
     requires spring.boot.starter;
     requires spring.boot.autoconfigure;
     requires spring.boot.configuration.processor;
     requires io.netty.all;
-    requires lombok;
+    requires static lombok;
     requires hutool.all;
     requires spring.context;
     requires jdk.unsupported;
     requires org.slf4j;
     requires com.esotericsoftware.kryo;
+    requires spring.boot;
 }
