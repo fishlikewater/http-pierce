@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ChannelUtil {
 
-    public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(10000);
+    public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(60000);
 
     public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
 
