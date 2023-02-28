@@ -6,6 +6,7 @@ import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -54,7 +55,14 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 dataMessage.setDstServer(path);
                 dataMessage.setCommand(Command.REQUEST);
                 dataMessage.setId(requestId);
-                dataMessage.setBytes(req.content().array());
+                final ByteBuf content = req.content();
+                if (content.hasArray()) {
+                    dataMessage.setBytes(content.array());
+                } else {
+                    byte[] bytes = new byte[content.readableBytes()];
+                    content.readBytes(bytes);
+                    dataMessage.setBytes(bytes);
+                }
                 req.headers().forEach(entry-> heads.put(entry.getKey(), entry.getValue()));
                 dataMessage.setHeads(heads);
                 dataMessage.setUrl(uri);

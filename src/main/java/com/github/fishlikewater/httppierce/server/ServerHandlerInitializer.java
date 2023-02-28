@@ -44,7 +44,7 @@ public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
             p.addLast(new LoggingHandler());
         }
         p
-                .addLast(new LengthFieldBasedFrameDecoder(5*1024 * 1024, 0, 4))
+                .addLast(new LengthFieldBasedFrameDecoder(20*1024 * 1024, 0, 4))
                 .addLast(new MessageCodec())
                 .addLast(new AuthHandler(httpPierceServerConfig.getToken()))
                 .addLast(new RegisterHandler())

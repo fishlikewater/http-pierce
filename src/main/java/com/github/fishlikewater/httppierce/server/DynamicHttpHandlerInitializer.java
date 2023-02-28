@@ -32,7 +32,7 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
         ChannelPipeline p = channel.pipeline();
         p.addLast("httpCode", new HttpRequestDecoder());
         p.addLast(new ChunkedWriteHandler());
-        p.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 100));
+        p.addLast("aggregator", new HttpObjectAggregator(10*1024 * 1024));
         p.addLast("byte", new ByteArrayEncoder());
         p.addLast("httpServerHandler", new DynamicHttpServerHandler(clientChannel, registerName));
     }
