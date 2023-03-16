@@ -51,6 +51,12 @@ public class HttpPierceServerConfig {
      **/
     private String token;
 
+    /**
+     *
+     * http连接保持时间
+     */
+    private long keepTimeOut = 120000L;
+
 
 }
 

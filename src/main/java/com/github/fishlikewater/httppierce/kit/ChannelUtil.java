@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
- *
+ * 连接属性
  * </p>
  *
  * @author fishlikewater@126.com
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ChannelUtil {
 
-    public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(60000);
+    public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(120000);
 
     public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
 

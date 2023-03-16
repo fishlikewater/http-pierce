@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.config.Constant;
+import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -12,6 +13,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import io.netty.util.Attribute;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -28,7 +30,10 @@ import java.util.Map;
  * @since 2023年02月09日 22:34
  **/
 @Slf4j
+@RequiredArgsConstructor
 public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
+
+    private final HttpPierceServerConfig httpPierceServerConfig;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg){
@@ -71,7 +76,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(requestId);
                 channel.writeAndFlush(dataMessage).addListener((f) -> {
                     if (f.isSuccess()) {
-                        ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel());
+                        ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel(), httpPierceServerConfig.getKeepTimeOut());
                     } else {
                         log.info("Forwarding failed");
                     }

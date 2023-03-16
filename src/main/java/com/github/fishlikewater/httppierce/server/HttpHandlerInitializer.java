@@ -47,6 +47,6 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
         p.addLast(new ChunkedWriteHandler());
         p.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 10));
         p.addLast("byte", new ByteArrayEncoder());
-        p.addLast("httpServerHandler", new HttpServerHandler());
+        p.addLast("httpServerHandler", new HttpServerHandler(httpPierceServerConfig));
     }
 }
