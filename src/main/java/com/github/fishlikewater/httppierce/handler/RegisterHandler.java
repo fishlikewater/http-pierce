@@ -4,11 +4,13 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
+import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.server.DynamicHttpBoot;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +25,10 @@ import java.util.Objects;
  * @author fishlikewater@126.com
  * @since 2023年02月09日 22:37
  **/
+@RequiredArgsConstructor
 public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
+
+    private final HttpPierceServerConfig httpPierceServerConfig;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, SysMessage msg) {
@@ -39,7 +44,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 returnMsg.setId(IdUtil.getSnowflakeNextId());
                 returnMsg.setRegister(register);
                 if (ObjectUtil.isNull(dynamicHttpBoot1)){
-                    final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
+                    final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel(), httpPierceServerConfig);
                     dynamicHttpBoot.start();
                     dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
                     ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);

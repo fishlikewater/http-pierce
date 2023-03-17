@@ -76,7 +76,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(requestId);
                 channel.writeAndFlush(dataMessage).addListener((f) -> {
                     if (f.isSuccess()) {
-                        ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel(), httpPierceServerConfig.getKeepTimeOut());
+                        ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel(), httpPierceServerConfig.getKeepTimeOut().toMillis());
                     } else {
                         log.info("Forwarding failed");
                     }

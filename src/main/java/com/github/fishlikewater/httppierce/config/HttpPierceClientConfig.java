@@ -4,6 +4,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
+
+import java.time.Duration;
 
 /**
  * <p>
@@ -34,7 +37,7 @@ public class HttpPierceClientConfig {
     /**
      * 心跳检测间隔，默认30s
      **/
-    private long timeout = 30;
+    private Duration timeout = Duration.ofSeconds(30);
 
 
     /**
@@ -50,7 +53,13 @@ public class HttpPierceClientConfig {
     /**
      * 连接失败，重连间隔时间(单位秒)
      **/
-    private int retryTime;
+    private Duration retryTime = Duration.ofSeconds(30);
+
+    /**
+     *
+     * 每一帧最大字节
+     */
+    private DataSize maxFrameLength = DataSize.ofBytes(5*1024 * 1024);
 
 
     /**

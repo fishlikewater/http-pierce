@@ -37,7 +37,7 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
-        p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout(), TimeUnit.SECONDS));
+        p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout().getSeconds(), TimeUnit.SECONDS));
         p.addLast(new HttpHeartBeatHandler());
         /* open log ?*/
         if (httpPierceServerConfig.isLogger()) {
@@ -45,7 +45,7 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
         }
         p.addLast("httpCode", new HttpRequestDecoder());
         p.addLast(new ChunkedWriteHandler());
-        p.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 10));
+        p.addLast("aggregator", new HttpObjectAggregator((int) httpPierceServerConfig.getHttpObjectSize().toBytes()));
         p.addLast("byte", new ByteArrayEncoder());
         p.addLast("httpServerHandler", new HttpServerHandler(httpPierceServerConfig));
     }

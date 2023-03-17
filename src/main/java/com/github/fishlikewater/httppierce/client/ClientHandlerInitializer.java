@@ -37,9 +37,9 @@ public class ClientHandlerInitializer extends ChannelInitializer<Channel> {
             pipeline.addLast(new LoggingHandler());
         }
         pipeline
-                .addLast(new LengthFieldBasedFrameDecoder(20*1024 * 1024, 0, 4))
+                .addLast(new LengthFieldBasedFrameDecoder((int) httpPierceClientConfig.getMaxFrameLength().toBytes(), 0, 4))
                 .addLast(new MessageCodec())
-                .addLast(new IdleStateHandler(0, 0, httpPierceClientConfig.getTimeout(), TimeUnit.SECONDS))
+                .addLast(new IdleStateHandler(0, 0, httpPierceClientConfig.getTimeout().getSeconds(), TimeUnit.SECONDS))
                 .addLast(new ClientHeartBeatHandler())
                 .addLast(new ClientMessageHandler(httpPierceClientConfig, clientBoot));
 

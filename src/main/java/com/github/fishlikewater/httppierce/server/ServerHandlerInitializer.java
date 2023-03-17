@@ -37,17 +37,17 @@ public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
-        p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout(), TimeUnit.SECONDS));
+        p.addLast(new IdleStateHandler(0, 0, httpPierceServerConfig.getTimeout().getSeconds(), TimeUnit.SECONDS));
         p.addLast(new ServerHeartBeatHandler());
         /* open log ?*/
         if (httpPierceServerConfig.isLogger()) {
             p.addLast(new LoggingHandler());
         }
         p
-                .addLast(new LengthFieldBasedFrameDecoder(20*1024 * 1024, 0, 4))
+                .addLast(new LengthFieldBasedFrameDecoder((int) httpPierceServerConfig.getMaxFrameLength().toBytes(), 0, 4))
                 .addLast(new MessageCodec())
                 .addLast(new AuthHandler(httpPierceServerConfig.getToken()))
-                .addLast(new RegisterHandler())
+                .addLast(new RegisterHandler(httpPierceServerConfig))
                 .addLast(new MessageTransferHandler());
 
 
