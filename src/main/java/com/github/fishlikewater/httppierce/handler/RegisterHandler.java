@@ -87,8 +87,8 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         list.forEach(ChannelUtil.ROUTE_MAPPING::remove);
         final List<DynamicHttpBoot> dynamicHttpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get();
         dynamicHttpBoots.forEach(dynamicHttpBoot -> {
-            dynamicHttpBoot.stop();
             ChannelUtil.DYNAMIC_HTTP_BOOT.remove("port"+dynamicHttpBoot.getPort());
+            dynamicHttpBoot.stop();
         });
         super.channelInactive(ctx);
     }

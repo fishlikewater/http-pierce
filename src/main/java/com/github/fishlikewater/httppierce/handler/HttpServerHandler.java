@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.util.Attribute;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +42,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
             HttpHeaders headers = req.headers();
             String uri = req.uri();
             if (StrUtil.isBlank(uri) || Constant.URL_SEPARATOR.equals(uri)){
-                final FullHttpResponse badResponse = getBadResponse("No routing path, unable to map to client");
-                ctx.channel().writeAndFlush(badResponse);
+                final ByteBuf buf = getBadResponse("No routing path, unable to map to client");
+                ctx.channel().writeAndFlush(buf);
+                return;
             }
             String path = headers.get(Constant.REQUEST_ROUTE);
             if (StrUtil.isBlank(path)) {
@@ -51,8 +53,8 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
             }
             Channel channel = ChannelUtil.ROUTE_MAPPING.get(path);
             if (channel == null) {
-                final FullHttpResponse badResponse = getBadResponse("No client connection, please check the url");
-                ctx.channel().writeAndFlush(badResponse);
+                final ByteBuf buf  = getBadResponse("No client connection, please check the url");
+                ctx.channel().writeAndFlush(buf);
             } else {
                 final DataMessage dataMessage = new DataMessage();
                 final Map<String, String> heads = new HashMap<>(8);
@@ -108,12 +110,15 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
         }
     }
 
-    private FullHttpResponse getBadResponse(String message){
+    private ByteBuf getBadResponse(String message){
         byte[] bytes = message.getBytes(Charset.defaultCharset());
         FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
         resp.content().writeBytes(bytes);
         resp.headers().set("Content-Type", "text/html;charset=UTF-8");
         resp.headers().setInt("Content-Length", resp.content().readableBytes());
-        return resp;
+        final EmbeddedChannel embeddedChannel = new EmbeddedChannel(new HttpResponseEncoder());
+        embeddedChannel.writeOutbound(resp);
+        embeddedChannel.close();
+        return embeddedChannel.readOutbound();
     }
 }
