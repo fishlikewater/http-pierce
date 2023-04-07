@@ -24,6 +24,10 @@ public class HttpPierceConfig {
      **/
     private BootType bootType;
 
+    private String version;
+
+    private String buildTime;
+
 
 
 }
