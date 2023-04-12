@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
+import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
@@ -37,6 +38,8 @@ public class ServerBoot implements Boot{
 
     private final HttpPierceServerConfig httpPierceServerConfig;
 
+    private final HttpPierceConfig httpPierceConfig;
+
     @Override
     public void start() {
 
@@ -50,7 +53,7 @@ public class ServerBoot implements Boot{
             workerGroup = new NioEventLoopGroup(0, new NamedThreadFactory("nio-transfer-worker@"));
             serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
         }
-        serverBootstrap.childHandler(new ServerHandlerInitializer(httpPierceServerConfig));
+        serverBootstrap.childHandler(new ServerHandlerInitializer(httpPierceServerConfig, httpPierceConfig));
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getTransferPort()).sync().channel();
             log.info("⬢ start transfer server this port:{} and address:{}", httpPierceServerConfig.getTransferPort(), httpPierceServerConfig.getAddress());

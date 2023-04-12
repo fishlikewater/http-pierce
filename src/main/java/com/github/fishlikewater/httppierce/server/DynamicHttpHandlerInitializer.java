@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
+import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.handler.DynamicHttpServerHandler;
 import io.netty.channel.Channel;
@@ -30,6 +31,8 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
 
+    private final HttpPierceConfig httpPierceConfig;
+
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
@@ -37,6 +40,6 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
         p.addLast(new ChunkedWriteHandler());
         p.addLast("aggregator", new HttpObjectAggregator((int)httpPierceServerConfig.getHttpObjectSize().toBytes()));
         p.addLast("byte", new ByteArrayEncoder());
-        p.addLast("httpServerHandler", new DynamicHttpServerHandler(clientChannel, registerName));
+        p.addLast("httpServerHandler", new DynamicHttpServerHandler(clientChannel, registerName, httpPierceConfig));
     }
 }

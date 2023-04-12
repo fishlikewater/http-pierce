@@ -1,6 +1,7 @@
 package com.github.fishlikewater.httppierce.server;
 
 import com.github.fishlikewater.httppierce.codec.MessageCodec;
+import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.handler.AuthHandler;
 import com.github.fishlikewater.httppierce.handler.MessageTransferHandler;
@@ -28,10 +29,12 @@ import java.util.concurrent.TimeUnit;
 public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
+    private final HttpPierceConfig httpPierceConfig;
 
-    public ServerHandlerInitializer(HttpPierceServerConfig httpPierceServerConfig) {
+    public ServerHandlerInitializer(HttpPierceServerConfig httpPierceServerConfig, HttpPierceConfig httpPierceConfig) {
         log.info("init transfer handler");
         this.httpPierceServerConfig = httpPierceServerConfig;
+        this.httpPierceConfig = httpPierceConfig;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
                 .addLast(new LengthFieldBasedFrameDecoder((int) httpPierceServerConfig.getMaxFrameLength().toBytes(), 0, 4))
                 .addLast(new MessageCodec())
                 .addLast(new AuthHandler(httpPierceServerConfig.getToken()))
-                .addLast(new RegisterHandler(httpPierceServerConfig))
+                .addLast(new RegisterHandler(httpPierceServerConfig, httpPierceConfig))
                 .addLast(new MessageTransferHandler());
 
 
