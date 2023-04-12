@@ -55,9 +55,5 @@ public class HttpPierceApplication implements CommandLineRunner{
             shutDownSignalHandler.registerSignal("TERM", clientBoot);
             shutDownSignalHandler.registerSignal("INT", clientBoot);
         }
-        log.info("\n----------------------------------------------------------\n\t" +
-                "本次运行版本: \t" + httpPierceConfig.getVersion() + "\n\t" +
-                "本次版本构建时间: \t" + httpPierceConfig.getBuildTime() + "\n\t" +
-                "----------------------------------------------------------");
     }
 }
