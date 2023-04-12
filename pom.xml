@@ -10,12 +10,15 @@
     </parent>
     <groupId>com.github.fishlikewater</groupId>
     <artifactId>httppierce</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${project.version}</version>
     <name>http-pierce</name>
     <description>http-pierce</description>
 
 
     <properties>
+        <project.version>1.0.0</project.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
         <java.version>19</java.version>
         <maven-resource-plugin.version>3.3.0</maven-resource-plugin.version>
@@ -164,8 +167,33 @@
                             <exclude>**/*.jar</exclude>
                         </excludes>
                     </resource>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                    </resource>
                 </resources>
                 <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>timestamp-property</id>
+                                <goals>
+                                    <goal>timestamp-property</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <name>current.time</name>
+                            <pattern>yyyy-MM-dd HH:mm:ss</pattern>
+                            <timeZone>GMT+8</timeZone>
+                            <regex/>
+                            <value/>
+                            <source/>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>

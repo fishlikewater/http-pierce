@@ -11,6 +11,7 @@ import com.github.fishlikewater.httppierce.server.HttpBoot;
 import com.github.fishlikewater.httppierce.server.ServerBoot;
 import com.github.fishlikewater.httppierce.server.ShutDownSignalHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * @author fishl
  */
+@Slf4j
 @SpringBootApplication
 @RequiredArgsConstructor
 public class HttpPierceApplication implements CommandLineRunner{
@@ -53,5 +55,9 @@ public class HttpPierceApplication implements CommandLineRunner{
             shutDownSignalHandler.registerSignal("TERM", clientBoot);
             shutDownSignalHandler.registerSignal("INT", clientBoot);
         }
+        log.info("\n----------------------------------------------------------\n\t" +
+                "本次运行版本: \t" + httpPierceConfig.getVersion() + "\n\t" +
+                "本次版本构建时间: \t" + httpPierceConfig.getBuildTime() + "\n\t" +
+                "----------------------------------------------------------");
     }
 }
