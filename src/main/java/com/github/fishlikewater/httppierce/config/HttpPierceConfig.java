@@ -24,10 +24,15 @@ public class HttpPierceConfig {
      **/
     private BootType bootType;
 
-    private String version;
+    /**
+     * 是否开启访问记录日志
+     **/
+    private boolean logger;
 
-    private String buildTime;
-
+    /**
+     * 访问记录日志路劲
+     **/
+    private String logPath;
 
 
 }

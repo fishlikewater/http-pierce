@@ -6,6 +6,7 @@ import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.LoggerUtil;
 import com.github.fishlikewater.httppierce.server.HttpBoot;
 import com.github.fishlikewater.httppierce.server.ServerBoot;
 import com.github.fishlikewater.httppierce.server.ShutDownSignalHandler;
@@ -34,10 +35,13 @@ public class HttpPierceApplication implements CommandLineRunner{
 
     @Override
     public void run(String... args) {
+        if (httpPierceConfig.isLogger()){
+            LoggerUtil.setLogPath(httpPierceConfig.getLogPath());
+        }
         if (httpPierceConfig.getBootType() == BootType.server){
-            final ServerBoot serverBoot = new ServerBoot(httpPierceServerConfig);
+            final ServerBoot serverBoot = new ServerBoot(httpPierceServerConfig, httpPierceConfig);
             serverBoot.start();
-            final HttpBoot httpBoot = new HttpBoot(httpPierceServerConfig);
+            final HttpBoot httpBoot = new HttpBoot(httpPierceServerConfig, httpPierceConfig);
             httpBoot.start();
             final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
             shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
@@ -51,9 +55,5 @@ public class HttpPierceApplication implements CommandLineRunner{
             shutDownSignalHandler.registerSignal("TERM", clientBoot);
             shutDownSignalHandler.registerSignal("INT", clientBoot);
         }
-        log.info("\n----------------------------------------------------------\n\t" +
-                "本次运行版本: \t" + httpPierceConfig.getVersion() + "\n\t" +
-                "本次版本构建时间: \t" + httpPierceConfig.getBuildTime() + "\n\t" +
-                "----------------------------------------------------------");
     }
 }

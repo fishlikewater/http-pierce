@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
+import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
@@ -43,8 +44,11 @@ public class HttpBoot implements Boot{
 
     private HttpPierceServerConfig httpPierceServerConfig;
 
-    public HttpBoot(HttpPierceServerConfig httpPierceServerConfig){
+    private HttpPierceConfig httpPierceConfig;
+
+    public HttpBoot(HttpPierceServerConfig httpPierceServerConfig, HttpPierceConfig httpPierceConfig){
         this.httpPierceServerConfig = httpPierceServerConfig;
+        this.httpPierceConfig = httpPierceConfig;
     }
 
 
@@ -65,7 +69,7 @@ public class HttpBoot implements Boot{
     }
 
     public void run(ServerBootstrap serverBootstrap){
-        serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceServerConfig));
+        serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceServerConfig, httpPierceConfig));
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getHttpServerPort()).sync().channel();
             log.info("⬢ start http server this port:{} and address:{}", httpPierceServerConfig.getHttpServerPort(), httpPierceServerConfig.getAddress());

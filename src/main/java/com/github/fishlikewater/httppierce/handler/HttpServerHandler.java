@@ -5,8 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.config.Constant;
+import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.LoggerUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,6 +37,8 @@ import java.util.Map;
 public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
+    private final HttpPierceConfig httpPierceConfig;
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg){
@@ -79,6 +83,9 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 channel.writeAndFlush(dataMessage).addListener((f) -> {
                     if (f.isSuccess()) {
                         ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel(), httpPierceServerConfig.getKeepTimeOut().toMillis());
+                        if (httpPierceConfig.isLogger()){
+                            LoggerUtil.info(req.uri() + "---->" + channel.remoteAddress().toString());
+                        }
                     } else {
                         log.info("Forwarding failed");
                     }

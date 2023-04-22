@@ -3,7 +3,9 @@ package com.github.fishlikewater.httppierce.handler;
 import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
+import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.LoggerUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,6 +36,8 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
 
     private final String registerName;
 
+    private final HttpPierceConfig httpPierceConfig;
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
@@ -61,6 +65,9 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             channel.writeAndFlush(dataMessage).addListener((f) -> {
                 if (f.isSuccess()) {
                     ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel());
+                    if (httpPierceConfig.isLogger()){
+                        LoggerUtil.info(req.uri() + "---->" + channel.remoteAddress().toString());
+                    }
                 } else {
                     log.info("Forwarding failed");
                 }
