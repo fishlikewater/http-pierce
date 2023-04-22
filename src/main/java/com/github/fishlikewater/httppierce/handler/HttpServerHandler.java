@@ -38,6 +38,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;
+    private Long requestId;
 
 
     @Override
@@ -62,7 +63,6 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
             } else {
                 final DataMessage dataMessage = new DataMessage();
                 final Map<String, String> heads = new HashMap<>(8);
-                Long requestId = IdUtil.getSnowflakeNextId();
                 dataMessage.setDstServer(path);
                 dataMessage.setCommand(Command.REQUEST);
                 dataMessage.setId(requestId);
@@ -96,6 +96,12 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
             log.info("not found http or https request, will close this channel");
             ctx.close();
         }
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        requestId = IdUtil.getSnowflakeNextId();
+        super.handlerAdded(ctx);
     }
 
     @Override
