@@ -6,6 +6,7 @@ import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestEncoder;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +35,12 @@ public class ClientResponseHandler extends SimpleChannelInboundHandler<byte[]> {
         dataMessage.setId(requested);
         channel.writeAndFlush(dataMessage).addListener(t-> {
             log.debug("response message");
-            final Boolean aBoolean = channel.attr(ChannelUtil.HTTP_UPGRADE).get();
+            final Boolean aBoolean = ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).get();
             if (Objects.nonNull(aBoolean) && aBoolean){
-                channel.pipeline().remove(HttpRequestEncoder.class);
-                channel.pipeline().remove(HttpObjectAggregator.class);
-                channel.attr(ChannelUtil.HTTP_UPGRADE).set(null);
+                ctx.channel().pipeline().remove(HttpRequestEncoder.class);
+                ctx.channel().pipeline().remove(HttpObjectAggregator.class);
+                ctx.channel().pipeline().addFirst(new ByteArrayEncoder());
+                ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).set(null);
             }
         });
 

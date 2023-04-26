@@ -1,8 +1,10 @@
 package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
+import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.LoggerUtil;
@@ -45,8 +47,13 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if (msg instanceof FullHttpRequest req) {
+            final String connection = req.headers().get(Constant.CONNECTION);
+            if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)){
+                ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).set(true);
+            }
             final Map<String, String> heads = new HashMap<>(8);
             requestId = IdUtil.getSnowflakeNextId();
+            ChannelUtil.REQUEST_MAPPING.put(requestId, channel);
             final DataMessage dataMessage = new DataMessage();
             dataMessage.setCommand(Command.REQUEST);
             dataMessage.setDstServer(registerName);
@@ -81,9 +88,6 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             if (Objects.isNull(requestId)){
                 log.info("not found http or https request, will close this channel");
                 ctx.close();
-            }else {
-                log.info(msg.toString());
-                System.out.println(msg.toString());
             }
         }
     }
@@ -94,6 +98,7 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
         if (attr != null) {
             ChannelUtil.TIMED_CACHE.remove(attr.get());
         }
+        ChannelUtil.REQUEST_MAPPING.remove(requestId);
         super.channelInactive(ctx);
     }
 
