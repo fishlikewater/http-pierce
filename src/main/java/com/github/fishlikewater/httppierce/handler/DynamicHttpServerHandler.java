@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -38,12 +39,14 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
 
     private final HttpPierceConfig httpPierceConfig;
 
+    private Long requestId;
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if (msg instanceof FullHttpRequest req) {
             final Map<String, String> heads = new HashMap<>(8);
-            Long requestId = IdUtil.getSnowflakeNextId();
+            requestId = IdUtil.getSnowflakeNextId();
             final DataMessage dataMessage = new DataMessage();
             dataMessage.setCommand(Command.REQUEST);
             dataMessage.setDstServer(registerName);
@@ -75,8 +78,13 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             });
 
         } else {
-            log.info("not found http or https request, will close this channel");
-            ctx.close();
+            if (Objects.isNull(requestId)){
+                log.info("not found http or https request, will close this channel");
+                ctx.close();
+            }else {
+                log.info(msg.toString());
+                System.out.println(msg.toString());
+            }
         }
     }
 

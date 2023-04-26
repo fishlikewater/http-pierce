@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -61,6 +62,12 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 final ByteBuf buf  = getBadResponse("No client connection, please check the url");
                 ctx.channel().writeAndFlush(buf);
             } else {
+                final String connection = headers.get(Constant.CONNECTION);
+                if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)){
+                    ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).set(true);
+                }
+                requestId = IdUtil.getSnowflakeNextId();
+                ChannelUtil.REQUEST_MAPPING.put(requestId, channel);
                 final DataMessage dataMessage = new DataMessage();
                 final Map<String, String> heads = new HashMap<>(8);
                 dataMessage.setDstServer(path);
@@ -93,16 +100,13 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 });
             }
         } else {
-            log.info("not found http or https request, will close this channel");
-            ctx.close();
+            if (Objects.isNull(requestId)){
+                log.info("not found http or https request, will close this channel");
+                ctx.close();
+            }
         }
     }
 
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        requestId = IdUtil.getSnowflakeNextId();
-        super.handlerAdded(ctx);
-    }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -110,6 +114,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
         if (attr != null) {
             ChannelUtil.TIMED_CACHE.remove(attr.get());
         }
+        ChannelUtil.REQUEST_MAPPING.remove(requestId);
         super.channelInactive(ctx);
     }
 

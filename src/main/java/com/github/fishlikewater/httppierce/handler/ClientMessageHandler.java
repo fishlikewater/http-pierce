@@ -1,11 +1,13 @@
 package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.codec.Message;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
+import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -83,28 +86,37 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         }
         if (msg instanceof DataMessage dataMessage){
             if (dataMessage.getCommand() == Command.REQUEST){
-                final String dstServer = dataMessage.getDstServer();
-                final HttpPierceClientConfig.HttpMapping httpMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
-                String url = dataMessage.getUrl();
-                if (httpMapping.isDelRegisterName()){
-                    url = url.replaceAll("/" + httpMapping.getRegisterName(), "");
-                }
-                FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.valueOf(dataMessage.getVersion()), HttpMethod.valueOf(dataMessage.getMethod()), url);
-                dataMessage.getHeads().forEach((k,v)-> req.headers().add(k, v));
-                req.headers().set("Host", (httpMapping.getAddress() + ":" + httpMapping.getPort()));
-                req.content().writeBytes(dataMessage.getBytes());
-
-                Promise<Channel> promise = BootStrapFactory.createPromise(httpMapping.getAddress(), httpMapping.getPort(), ctx);
-                promise.addListener((FutureListener<Channel>) channelFuture -> {
-                    if (channelFuture.isSuccess()) {
-                        ChannelPipeline p = channelFuture.get().pipeline();
-                        p.addLast("http", new HttpRequestEncoder());
-                        p.addLast("aggregator", new HttpObjectAggregator(1024*1024*10));
-                        p.addLast("byte", new ByteArrayDecoder());
-                        p.addLast(new ClientResponseHandler(dataMessage.getId(), ctx.channel()));
-                        channelFuture.get().writeAndFlush(req);
+                final Channel channel = ChannelUtil.REQUEST_MAPPING.get(dataMessage.getId());
+                if (Objects.nonNull(channel)){
+                    channel.writeAndFlush(dataMessage.getBytes());
+                }else {
+                    final String dstServer = dataMessage.getDstServer();
+                    final HttpPierceClientConfig.HttpMapping httpMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
+                    String url = dataMessage.getUrl();
+                    if (httpMapping.isDelRegisterName()){
+                        url = url.replaceAll("/" + httpMapping.getRegisterName(), "");
                     }
-                });
+                    FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.valueOf(dataMessage.getVersion()), HttpMethod.valueOf(dataMessage.getMethod()), url);
+                    dataMessage.getHeads().forEach((k,v)-> req.headers().add(k, v));
+                    req.headers().set("Host", (httpMapping.getAddress() + ":" + httpMapping.getPort()));
+                    req.content().writeBytes(dataMessage.getBytes());
+                    final String upgrade = req.headers().get(Constant.UPGRADE);
+                    Promise<Channel> promise = BootStrapFactory.createPromise(httpMapping.getAddress(), httpMapping.getPort(), ctx);
+                    promise.addListener((FutureListener<Channel>) channelFuture -> {
+                        if (channelFuture.isSuccess()) {
+                            if (StrUtil.isNotBlank(upgrade)){
+                                channelFuture.get().attr(ChannelUtil.HTTP_UPGRADE).set(true);
+                            }
+                            ChannelUtil.REQUEST_MAPPING.put(dataMessage.getId(), channelFuture.get());
+                            ChannelPipeline p = channelFuture.get().pipeline();
+                            p.addLast("http", new HttpRequestEncoder());
+                            p.addLast("aggregator", new HttpObjectAggregator(1024*1024*10));
+                            p.addLast("byte", new ByteArrayDecoder());
+                            p.addLast(new ClientResponseHandler(dataMessage.getId(), ctx.channel()));
+                            channelFuture.get().writeAndFlush(req);
+                        }
+                    });
+                }
             }
         }
     }
