@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * <p>
@@ -85,11 +84,15 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             });
 
         } else {
-            if (Objects.isNull(requestId)){
-                log.info("not found http or https request, will close this channel");
-                ctx.close();
-            }
+            log.info("not found http or https request, will close this channel");
+            ctx.close();
         }
+    }
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        requestId = IdUtil.getSnowflakeNextId();
+        super.handlerAdded(ctx);
     }
 
     @Override
