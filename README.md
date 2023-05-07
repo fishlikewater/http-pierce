@@ -23,7 +23,10 @@ http.pierce.server.logger=false
 #服务端验证key
 http.pierce.server.token=123456
 #心跳包检测间隔 单位s
-http.pierce.server.timeout=30
+http.pierce.server.timeout=30s
+http.pierce.server.keep-time-out=120s
+http.pierce.server.http-object-size=5MB
+http.pierce.server.max-frame-length=5MB
 ```
 
 > 2、客户端端-部署在内网服务器
@@ -40,11 +43,12 @@ http.pierce.client.server-address=127.0.0.1
 #服务端端口
 http.pierce.client.server-port=8082
 #心跳包发送间隔 单位s
-http.pierce.client.timeout=30
+http.pierce.client.timeout=30s
 #服务端验证key
 http.pierce.client.token=123456
 #服务断开重试间隔 单位s
-http.pierce.client.retry-time=30
+http.pierce.client.retry-time=30s
+http.pierce.client.max-frame-length=5MB
 
 #mapping 内网服务映射
 #内网服务ip

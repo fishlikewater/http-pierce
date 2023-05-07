@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.unit.DataSize;
 
 import java.time.Duration;
-import java.time.temporal.TemporalUnit;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -74,6 +72,26 @@ public class HttpPierceServerConfig {
      * HttpObjectAggregator 大小
      */
     private DataSize httpObjectSize = DataSize.ofBytes(5*1024 * 1024);
+
+    /**
+     *
+     *是否开启ssl
+     */
+    private SslConfig sslConfig = new SslConfig();
+
+    @Data
+    public static class SslConfig {
+        /**是否开启ssl*/
+        private boolean enable = false;
+        /**是否开启双向验证*/
+        private boolean needClientAuth = false;
+        /**密匙库地址*/
+        private String pkPath;
+        /** 签名证书地址*/
+        private String caPath;
+        /**证书密码*/
+        private String passwd;
+    }
 
 
 }
