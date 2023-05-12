@@ -6,7 +6,6 @@ import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.Attribute;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
@@ -40,10 +39,7 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<byte[]> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        final Attribute<Long> attr = ctx.channel().attr(ChannelUtil.HTTP_CHANNEL);
-        if (attr != null) {
-            ChannelUtil.TIMED_CACHE.remove(attr.get());
-        }
+        ChannelUtil.TIMED_CACHE.remove(requestId);
         ChannelUtil.REQUEST_MAPPING.remove(requestId);
         super.channelInactive(ctx);
     }

@@ -15,13 +15,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.*;
-import io.netty.util.Attribute;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +39,6 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;
-    private Long requestId;
 
 
     @Override
@@ -66,6 +66,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                     ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).set(true);
                 }
 
+                Long requestId = IdUtil.getSnowflakeNextId();
                 ChannelUtil.REQUEST_MAPPING.put(requestId, channel);
                 final DataMessage dataMessage = new DataMessage();
                 final Map<String, String> heads = new HashMap<>(8);
@@ -85,7 +86,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 dataMessage.setUrl(uri);
                 dataMessage.setMethod(req.method().name());
                 dataMessage.setVersion(req.protocolVersion().text());
-                ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(requestId);
+                ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).get().add(requestId);
                 channel.writeAndFlush(dataMessage).addListener((f) -> {
                     if (f.isSuccess()) {
                         ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel(), httpPierceServerConfig.getKeepTimeOut().toMillis());
@@ -107,17 +108,19 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        requestId = IdUtil.getSnowflakeNextId();
+        ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(new ArrayList<>());
         super.handlerAdded(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        final Attribute<Long> attr = ctx.channel().attr(ChannelUtil.HTTP_CHANNEL);
-        if (attr != null) {
-            ChannelUtil.TIMED_CACHE.remove(attr.get());
-        }
-        ChannelUtil.REQUEST_MAPPING.remove(requestId);
+        final List<Long> list = ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).get();
+        list.forEach(id->{
+            ChannelUtil.TIMED_CACHE.remove(id);
+            ChannelUtil.REQUEST_MAPPING.remove(id);
+        });
+        list.clear();
+        ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(null);
         super.channelInactive(ctx);
     }
 
