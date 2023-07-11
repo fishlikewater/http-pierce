@@ -46,7 +46,8 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 returnMsg.setId(IdUtil.getSnowflakeNextId());
                 returnMsg.setRegister(register);
                 if (ObjectUtil.isNull(dynamicHttpBoot1)){
-                    final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel(), httpPierceServerConfig, httpPierceConfig);
+                    final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(),
+                            ctx.channel(), httpPierceServerConfig, httpPierceConfig, register.getProtocol());
                     dynamicHttpBoot.start();
                     dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
                     ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);

@@ -102,6 +102,11 @@ public class HttpPierceClientConfig {
          **/
         private boolean delRegisterName;
 
+        /**
+         * 外网开放协议 http https
+         **/
+        private ProtocolEnum protocol;
+
 
     }
 

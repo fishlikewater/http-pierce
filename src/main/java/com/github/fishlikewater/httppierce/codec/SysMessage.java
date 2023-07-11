@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.codec;
 
+import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -70,6 +71,11 @@ public class SysMessage implements Message, Serializable {
          * 服务端新开端口(注意不要和服务器上已有服务端口冲突)
          **/
         private int newPort;
+
+        /**
+         * 外网开放协议 http https
+         **/
+        private ProtocolEnum protocol = ProtocolEnum.http;
 
         public Register() {
         }

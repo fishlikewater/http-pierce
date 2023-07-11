@@ -7,6 +7,7 @@ import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.LoggerUtil;
+import com.github.fishlikewater.httppierce.kit.SslUtil;
 import com.github.fishlikewater.httppierce.server.HttpBoot;
 import com.github.fishlikewater.httppierce.server.ServerBoot;
 import com.github.fishlikewater.httppierce.server.ShutDownSignalHandler;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import javax.net.ssl.SSLException;
 
 /**
  * @author fishl
@@ -34,11 +37,14 @@ public class HttpPierceApplication implements CommandLineRunner{
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws SSLException {
         if (httpPierceConfig.isLogger()){
             LoggerUtil.setLogPath(httpPierceConfig.getLogPath());
         }
         if (httpPierceConfig.getBootType() == BootType.server){
+            if (httpPierceServerConfig.getSslConfig().isEnable()){
+                SslUtil.init(httpPierceServerConfig.getSslConfig());
+            }
             final ServerBoot serverBoot = new ServerBoot(httpPierceServerConfig, httpPierceConfig);
             serverBoot.start();
             final HttpBoot httpBoot = new HttpBoot(httpPierceServerConfig, httpPierceConfig);
@@ -47,6 +53,7 @@ public class HttpPierceApplication implements CommandLineRunner{
             shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
             shutDownSignalHandler.registerSignal("INT", serverBoot, httpBoot);
             ChannelUtil.TIMED_CACHE.schedulePrune(5000L);
+
         }
         if (httpPierceConfig.getBootType() == BootType.client){
             final ClientBoot clientBoot = new ClientBoot(httpPierceClientConfig);

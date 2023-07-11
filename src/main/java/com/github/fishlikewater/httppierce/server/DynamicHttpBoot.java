@@ -3,6 +3,7 @@ package com.github.fishlikewater.httppierce.server;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
+import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import lombok.Getter;
@@ -25,21 +26,24 @@ public class DynamicHttpBoot extends HttpBoot{
     private final Channel channel;
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;
+    private final ProtocolEnum protocolEnum;
 
 
-    public DynamicHttpBoot(int port, String registerName, Channel channel, HttpPierceServerConfig httpPierceServerConfig, HttpPierceConfig httpPierceConfig){
+    public DynamicHttpBoot(int port, String registerName, Channel channel, HttpPierceServerConfig httpPierceServerConfig,
+                           HttpPierceConfig httpPierceConfig, ProtocolEnum protocolEnum){
         this.port = port;
         this.registerName = registerName;
         this.channel = channel;
         this.httpPierceServerConfig = httpPierceServerConfig;
         this.httpPierceConfig = httpPierceConfig;
+        this.protocolEnum = protocolEnum;
     }
 
 
     @Override
     public void run(ServerBootstrap serverBootstrap) {
 
-        serverBootstrap.childHandler(new DynamicHttpHandlerInitializer(channel, registerName, httpPierceServerConfig, httpPierceConfig));
+        serverBootstrap.childHandler(new DynamicHttpHandlerInitializer(channel, registerName, httpPierceServerConfig, httpPierceConfig, protocolEnum));
         try {
             Channel ch = serverBootstrap.bind(port).sync().channel();
             log.info("⬢ start dynamic http server this port:{}", port);

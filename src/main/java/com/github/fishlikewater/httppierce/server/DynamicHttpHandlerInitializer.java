@@ -2,7 +2,9 @@ package com.github.fishlikewater.httppierce.server;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
+import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import com.github.fishlikewater.httppierce.handler.DynamicHttpServerHandler;
+import com.github.fishlikewater.httppierce.kit.SslUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -33,9 +35,14 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
 
     private final HttpPierceConfig httpPierceConfig;
 
+    private final ProtocolEnum protocolEnum;
+
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
+        if (protocolEnum == ProtocolEnum.https){
+            p.addLast("ssl", SslUtil.getSslContext().newHandler(channel.alloc()));
+        }
         p.addLast("httpCode", new HttpRequestDecoder());
         p.addLast(new ChunkedWriteHandler());
         p.addLast("aggregator", new HttpObjectAggregator((int)httpPierceServerConfig.getHttpObjectSize().toBytes()));
