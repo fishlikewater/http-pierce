@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
+import cn.hutool.core.io.FileUtil;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
@@ -11,9 +12,14 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.net.ssl.SSLException;
+import java.io.File;
 
 /**
  * <p>
@@ -38,7 +44,7 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
     private final ProtocolEnum protocolEnum;
 
     @Override
-    protected void initChannel(Channel channel) {
+    protected void initChannel(Channel channel) throws SSLException {
         ChannelPipeline p = channel.pipeline();
         if (protocolEnum == ProtocolEnum.https){
             p.addLast("ssl", SslUtil.getSslContext().newHandler(channel.alloc()));
@@ -48,5 +54,11 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
         p.addLast("aggregator", new HttpObjectAggregator((int)httpPierceServerConfig.getHttpObjectSize().toBytes()));
         p.addLast("byte", new ByteArrayEncoder());
         p.addLast("httpServerHandler", new DynamicHttpServerHandler(clientChannel, registerName, httpPierceConfig));
+        if(httpPierceServerConfig.getSslConfig().isEnable()){
+            final File cerFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getCaPath());
+            final File keyFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getPkPath());
+            final SslContext sslContext = SslContextBuilder.forServer(cerFile, keyFile).build();
+            p.addFirst(sslContext.newHandler(channel.alloc()));
+        }
     }
 }

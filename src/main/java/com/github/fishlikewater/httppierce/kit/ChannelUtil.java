@@ -29,7 +29,7 @@ public class ChannelUtil {
 
     public final static Map<Long, Channel> REQUEST_MAPPING = new ConcurrentHashMap<>();
 
-    public final static AttributeKey<Long> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
+    public final static AttributeKey<List<Long>> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
 
     public final static AttributeKey<Boolean> HTTP_UPGRADE = AttributeKey.newInstance("HTTP_UPGRADE");
 

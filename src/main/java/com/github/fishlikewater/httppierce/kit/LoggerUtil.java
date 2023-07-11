@@ -1,6 +1,7 @@
 package com.github.fishlikewater.httppierce.kit;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.logging.java.SimpleFormatter;
 
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.logging.Logger;
  * @author fishlikewater@126.com
  * @since 2023年04月12日 9:17
  **/
+@Slf4j
 public class LoggerUtil {
 
     private static final Logger logger = Logger.getLogger(LoggerUtil.class.getName());
@@ -53,7 +55,7 @@ public class LoggerUtil {
             handler.setLevel(Level.INFO);
             logger.addHandler(handler);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("init fail", e);
         }
     }
 
