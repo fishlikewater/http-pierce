@@ -23,6 +23,7 @@ public class DynamicHttpBoot extends HttpBoot{
     @Getter
     private final int port;
     private final String registerName;
+    @Getter
     private final Channel channel;
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;

@@ -53,6 +53,11 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                     ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);
                     returnMsg.setState(1);
                 }else {
+                    if (!dynamicHttpBoot1.getChannel().isActive() || dynamicHttpBoot1.getChannel().isWritable()){
+                        ChannelUtil.DYNAMIC_HTTP_BOOT.remove("port"+dynamicHttpBoot1.getPort());
+                        dynamicHttpBoot1.stop();
+                        dynamicHttpBoot1.getChannel().close();
+                    }
                     returnMsg.setState(2);
                 }
                 ctx.channel().writeAndFlush(returnMsg);
