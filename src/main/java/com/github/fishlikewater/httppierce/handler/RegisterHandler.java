@@ -64,20 +64,10 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 final String registerName = register.getRegisterName();
                 final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
                 if (Objects.nonNull(channel)){
-                    if (channel.isActive() && channel.isWritable()){
-                        returnMsg.setState(0);
-                    }else {
-                        channel.close().addListener(future -> {
-                            if (future.isSuccess()){
-                                ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
-                                returnMsg.setState(1);
-                                ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
-                                ctx.channel().writeAndFlush(returnMsg);
-                            }
-                        });
-                        return;
+                    returnMsg.setState(0);
+                    if (!channel.isActive() || !channel.isWritable()){
+                        channel.close();
                     }
-
                 }else {
                     ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
                     returnMsg.setState(1);
