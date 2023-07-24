@@ -74,14 +74,10 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                     }else if (sysMessage.getState() == 2){
                         log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
                                 sysMessage.getRegister().getRegisterName(), sysMessage.getRegister().getNewPort());
-                        ctx.channel().eventLoop().schedule(()->{
-                            this.reRegister(sysMessage.getRegister(), ctx);
-                        }, 5, TimeUnit.SECONDS);
+                        ctx.channel().eventLoop().schedule(()-> this.reRegister(sysMessage.getRegister(), ctx), 10, TimeUnit.SECONDS);
                     }else {
                         log.info("Failed to register  the route name 【{}】", sysMessage.getRegister().getRegisterName());
-                        ctx.channel().eventLoop().schedule(()->{
-                            this.reRegister(sysMessage.getRegister(), ctx);
-                        }, 5, TimeUnit.SECONDS);
+                        ctx.channel().eventLoop().schedule(()-> this.reRegister(sysMessage.getRegister(), ctx), 10, TimeUnit.SECONDS);
                     }
                 }
                 case HEALTH -> log.debug("Heartbeat packet received");
@@ -144,10 +140,9 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         final EventLoop loop = ctx.channel().eventLoop();
         loop.schedule(clientBoot::connection, 30, TimeUnit.SECONDS);
-        super.channelInactive(ctx);
     }
 
     private void  reRegister(SysMessage.Register register, ChannelHandlerContext ctx){
