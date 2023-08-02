@@ -6,6 +6,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.SslProvider;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -26,6 +27,7 @@ import java.util.Objects;
  * @since 2022年10月20日 9:21
  **/
 @SuppressWarnings("unused")
+@Slf4j
 public class SslContextFactory {
 
     private static final String PROTOCOL = "TLS";
@@ -143,7 +145,7 @@ public class SslContextFactory {
             openSslContext = SslContextBuilder.forServer(kmf).trustManager(tf).sslProvider(SslProvider.OPENSSL).build();
             return openSslContext;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("ssl加载错误", e);
         }
         return null;
 
@@ -182,7 +184,7 @@ public class SslContextFactory {
             openSslClientContext = SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL).keyManager(kmf).trustManager(tf).build();
             return openSslClientContext;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("ssl加载错误", e);
         }
         return null;
 
@@ -303,7 +305,7 @@ public class SslContextFactory {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("ssl加载错误", e);
                 }
             }
         }
@@ -332,7 +334,7 @@ public class SslContextFactory {
                 try {
                     tIn.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.error("ssl加载错误", e);
                 }
             }
         }
