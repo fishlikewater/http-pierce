@@ -31,6 +31,8 @@ public class ChannelUtil {
 
     public final static AttributeKey<List<Long>> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
 
+    public final static AttributeKey<List<Long>> TCP_CHANNEL = AttributeKey.newInstance("TCP_CHANNEL");
+
     public final static AttributeKey<Boolean> HTTP_UPGRADE = AttributeKey.newInstance("HTTP_UPGRADE");
 
     public final static AttributeKey<List<DynamicHttpBoot>> CHANNEL_DYNAMIC_HTTP_BOOT = AttributeKey.newInstance("DYNAMIC_HTTP_BOOT");

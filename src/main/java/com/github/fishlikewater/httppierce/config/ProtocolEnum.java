@@ -10,6 +10,8 @@ package com.github.fishlikewater.httppierce.config;
  **/
 public enum ProtocolEnum {
 
+    tcp,
+
     http,
 
     https;

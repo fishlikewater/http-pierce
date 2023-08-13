@@ -17,10 +17,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author fishlikewater@126.com
  * @since 2023年02月21日 11:19
  **/
+@Getter
 @Slf4j
 public class DynamicHttpBoot extends HttpBoot{
 
-    @Getter
     private final int port;
     private final String registerName;
     @Getter

@@ -6,8 +6,10 @@ import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
+import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.server.DynamicHttpBoot;
+import com.github.fishlikewater.httppierce.server.DynamicTcpBoot;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -46,12 +48,17 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 returnMsg.setId(IdUtil.getSnowflakeNextId());
                 returnMsg.setRegister(register);
                 if (ObjectUtil.isNull(dynamicHttpBoot1)){
-                    final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(),
-                            ctx.channel(), httpPierceServerConfig, httpPierceConfig, register.getProtocol());
-                    dynamicHttpBoot.start();
-                    dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
-                    ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);
-                    returnMsg.setState(1);
+                    if (register.getProtocol() == ProtocolEnum.tcp){
+                        final DynamicTcpBoot dynamicTcpBoot = new DynamicTcpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
+                        dynamicTcpBoot.start();
+                    }else {
+                        final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(),
+                                ctx.channel(), httpPierceServerConfig, httpPierceConfig, register.getProtocol());
+                        dynamicHttpBoot.start();
+                        dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
+                        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);
+                        returnMsg.setState(1);
+                    }
                 }else {
                     if (!dynamicHttpBoot1.getChannel().isActive() || dynamicHttpBoot1.getChannel().isWritable()){
                         ChannelUtil.DYNAMIC_HTTP_BOOT.remove("port"+dynamicHttpBoot1.getPort());

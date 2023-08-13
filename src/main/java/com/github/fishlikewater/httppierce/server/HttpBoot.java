@@ -14,7 +14,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author fishlikewater@126.com
  * @since 2023年02月09日 22:41
  **/
+@Getter
 @Setter
 @Slf4j
 @NoArgsConstructor
@@ -34,7 +34,6 @@ public class HttpBoot implements Boot{
     /**
      * 处理连接
      */
-    @Getter
     private EventLoopGroup bossGroup;
     /**
      * 处理连接后的channel

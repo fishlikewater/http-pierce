@@ -3,7 +3,6 @@ package com.github.fishlikewater.httppierce.codec;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
