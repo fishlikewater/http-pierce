@@ -19,12 +19,8 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Getter
 @Slf4j
-public class DynamicHttpBoot extends HttpBoot{
+public class DynamicHttpBoot extends DynamicTcpBoot{
 
-    private final int port;
-    private final String registerName;
-    @Getter
-    private final Channel channel;
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;
     private final ProtocolEnum protocolEnum;
@@ -32,9 +28,7 @@ public class DynamicHttpBoot extends HttpBoot{
 
     public DynamicHttpBoot(int port, String registerName, Channel channel, HttpPierceServerConfig httpPierceServerConfig,
                            HttpPierceConfig httpPierceConfig, ProtocolEnum protocolEnum){
-        this.port = port;
-        this.registerName = registerName;
-        this.channel = channel;
+        super(port, registerName, channel);
         this.httpPierceServerConfig = httpPierceServerConfig;
         this.httpPierceConfig = httpPierceConfig;
         this.protocolEnum = protocolEnum;
@@ -44,11 +38,11 @@ public class DynamicHttpBoot extends HttpBoot{
     @Override
     public void run(ServerBootstrap serverBootstrap) {
 
-        serverBootstrap.childHandler(new DynamicHttpHandlerInitializer(channel, registerName, httpPierceServerConfig, httpPierceConfig, protocolEnum));
+        serverBootstrap.childHandler(new DynamicHttpHandlerInitializer(this.getChannel(), this.getRegisterName(), httpPierceServerConfig, httpPierceConfig, protocolEnum));
         try {
-            Channel ch = serverBootstrap.bind(port).sync().channel();
-            log.info("⬢ start dynamic http server this port:{}", port);
-            ch.closeFuture().addListener(t -> log.info("⬢ dynamic http server【{}】 closed", port));
+            Channel ch = serverBootstrap.bind(this.getPort()).sync().channel();
+            log.info("⬢ start dynamic http server this port:{}", this.getPort());
+            ch.closeFuture().addListener(t -> log.info("⬢ dynamic http server【{}】 closed", this.getPort()));
         } catch (InterruptedException e) {
             log.error("⬢ start dynamic http server fail", e);
         }
@@ -57,7 +51,7 @@ public class DynamicHttpBoot extends HttpBoot{
 
     @Override
     public void stop() {
-        log.info("⬢ dynamic http server【{}】 shutdown ...", port);
+        log.info("⬢ dynamic http server【{}】 shutdown ...", this.getPort());
         try {
             if (super.getBossGroup() != null) {
                 super.getBossGroup().shutdownGracefully().sync();
@@ -66,7 +60,7 @@ public class DynamicHttpBoot extends HttpBoot{
                 super.getWorkerGroup().shutdownGracefully().sync();
             }
         } catch (Exception e) {
-            log.error("⬢ dynamic http server【{}】 shutdown error", port, e);
+            log.error("⬢ dynamic http server【{}】 shutdown error", this.getPort(), e);
         }
     }
 }

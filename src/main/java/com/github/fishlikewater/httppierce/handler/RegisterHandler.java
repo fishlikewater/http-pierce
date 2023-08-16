@@ -41,8 +41,8 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
             final SysMessage.Register register = msg.getRegister();
             final boolean newServerPort = register.isNewServerPort();
             if (newServerPort){
-                final Map<String, DynamicHttpBoot> dynamicHttpBootMap = ChannelUtil.DYNAMIC_HTTP_BOOT;
-                final DynamicHttpBoot dynamicHttpBoot1 = dynamicHttpBootMap.get("port" + register.getNewPort());
+                final Map<String, DynamicTcpBoot> dynamicHttpBootMap = ChannelUtil.DYNAMIC_BOOT;
+                final DynamicTcpBoot dynamicHttpBoot1 = dynamicHttpBootMap.get("port" + register.getNewPort());
                 final SysMessage returnMsg = new SysMessage();
                 returnMsg.setCommand(Command.REGISTER);
                 returnMsg.setId(IdUtil.getSnowflakeNextId());
@@ -51,17 +51,19 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                     if (register.getProtocol() == ProtocolEnum.tcp){
                         final DynamicTcpBoot dynamicTcpBoot = new DynamicTcpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
                         dynamicTcpBoot.start();
+                        dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicTcpBoot);
+                        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicTcpBoot);
                     }else {
                         final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(),
                                 ctx.channel(), httpPierceServerConfig, httpPierceConfig, register.getProtocol());
                         dynamicHttpBoot.start();
                         dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
-                        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get().add(dynamicHttpBoot);
-                        returnMsg.setState(1);
+                        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicHttpBoot);
                     }
+                    returnMsg.setState(1);
                 }else {
                     if (!dynamicHttpBoot1.getChannel().isActive() || dynamicHttpBoot1.getChannel().isWritable()){
-                        ChannelUtil.DYNAMIC_HTTP_BOOT.remove("port"+dynamicHttpBoot1.getPort());
+                        ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicHttpBoot1.getPort());
                         dynamicHttpBoot1.stop();
                         dynamicHttpBoot1.getChannel().close();
                     }
@@ -95,7 +97,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).set(new ArrayList<>());
-        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).set(new ArrayList<>());
+        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).set(new ArrayList<>());
         super.channelActive(ctx);
     }
 
@@ -103,9 +105,9 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         final List<String> list = ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get();
         list.forEach(ChannelUtil.ROUTE_MAPPING::remove);
-        final List<DynamicHttpBoot> dynamicHttpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_HTTP_BOOT).get();
-        dynamicHttpBoots.forEach(dynamicHttpBoot -> {
-            ChannelUtil.DYNAMIC_HTTP_BOOT.remove("port"+dynamicHttpBoot.getPort());
+        final List<DynamicTcpBoot> dynamicTcpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get();
+        dynamicTcpBoots.forEach(dynamicHttpBoot -> {
+            ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicHttpBoot.getPort());
             dynamicHttpBoot.stop();
         });
         super.channelInactive(ctx);

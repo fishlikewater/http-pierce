@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.server;
 
+import com.github.fishlikewater.httppierce.codec.ByteArrayCodec;
 import com.github.fishlikewater.httppierce.handler.DynamicTcpServerHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -27,7 +28,7 @@ public class DynamicTcpHandlerInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) {
         ChannelPipeline p = channel.pipeline();
-        p.addLast("byte", new ByteArrayEncoder());
+        p.addLast("byte", new ByteArrayCodec());
         p.addLast("tcp_handler", new DynamicTcpServerHandler(channel, registerName));
     }
 }

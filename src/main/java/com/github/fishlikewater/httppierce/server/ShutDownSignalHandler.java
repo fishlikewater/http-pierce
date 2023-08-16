@@ -19,8 +19,8 @@ public class ShutDownSignalHandler{
     public void registerSignal(String signalName, Boot... boot) {
         Signal signal = new Signal(signalName);
         Signal.handle(signal, (Signal sig)-> {
-            final Map<String, DynamicHttpBoot> dynamicHttpBoot = ChannelUtil.DYNAMIC_HTTP_BOOT;
-            if (dynamicHttpBoot.size() > 0){
+            final Map<String, DynamicTcpBoot> dynamicHttpBoot = ChannelUtil.DYNAMIC_BOOT;
+            if (!dynamicHttpBoot.isEmpty()){
                 dynamicHttpBoot.forEach((k, v)->v.stop());
             }
             for (Boot boot1 : boot) {
