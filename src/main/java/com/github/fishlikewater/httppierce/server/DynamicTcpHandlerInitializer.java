@@ -26,8 +26,8 @@ public class DynamicTcpHandlerInitializer extends ChannelInitializer<Channel> {
     private final String registerName;
 
     @Override
-    protected void initChannel(Channel channel) {
-        ChannelPipeline p = channel.pipeline();
+    protected void initChannel(Channel c) {
+        ChannelPipeline p = c.pipeline();
         p.addLast("byte", new ByteArrayCodec());
         p.addLast("tcp_handler", new DynamicTcpServerHandler(channel, registerName));
     }
