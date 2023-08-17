@@ -8,8 +8,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Objects;
-
 /**
  * <p>
  *
@@ -22,24 +20,21 @@ import java.util.Objects;
 public class WebSocketHandler extends SimpleChannelInboundHandler<byte[]> {
 
     private final Long requestId;
+    private final Channel channel;
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, byte[] bytes) {
+        final DataMessage dataMessage = new DataMessage();
+        dataMessage.setCommand(Command.REQUEST);
+        dataMessage.setBytes(bytes);
+        dataMessage.setId(requestId);
+        channel.writeAndFlush(dataMessage);
 
-        final Channel channel = ChannelUtil.REQUEST_MAPPING.get(requestId);
-        if (Objects.nonNull(channel)){
-            final DataMessage dataMessage = new DataMessage();
-            dataMessage.setCommand(Command.REQUEST);
-            dataMessage.setBytes(bytes);
-            dataMessage.setId(requestId);
-            channel.writeAndFlush(dataMessage);
-        }
 
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ChannelUtil.TIMED_CACHE.remove(requestId);
         ChannelUtil.REQUEST_MAPPING.remove(requestId);
         super.channelInactive(ctx);
     }

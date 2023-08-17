@@ -55,7 +55,7 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
         p.addLast(new ChunkedWriteHandler());
         p.addLast("aggregator", new HttpObjectAggregator((int) httpPierceServerConfig.getHttpObjectSize().toBytes()));
         p.addLast("byte", new ByteArrayEncoder());
-        p.addLast("httpServerHandler", new HttpServerHandler(httpPierceServerConfig, httpPierceConfig));
+        p.addLast("httpServerHandler", new HttpServerHandler(httpPierceConfig));
         if(httpPierceServerConfig.getSslConfig().isEnable()){
             final File keyFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getPkPath());
             final File cerFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getCaPath());

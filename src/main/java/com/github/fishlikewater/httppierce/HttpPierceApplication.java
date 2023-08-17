@@ -5,7 +5,6 @@ import com.github.fishlikewater.httppierce.config.BootType;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
-import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.LoggerUtil;
 import com.github.fishlikewater.httppierce.kit.SslUtil;
 import com.github.fishlikewater.httppierce.server.HttpBoot;
@@ -52,7 +51,6 @@ public class HttpPierceApplication implements CommandLineRunner{
             final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
             shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
             shutDownSignalHandler.registerSignal("INT", serverBoot, httpBoot);
-            ChannelUtil.TIMED_CACHE.schedulePrune(5000L);
 
         }
         if (httpPierceConfig.getBootType() == BootType.client){

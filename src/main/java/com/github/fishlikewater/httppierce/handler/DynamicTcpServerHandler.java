@@ -11,8 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -33,39 +32,31 @@ public class DynamicTcpServerHandler extends SimpleChannelInboundHandler<byte[]>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) {
 
-        Long requestId = IdUtil.getSnowflakeNextId();
-        ChannelUtil.REQUEST_MAPPING.put(requestId, channel);
+        Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
+        if (Objects.isNull(requestId)){
+            requestId = IdUtil.getSnowflakeNextId();
+            ctx.channel().attr(ChannelUtil.TCP_FLAG).set(requestId);
+        }
+        ChannelUtil.REQUEST_MAPPING.put(requestId, ctx.channel());
         final DataMessage dataMessage = new DataMessage();
         dataMessage.setCommand(Command.REQUEST);
         dataMessage.setDstServer(registerName);
         dataMessage.setBytes(msg);
         dataMessage.setId(requestId);
-        ctx.channel().attr(ChannelUtil.TCP_CHANNEL).get().add(requestId);
-        channel.writeAndFlush(dataMessage).addListener((f) -> {
-            if (f.isSuccess()) {
-                ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel());
-            } else {
-                log.info("Forwarding failed");
-            }
-
-        });
+        channel.writeAndFlush(dataMessage);
     }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(ChannelUtil.TCP_CHANNEL).set(new ArrayList<>());
         super.handlerAdded(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        final List<Long> list = ctx.channel().attr(ChannelUtil.TCP_CHANNEL).get();
-        list.forEach(id -> {
-            ChannelUtil.REQUEST_MAPPING.remove(id);
-            ChannelUtil.TIMED_CACHE.remove(id);
-        });
-        list.clear();
-        ctx.channel().attr(ChannelUtil.TCP_CHANNEL).set(null);
+        Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
+        if (Objects.nonNull(requestId)){
+            ChannelUtil.REQUEST_MAPPING.remove(requestId);
+        }
         super.channelInactive(ctx);
     }
 

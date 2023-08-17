@@ -56,12 +56,6 @@ public class HttpPierceServerConfig {
 
     /**
      *
-     * http连接保持时间
-     */
-    private Duration keepTimeOut = Duration.ofSeconds(120);
-
-    /**
-     *
      * 每一帧最大字节
      */
     private DataSize maxFrameLength = DataSize.ofBytes(5*1024 * 1024);

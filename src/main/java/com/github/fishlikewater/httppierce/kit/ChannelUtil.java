@@ -1,7 +1,5 @@
 package com.github.fishlikewater.httppierce.kit;
 
-import cn.hutool.cache.CacheUtil;
-import cn.hutool.cache.impl.TimedCache;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.server.DynamicTcpBoot;
 import io.netty.channel.Channel;
@@ -21,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ChannelUtil {
 
-    public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(120000);
+    //public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(120000);
 
     public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
 
@@ -29,9 +27,9 @@ public class ChannelUtil {
 
     public final static Map<Long, Channel> REQUEST_MAPPING = new ConcurrentHashMap<>();
 
-    public final static AttributeKey<List<Long>> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
+    //public final static AttributeKey<List<Long>> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
 
-    public final static AttributeKey<List<Long>> TCP_CHANNEL = AttributeKey.newInstance("TCP_CHANNEL");
+    public final static AttributeKey<Long> TCP_FLAG = AttributeKey.newInstance("TCP_FLAG");
 
     public final static AttributeKey<Boolean> HTTP_UPGRADE = AttributeKey.newInstance("HTTP_UPGRADE");
 

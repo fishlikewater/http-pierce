@@ -18,10 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -44,13 +41,12 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if (msg instanceof FullHttpRequest req) {
+            Long requestId = IdUtil.getSnowflakeNextId();
             final String connection = req.headers().get(Constant.CONNECTION);
             if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)){
-                ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).set(true);
+                HandlerKit.upWebSocket(ctx.channel(), channel, requestId);
             }
             final Map<String, String> heads = new HashMap<>(8);
-            Long requestId = IdUtil.getSnowflakeNextId();
-            ChannelUtil.REQUEST_MAPPING.put(requestId, channel);
             final DataMessage dataMessage = new DataMessage();
             dataMessage.setCommand(Command.REQUEST);
             dataMessage.setDstServer(registerName);
@@ -68,13 +64,13 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             dataMessage.setMethod(req.method().name());
             dataMessage.setVersion(req.protocolVersion().text());
             dataMessage.setUrl(req.uri());
-            ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).get().add(requestId);
+            ctx.channel().attr(ChannelUtil.TCP_FLAG).set(requestId);
             channel.writeAndFlush(dataMessage).addListener((f) -> {
                 if (f.isSuccess()) {
-                    ChannelUtil.TIMED_CACHE.put(requestId, ctx.channel());
                     if (httpPierceConfig.isLogger()){
                         LoggerUtil.info(req.uri() + "---->" + channel.remoteAddress().toString());
                     }
+                    ChannelUtil.REQUEST_MAPPING.put(requestId, ctx.channel());
                 } else {
                     log.info("Forwarding failed");
                 }
@@ -89,19 +85,15 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(new ArrayList<>());
         super.handlerAdded(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        final List<Long> list = ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).get();
-        list.forEach(id->{
-            ChannelUtil.REQUEST_MAPPING.remove(id);
-            ChannelUtil.TIMED_CACHE.remove(id);
-        });
-        list.clear();
-        ctx.channel().attr(ChannelUtil.HTTP_CHANNEL).set(null);
+        Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
+        if (Objects.nonNull(requestId)){
+            ChannelUtil.REQUEST_MAPPING.remove(requestId);
+        }
         super.channelInactive(ctx);
     }
 
