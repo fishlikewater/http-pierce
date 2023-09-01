@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
@@ -15,7 +16,7 @@ import lombok.experimental.Accessors;
  * @since 2023-09-01
  */
 @Accessors(chain = true)
-@Data(staticConstructor = "create")
+@Data()
 @EqualsAndHashCode(callSuper = true)
 @Table(value = "service_mapping")
 public class ServiceMapping extends Model<ServiceMapping> {
@@ -38,5 +39,8 @@ public class ServiceMapping extends Model<ServiceMapping> {
     private Integer newPort;
 
     private String protocol;
+
+    @Column(ignore = true)
+    private Integer state;
 
 }

@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ChannelUtil {
 
-    //public final static TimedCache<Long, Channel> TIMED_CACHE = CacheUtil.newTimedCache(120000);
+    public final static Map<Long, Integer> stateMap = new ConcurrentHashMap<>(10);
 
     public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
 

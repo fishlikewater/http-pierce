@@ -56,6 +56,8 @@ public class SysMessage implements Message, Serializable {
     @Accessors(chain = true)
     @EqualsAndHashCode
     public static class Register implements Serializable{
+
+        private Integer id;
         /**
          * 客户端注册名称
          **/

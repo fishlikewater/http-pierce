@@ -104,13 +104,16 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                             sysMessage.getRegister().getRegisterName(),
                             sysMessage.getRegister().isNewServerPort()?httpPierceClientConfig.getServerAddress()+":"+ sysMessage.getRegister().getNewPort():
                                     httpPierceClientConfig.getServerAddress()+":[defaultPort]");
+                    ChannelUtil.stateMap.put(sysMessage.getId(), 1);
                 }else if (sysMessage.getState() == 2){
                     log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
                             sysMessage.getRegister().getRegisterName(), sysMessage.getRegister().getNewPort());
                     ctx.channel().eventLoop().schedule(()-> this.reRegister(sysMessage.getRegister(), ctx), 10, TimeUnit.SECONDS);
+                    ChannelUtil.stateMap.put(sysMessage.getId(), 0);
                 }else {
                     log.info("Failed to register  the route name 【{}】", sysMessage.getRegister().getRegisterName());
                     ctx.channel().eventLoop().schedule(()-> this.reRegister(sysMessage.getRegister(), ctx), 10, TimeUnit.SECONDS);
+                    ChannelUtil.stateMap.put(sysMessage.getId(), 0);
                 }
             }
             case HEALTH -> log.debug("Heartbeat packet received");
@@ -166,6 +169,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         final EventLoop loop = ctx.channel().eventLoop();
+        ChannelUtil.stateMap.clear();
         loop.schedule(clientBoot::connection, 30, TimeUnit.SECONDS);
     }
 
