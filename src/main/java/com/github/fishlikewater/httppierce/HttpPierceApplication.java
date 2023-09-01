@@ -12,6 +12,7 @@ import com.github.fishlikewater.httppierce.server.ServerBoot;
 import com.github.fishlikewater.httppierce.server.ShutDownSignalHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,6 +25,7 @@ import javax.net.ssl.SSLException;
 @Slf4j
 @SpringBootApplication
 @RequiredArgsConstructor
+@MapperScan("com.github.fishlikewater.httppierce.mapper")
 public class HttpPierceApplication implements CommandLineRunner{
 
     private final HttpPierceServerConfig httpPierceServerConfig;
