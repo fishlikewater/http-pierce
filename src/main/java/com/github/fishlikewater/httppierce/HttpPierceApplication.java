@@ -20,6 +20,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
@@ -30,6 +31,7 @@ import java.io.File;
 @Slf4j
 @SpringBootApplication
 @RequiredArgsConstructor
+@EnableTransactionManagement
 @MapperScan("com.github.fishlikewater.httppierce.mapper")
 public class HttpPierceApplication implements CommandLineRunner{
 

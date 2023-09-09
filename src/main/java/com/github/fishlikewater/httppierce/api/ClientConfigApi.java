@@ -22,7 +22,7 @@ import java.util.Objects;
  * @since 2023年09月01日 13:00
  **/
 @RestController
-@ConditionalOnProperty(value = "http.pierce.boot-type", havingValue = "true")
+@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "client")
 @RequiredArgsConstructor
 @RequestMapping("/client/api")
 public class ClientConfigApi {
@@ -30,7 +30,7 @@ public class ClientConfigApi {
     private final ServiceMappingService serviceMappingService;
     private final Converter converter;
 
-    @GetMapping()
+    @GetMapping
     public Result<List<ServiceMapping>> getList(){
         final List<ServiceMapping> list = serviceMappingService.list();
         for (ServiceMapping serviceMapping : list) {
@@ -43,7 +43,7 @@ public class ClientConfigApi {
     }
 
 
-    @PostMapping()
+    @PostMapping
     public Result<?> edit(@RequestBody @Validated ServiceMappingBo serviceMappingBo){
         serviceMappingService.edit(converter.convert(serviceMappingBo, ServiceMapping.class));
         return Result.of("ok");
@@ -51,7 +51,7 @@ public class ClientConfigApi {
 
     @DeleteMapping("/{id}")
     public Result<?> del(@PathVariable("id")Integer id){
-        serviceMappingService.removeById(id);
+        serviceMappingService.delById(id);
         return Result.of("ok");
     }
 

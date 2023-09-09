@@ -50,5 +50,7 @@ public class ServiceMappingBo {
     @NotBlank(message = "协议不能为空")
     private String protocol;
 
+    private Integer enable = 1;
+
 
 }

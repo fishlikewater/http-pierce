@@ -2,6 +2,7 @@ package com.github.fishlikewater.httppierce.client;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
+import com.github.fishlikewater.httppierce.kit.ClientKit;
 import com.github.fishlikewater.httppierce.kit.EpollKit;
 import com.github.fishlikewater.httppierce.kit.NamedThreadFactory;
 import com.github.fishlikewater.httppierce.server.Boot;
@@ -68,6 +69,7 @@ public class ClientBoot implements Boot {
                     .addListener(new ReconnectionFutureListener(this))
                     .sync();
             channelFuture.channel().closeFuture().addListener(t -> log.info("⬢  client server closed"));
+            ClientKit.setChannel(channelFuture.channel());
         }catch (Exception e){
             log.error("start client fail", e);
         }

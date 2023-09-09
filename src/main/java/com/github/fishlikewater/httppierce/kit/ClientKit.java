@@ -6,7 +6,6 @@ import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Map;
 
@@ -58,12 +57,19 @@ public class ClientKit {
     }
 
     public static void cancelRegister(String registerName){
-        final SysMessage cancel = new SysMessage();
-        cancel.setCommand(Command.CANCEL_REGISTER);
-        cancel.setId(IdUtil.getSnowflakeNextId());
-        cancel.setRegister(new SysMessage.Register()
+        final Map<String, ServiceMapping> mappingMap = channel.attr(ChannelUtil.CLIENT_FORWARD).get();
+        for (Map.Entry<String, ServiceMapping> mappingEntry : mappingMap.entrySet()) {
+            final String key = mappingEntry.getKey();
+            if (key.equals(registerName)) {
+                final SysMessage cancel = new SysMessage();
+                cancel.setCommand(Command.CANCEL_REGISTER);
+                cancel.setId(IdUtil.getSnowflakeNextId());
+                cancel.setRegister(new SysMessage.Register()
                         .setRegisterName(registerName));
-        channel.writeAndFlush(cancel);
+                channel.writeAndFlush(cancel);
+                break;
+            }
+        }
     }
 
 

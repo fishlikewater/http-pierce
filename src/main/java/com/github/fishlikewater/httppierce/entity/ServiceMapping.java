@@ -2,6 +2,7 @@ package com.github.fishlikewater.httppierce.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
+import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import com.mybatisflex.core.activerecord.Model;
@@ -21,7 +22,7 @@ import lombok.experimental.Accessors;
 @Table(value = "service_mapping")
 public class ServiceMapping extends Model<ServiceMapping> {
 
-    @Id
+    @Id(keyType = KeyType.Auto)
     private Integer id;
 
     private String name;
