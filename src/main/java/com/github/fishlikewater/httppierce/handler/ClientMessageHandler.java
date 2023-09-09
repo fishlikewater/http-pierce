@@ -2,13 +2,19 @@ package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.*;
 import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
+import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.ClientKit;
+import com.github.fishlikewater.httppierce.service.ServiceMappingService;
+import com.mybatisflex.core.query.QueryChain;
+import com.mybatisflex.core.query.QueryCondition;
 import io.netty.channel.*;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.http.*;
@@ -17,10 +23,13 @@ import io.netty.util.concurrent.Promise;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import static com.github.fishlikewater.httppierce.entity.table.ServiceMappingTableDef.SERVICE_MAPPING;
 
 /**
  * <p>
@@ -50,19 +59,19 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                     channel.writeAndFlush(dataMessage.getBytes());
                 }else {
                     final String dstServer = dataMessage.getDstServer();
-                    final HttpPierceClientConfig.HttpMapping httpMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
-                    if (httpMapping.getProtocol() == ProtocolEnum.tcp){
-                        handlerTcp(ctx, dataMessage, httpMapping);
+                    final ServiceMapping serviceMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
+                    if (serviceMapping.getProtocol().equals(ProtocolEnum.tcp.name())){
+                        handlerTcp(ctx, dataMessage, serviceMapping);
                     }else {
-                        handlerHttp(ctx, dataMessage, httpMapping);
+                        handlerHttp(ctx, dataMessage, serviceMapping);
                     }
                 }
             }
         }
     }
 
-    private void handlerTcp(ChannelHandlerContext ctx, DataMessage dataMessage, HttpPierceClientConfig.HttpMapping httpMapping) {
-        Promise<Channel> promise = BootStrapFactory.createPromise(httpMapping.getAddress(), httpMapping.getPort(), ctx);
+    private void handlerTcp(ChannelHandlerContext ctx, DataMessage dataMessage, ServiceMapping serviceMapping) {
+        Promise<Channel> promise = BootStrapFactory.createPromise(serviceMapping.getAddress(), serviceMapping.getLocalPort(), ctx);
         promise.addListener((FutureListener<Channel>) channelFuture -> {
             if (channelFuture.isSuccess()) {
                 ChannelUtil.REQUEST_MAPPING.put(dataMessage.getId(), channelFuture.get());
@@ -80,60 +89,49 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 final int state = sysMessage.getState();
                 if (state == 1) {
                     /*  Verification successful, start registering service*/
-                    final Map<String, HttpPierceClientConfig.HttpMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
-                    mappingMap.forEach((k, v) -> {
-                        final SysMessage registerMsg = new SysMessage();
-                        registerMsg.setCommand(Command.REGISTER)
-                                .setId(IdUtil.getSnowflakeNextId())
-                                .setRegister(new SysMessage.Register()
-                                        .setRegisterName(k)
-                                        .setProtocol(v.getProtocol())
-                                        .setNewServerPort(v.isNewServerPort())
-                                        .setNewPort(v.getNewPort()));
-                        ctx.writeAndFlush(registerMsg);
-                    });
-
-
+                    final Map<String, ServiceMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
+                    mappingMap.forEach((k, v) -> ClientKit.registerService(v));
                 } else {
                     log.error("Token verification failed. Please check the configuration");
                 }
             }
             case REGISTER -> {
+                final String registerName = sysMessage.getRegister().getRegisterName();
                 if (sysMessage.getState() == 1){
                     log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
-                            sysMessage.getRegister().getRegisterName(),
+                            registerName,
                             sysMessage.getRegister().isNewServerPort()?httpPierceClientConfig.getServerAddress()+":"+ sysMessage.getRegister().getNewPort():
                                     httpPierceClientConfig.getServerAddress()+":[defaultPort]");
-                    ChannelUtil.stateMap.put(sysMessage.getId(), 1);
+                    ChannelUtil.stateMap.put(registerName, 1);
                 }else if (sysMessage.getState() == 2){
                     log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
-                            sysMessage.getRegister().getRegisterName(), sysMessage.getRegister().getNewPort());
-                    ctx.channel().eventLoop().schedule(()-> this.reRegister(sysMessage.getRegister(), ctx), 10, TimeUnit.SECONDS);
-                    ChannelUtil.stateMap.put(sysMessage.getId(), 0);
+                            registerName, sysMessage.getRegister().getNewPort());
+                    ctx.channel().eventLoop().schedule(()-> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
+                    ChannelUtil.stateMap.put(registerName, 0);
                 }else {
-                    log.info("Failed to register  the route name 【{}】", sysMessage.getRegister().getRegisterName());
-                    ctx.channel().eventLoop().schedule(()-> this.reRegister(sysMessage.getRegister(), ctx), 10, TimeUnit.SECONDS);
-                    ChannelUtil.stateMap.put(sysMessage.getId(), 0);
+                    log.info("Failed to register  the route name 【{}】", registerName);
+                    ctx.channel().eventLoop().schedule(()-> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
+                    ChannelUtil.stateMap.put(registerName, 0);
                 }
             }
             case HEALTH -> log.debug("Heartbeat packet received");
-
+            case CANCEL_REGISTER -> ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().remove(sysMessage.getRegister().getRegisterName());
             default -> {
             }
         }
     }
 
-    private static void handlerHttp(ChannelHandlerContext ctx, DataMessage dataMessage, HttpPierceClientConfig.HttpMapping httpMapping) {
+    private static void handlerHttp(ChannelHandlerContext ctx, DataMessage dataMessage, ServiceMapping serviceMapping) {
         String url = dataMessage.getUrl();
-        if (httpMapping.isDelRegisterName()){
-            url = url.replaceAll("/" + httpMapping.getRegisterName(), "");
+        if (serviceMapping.getDelRegisterName()==1){
+            url = url.replaceAll("/" + serviceMapping.getRegisterName(), "");
         }
         FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.valueOf(dataMessage.getVersion()), HttpMethod.valueOf(dataMessage.getMethod()), url);
         dataMessage.getHeads().forEach((k, v)-> req.headers().add(k, v));
-        req.headers().set("Host", (httpMapping.getAddress() + ":" + httpMapping.getPort()));
+        req.headers().set("Host", (serviceMapping.getAddress() + ":" + serviceMapping.getLocalPort()));
         req.content().writeBytes(dataMessage.getBytes());
         final String upgrade = req.headers().get(Constant.UPGRADE);
-        Promise<Channel> promise = BootStrapFactory.createPromise(httpMapping.getAddress(), httpMapping.getPort(), ctx);
+        Promise<Channel> promise = BootStrapFactory.createPromise(serviceMapping.getAddress(), serviceMapping.getLocalPort(), ctx);
         promise.addListener((FutureListener<Channel>) channelFuture -> {
             if (channelFuture.isSuccess()) {
                 if (StrUtil.isNotBlank(upgrade)){
@@ -154,9 +152,11 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).set(new ConcurrentHashMap<>(16));
-        final HttpPierceClientConfig.HttpMapping[] httpMappings = httpPierceClientConfig.getHttpMappings();
-        for (HttpPierceClientConfig.HttpMapping httpMapping : httpMappings) {
-            ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().put(httpMapping.getRegisterName(), httpMapping);
+
+        final ServiceMappingService mappingService = SpringUtil.getBean(ServiceMappingService.class);
+        final List<ServiceMapping> list = mappingService.list(mappingService.queryChain().from(SERVICE_MAPPING).where(SERVICE_MAPPING.ENABLE.eq(1)));
+        for (ServiceMapping serviceMapping : list) {
+            ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().put(serviceMapping.getRegisterName(), serviceMapping);
         }
         final SysMessage sysMessage = new SysMessage();
         sysMessage.setCommand(Command.AUTH)
@@ -173,23 +173,4 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         loop.schedule(clientBoot::connection, 30, TimeUnit.SECONDS);
     }
 
-    private void  reRegister(SysMessage.Register register, ChannelHandlerContext ctx){
-        final Map<String, HttpPierceClientConfig.HttpMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
-        for (Map.Entry<String, HttpPierceClientConfig.HttpMapping> mappingEntry : mappingMap.entrySet()) {
-            final String key = mappingEntry.getKey();
-            if (key.equals(register.getRegisterName())) {
-                final HttpPierceClientConfig.HttpMapping value = mappingEntry.getValue();
-                final SysMessage registerMsg = new SysMessage();
-                registerMsg.setCommand(Command.REGISTER)
-                        .setId(IdUtil.getSnowflakeNextId())
-                        .setRegister(new SysMessage.Register()
-                                .setRegisterName(key)
-                                .setNewServerPort(value.isNewServerPort())
-                                .setProtocol(value.getProtocol())
-                                .setNewPort(value.getNewPort()));
-                ctx.writeAndFlush(registerMsg);
-                break;
-            }
-        }
-    }
 }

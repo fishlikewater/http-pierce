@@ -40,6 +40,8 @@ public class ServiceMapping extends Model<ServiceMapping> {
 
     private String protocol;
 
+    private Integer enable;
+
     @Column(ignore = true)
     private Integer state;
 

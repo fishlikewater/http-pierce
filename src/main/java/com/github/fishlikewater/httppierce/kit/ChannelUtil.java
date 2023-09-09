@@ -1,6 +1,7 @@
 package com.github.fishlikewater.httppierce.kit;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.server.DynamicTcpBoot;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
@@ -19,9 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ChannelUtil {
 
-    public final static Map<Long, Integer> stateMap = new ConcurrentHashMap<>(10);
+    public final static Map<String, Integer> stateMap = new ConcurrentHashMap<>(10);
 
-    public final static AttributeKey<Map<String, HttpPierceClientConfig.HttpMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
+    public final static AttributeKey<Map<String, ServiceMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
 
     public final static Map<String, Channel> ROUTE_MAPPING = new ConcurrentHashMap<>();
 
@@ -35,7 +36,7 @@ public class ChannelUtil {
 
     public final static AttributeKey<List<DynamicTcpBoot>> CHANNEL_DYNAMIC_BOOT = AttributeKey.newInstance("DYNAMIC_HTTP_BOOT");
 
-    public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
+    //public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
 
     public final static Map<String, DynamicTcpBoot> DYNAMIC_BOOT = new ConcurrentHashMap<>();
 

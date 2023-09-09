@@ -11,4 +11,5 @@ import com.github.fishlikewater.httppierce.entity.ServiceMapping;
  */
 public interface ServiceMappingService extends IService<ServiceMapping> {
 
+    void edit(ServiceMapping serviceMapping);
 }

@@ -4,6 +4,7 @@ import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -34,6 +35,7 @@ public class ServiceMappingBo {
     private Integer localPort;
 
     @NotBlank(message = "注册名不能为空")
+    @Pattern(regexp = "^[a-zA-z][0-9a-zA-Z]{2}$", message = "请输入以字母开头 字母和数据组成 的3位名称")
     private String registerName;
 
     @NotNull(message = "是否删除路径中得注册名")

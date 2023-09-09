@@ -85,26 +85,38 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 }else {
                     ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
                     returnMsg.setState(1);
-                    ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
                 }
                 ctx.channel().writeAndFlush(returnMsg);
             }
 
+        }else if (command == Command.CANCEL_REGISTER){
+            final String registerName = msg.getRegister().getRegisterName();
+            final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
+            if (Objects.nonNull(channel)){
+                ChannelUtil.ROUTE_MAPPING.remove(registerName);
+            }else {
+                final List<DynamicTcpBoot> dynamicTcpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get();
+                for (DynamicTcpBoot dynamicTcpBoot : dynamicTcpBoots) {
+                    if (dynamicTcpBoot.getRegisterName().equals(registerName)){
+                        ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicTcpBoot.getPort());
+                        dynamicTcpBoot.stop();
+                        break;
+                    }
+                }
+            }
+            ctx.channel().writeAndFlush(msg);
         }
         ctx.fireChannelRead(msg);
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).set(new ArrayList<>());
         ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).set(new ArrayList<>());
         super.channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        final List<String> list = ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get();
-        list.forEach(ChannelUtil.ROUTE_MAPPING::remove);
         final List<DynamicTcpBoot> dynamicTcpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get();
         dynamicTcpBoots.forEach(dynamicHttpBoot -> {
             ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicHttpBoot.getPort());

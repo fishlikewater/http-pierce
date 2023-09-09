@@ -12,6 +12,7 @@ import java.io.Serializable;
  * @author fishlikewater@126.com
  * @since 2023年02月09日 10:22
  **/
+@Getter
 public enum Command implements Serializable {
 
     //验证
@@ -25,8 +26,9 @@ public enum Command implements Serializable {
     //心跳
     HEALTH(4),
     //关闭
-    CLOSE(5);
-    @Getter
+    CLOSE(5),
+
+    CANCEL_REGISTER(6);
     private final int code;
 
     Command(int code){
