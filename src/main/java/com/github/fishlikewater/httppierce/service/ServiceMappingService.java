@@ -14,4 +14,6 @@ public interface ServiceMappingService extends IService<ServiceMapping> {
     void edit(ServiceMapping serviceMapping);
 
     void delById(Integer id);
+
+    void enable(Integer id);
 }

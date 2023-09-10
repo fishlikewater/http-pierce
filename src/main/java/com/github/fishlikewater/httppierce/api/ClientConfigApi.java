@@ -42,6 +42,11 @@ public class ClientConfigApi {
         return Result.of(list, CodeEnum.SUCCESS);
     }
 
+    @PutMapping("/{id}")
+    public Result<?> enable(@PathVariable("id")Integer id){
+        serviceMappingService.enable(id);
+        return Result.of("ok");
+    }
 
     @PostMapping
     public Result<?> edit(@RequestBody @Validated ServiceMappingBo serviceMappingBo){

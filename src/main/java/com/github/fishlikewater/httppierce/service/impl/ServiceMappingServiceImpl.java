@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
+import static com.github.fishlikewater.httppierce.entity.table.ServiceMappingTableDef.SERVICE_MAPPING;
+
 /**
  *  服务层实现。
  *
@@ -51,6 +53,22 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
             if (Objects.nonNull(state) && state == 1){
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
+        }
+    }
+
+    @Override
+    public void enable(Integer id) {
+        final ServiceMapping mapping = this.getById(id);
+        if (mapping.getEnable() == 1){
+            this.updateChain().set(SERVICE_MAPPING.ENABLE, 0).where(SERVICE_MAPPING.ID.eq(id));
+            final Integer state = ChannelUtil.stateMap.get(mapping.getRegisterName());
+            if (state == 1){
+                ClientKit.cancelRegister(mapping.getRegisterName());
+            }
+        }else {
+            this.updateChain().set(SERVICE_MAPPING.ENABLE, 1).where(SERVICE_MAPPING.ID.eq(id));
+            mapping.setEnable(1);
+            ClientKit.addMapping(mapping);
         }
     }
 }
