@@ -60,13 +60,13 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
     public void enable(Integer id) {
         final ServiceMapping mapping = this.getById(id);
         if (mapping.getEnable() == 1){
-            this.updateChain().set(SERVICE_MAPPING.ENABLE, 0).where(SERVICE_MAPPING.ID.eq(id));
+            this.updateChain().set(SERVICE_MAPPING.ENABLE, 0).where(SERVICE_MAPPING.ID.eq(id)).update();
             final Integer state = ChannelUtil.stateMap.get(mapping.getRegisterName());
             if (state == 1){
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
         }else {
-            this.updateChain().set(SERVICE_MAPPING.ENABLE, 1).where(SERVICE_MAPPING.ID.eq(id));
+            this.updateChain().set(SERVICE_MAPPING.ENABLE, 1).where(SERVICE_MAPPING.ID.eq(id)).update();
             mapping.setEnable(1);
             ClientKit.addMapping(mapping);
         }

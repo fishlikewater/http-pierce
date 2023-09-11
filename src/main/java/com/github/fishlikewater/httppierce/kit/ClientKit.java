@@ -8,6 +8,7 @@ import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import io.netty.channel.Channel;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -52,8 +53,12 @@ public class ClientKit {
     }
 
     public static void addMapping(ServiceMapping serviceMapping){
-        channel.attr(ChannelUtil.CLIENT_FORWARD).get().put(serviceMapping.getRegisterName(), serviceMapping);
-        registerService(serviceMapping);
+        final Map<String, ServiceMapping> stringServiceMappingMap = channel.attr(ChannelUtil.CLIENT_FORWARD).get();
+        final ServiceMapping serviceMapping1 = stringServiceMappingMap.get(serviceMapping.getRegisterName());
+        if(Objects.isNull(serviceMapping1)){
+            stringServiceMappingMap.put(serviceMapping.getRegisterName(), serviceMapping);
+            registerService(serviceMapping);
+        }
     }
 
     public static void cancelRegister(String registerName){
