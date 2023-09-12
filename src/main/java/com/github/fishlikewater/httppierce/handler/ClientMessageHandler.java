@@ -8,13 +8,12 @@ import com.github.fishlikewater.httppierce.codec.*;
 import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
+import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.ClientKit;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
-import com.mybatisflex.core.query.QueryChain;
-import com.mybatisflex.core.query.QueryCondition;
 import io.netty.channel.*;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.http.*;
@@ -84,6 +83,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
     }
 
     private void handlerSysMsg(ChannelHandlerContext ctx, SysMessage sysMessage) {
+        final SysMessage.Register register = sysMessage.getRegister();
         switch (sysMessage.getCommand()) {
             case AUTH -> {
                 final int state = sysMessage.getState();
@@ -96,26 +96,35 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 }
             }
             case REGISTER -> {
-                final String registerName = sysMessage.getRegister().getRegisterName();
+                final String registerName = register.getRegisterName();
+                final ConnectionStateInfo connectionStateInfo = new ConnectionStateInfo();
+                connectionStateInfo.setRegisterName(registerName);
+                connectionStateInfo.setServicePort(register.getNewPort());
                 if (sysMessage.getState() == 1){
                     log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
                             registerName,
-                            sysMessage.getRegister().isNewServerPort()?httpPierceClientConfig.getServerAddress()+":"+ sysMessage.getRegister().getNewPort():
-                                    httpPierceClientConfig.getServerAddress()+":[defaultPort]");
-                    ChannelUtil.stateMap.put(registerName, 1);
+                            httpPierceClientConfig.getServerAddress()+":"+ register.getNewPort());
+                    connectionStateInfo.setState(1);
+                    ChannelUtil.stateMap.put(registerName, connectionStateInfo);
                 }else if (sysMessage.getState() == 2){
                     log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
-                            registerName, sysMessage.getRegister().getNewPort());
+                            registerName, register.getNewPort());
                     ctx.channel().eventLoop().schedule(()-> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
-                    ChannelUtil.stateMap.put(registerName, 0);
+                    connectionStateInfo.setState(0);
+                    ChannelUtil.stateMap.put(registerName, connectionStateInfo);
                 }else {
                     log.info("Failed to register  the route name 【{}】", registerName);
                     ctx.channel().eventLoop().schedule(()-> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
-                    ChannelUtil.stateMap.put(registerName, 0);
+                    connectionStateInfo.setState(0);
+                    ChannelUtil.stateMap.put(registerName, connectionStateInfo);
                 }
             }
             case HEALTH -> log.debug("Heartbeat packet received");
-            case CANCEL_REGISTER -> ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().remove(sysMessage.getRegister().getRegisterName());
+            case CANCEL_REGISTER -> {
+                log.info("cancel register {}", register.getRegisterName());
+                ChannelUtil.stateMap.remove(register.getRegisterName());
+                ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().remove(register.getRegisterName());
+            }
             default -> {
             }
         }

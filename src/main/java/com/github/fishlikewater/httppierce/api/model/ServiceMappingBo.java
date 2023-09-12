@@ -35,7 +35,7 @@ public class ServiceMappingBo {
     private Integer localPort;
 
     @NotBlank(message = "注册名不能为空")
-    @Pattern(regexp = "^[a-zA-z][0-9a-zA-Z]{2}$", message = "请输入以字母开头 字母和数据组成 的3位名称")
+    @Pattern(regexp = "^[a-zA-Z][a-zA-Z0-9]{2,7}$", message = "请输入以字母开头 字母和数据组成 的3到8位名称")
     private String registerName;
 
     @NotNull(message = "是否删除路径中得注册名")

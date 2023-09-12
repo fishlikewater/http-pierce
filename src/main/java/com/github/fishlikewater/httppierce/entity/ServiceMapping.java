@@ -46,4 +46,7 @@ public class ServiceMapping extends Model<ServiceMapping> {
     @Column(ignore = true)
     private Integer state;
 
+    @Column(ignore = true)
+    private String remoteAddress;
+
 }

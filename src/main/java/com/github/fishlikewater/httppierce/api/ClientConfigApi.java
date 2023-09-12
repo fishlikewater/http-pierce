@@ -1,6 +1,8 @@
 package com.github.fishlikewater.httppierce.api;
 
 import com.github.fishlikewater.httppierce.api.model.ServiceMappingBo;
+import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
@@ -29,14 +31,18 @@ public class ClientConfigApi {
 
     private final ServiceMappingService serviceMappingService;
     private final Converter converter;
+    private final HttpPierceClientConfig httpPierceClientConfig;
 
     @GetMapping
     public Result<List<ServiceMapping>> getList(){
         final List<ServiceMapping> list = serviceMappingService.list();
         for (ServiceMapping serviceMapping : list) {
-            final Integer state = ChannelUtil.stateMap.get(serviceMapping.getRegisterName());
-            if (Objects.nonNull(state)){
-                serviceMapping.setState(state);
+            final ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(serviceMapping.getRegisterName());
+            if (Objects.nonNull(stateInfo)){
+                serviceMapping.setState(stateInfo.getState());
+                if (stateInfo.getState() == 1){
+                    serviceMapping.setRemoteAddress(httpPierceClientConfig.getServerAddress() + ":" + stateInfo.getServicePort());
+                }
             }
         }
         return Result.of(list, CodeEnum.SUCCESS);

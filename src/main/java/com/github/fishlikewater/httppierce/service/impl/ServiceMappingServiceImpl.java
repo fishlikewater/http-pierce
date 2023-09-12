@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.service.impl;
 
+import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.ClientKit;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -49,8 +50,8 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
         final ServiceMapping mapping = this.getById(id);
         if (Objects.nonNull(mapping)){
             this.removeById(id);
-            final Integer state = ChannelUtil.stateMap.get(mapping.getRegisterName());
-            if (Objects.nonNull(state) && state == 1){
+            ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(mapping.getRegisterName());
+            if (Objects.nonNull(stateInfo) && stateInfo.getState() == 1){
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
         }
@@ -61,8 +62,8 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
         final ServiceMapping mapping = this.getById(id);
         if (mapping.getEnable() == 1){
             this.updateChain().set(SERVICE_MAPPING.ENABLE, 0).where(SERVICE_MAPPING.ID.eq(id)).update();
-            final Integer state = ChannelUtil.stateMap.get(mapping.getRegisterName());
-            if (state == 1){
+            ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(mapping.getRegisterName());
+            if (stateInfo.getState() == 1){
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
         }else {

@@ -74,7 +74,6 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 final SysMessage returnMsg = new SysMessage();
                 returnMsg.setCommand(Command.REGISTER);
                 returnMsg.setId(IdUtil.getSnowflakeNextId());
-                returnMsg.setRegister(register);
                 final String registerName = register.getRegisterName();
                 final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
                 if (Objects.nonNull(channel)){
@@ -85,7 +84,9 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 }else {
                     ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
                     returnMsg.setState(1);
+                    register.setNewPort(httpPierceServerConfig.getHttpServerPort());
                 }
+                returnMsg.setRegister(register);
                 ctx.channel().writeAndFlush(returnMsg);
             }
 

@@ -1,6 +1,7 @@
 package com.github.fishlikewater.httppierce.kit;
 
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
+import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.server.DynamicTcpBoot;
 import io.netty.channel.Channel;
@@ -20,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ChannelUtil {
 
-    public final static Map<String, Integer> stateMap = new ConcurrentHashMap<>(10);
+    public final static Map<String, ConnectionStateInfo> stateMap = new ConcurrentHashMap<>(10);
 
     public final static AttributeKey<Map<String, ServiceMapping>> CLIENT_FORWARD = AttributeKey.newInstance("CLIENT_FORWARD");
 
