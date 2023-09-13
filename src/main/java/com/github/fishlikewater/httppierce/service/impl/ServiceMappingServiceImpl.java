@@ -33,6 +33,7 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
             }
         }else {
             final ServiceMapping mapping = this.getById(serviceMapping.getId());
+            this.updateById(serviceMapping);
             if (!Objects.equals(mapping.getEnable(), serviceMapping.getEnable())){
                 if (serviceMapping.getEnable() == 1){
                     ClientKit.addMapping(serviceMapping);
