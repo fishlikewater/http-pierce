@@ -29,7 +29,7 @@ public class ChannelUtil {
 
     public final static Map<Long, Channel> REQUEST_MAPPING = new ConcurrentHashMap<>();
 
-    //public final static AttributeKey<List<Long>> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
+    public final static AttributeKey<List<Long>> HTTP_CHANNEL = AttributeKey.newInstance("HTTP_CHANNEL");
 
     public final static AttributeKey<Long> TCP_FLAG = AttributeKey.newInstance("TCP_FLAG");
 
@@ -37,7 +37,7 @@ public class ChannelUtil {
 
     public final static AttributeKey<List<DynamicTcpBoot>> CHANNEL_DYNAMIC_BOOT = AttributeKey.newInstance("DYNAMIC_HTTP_BOOT");
 
-    //public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
+    public final static AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
 
     public final static Map<String, DynamicTcpBoot> DYNAMIC_BOOT = new ConcurrentHashMap<>();
 

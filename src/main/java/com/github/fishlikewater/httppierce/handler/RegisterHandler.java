@@ -85,6 +85,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                     ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
                     returnMsg.setState(1);
                     register.setNewPort(httpPierceServerConfig.getHttpServerPort());
+                    ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
                 }
                 returnMsg.setRegister(register);
                 ctx.channel().writeAndFlush(returnMsg);
@@ -112,12 +113,15 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).set(new ArrayList<>());
         ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).set(new ArrayList<>());
         super.channelActive(ctx);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        final List<String> list = ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get();
+        list.forEach(ChannelUtil.ROUTE_MAPPING::remove);
         final List<DynamicTcpBoot> dynamicTcpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get();
         dynamicTcpBoots.forEach(dynamicHttpBoot -> {
             ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicHttpBoot.getPort());
