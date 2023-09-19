@@ -2,6 +2,7 @@ package com.github.fishlikewater.httppierce;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
+import cn.hutool.setting.Setting;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.config.BootType;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -40,13 +42,18 @@ public class HttpPierceApplication implements CommandLineRunner{
     private final HttpPierceConfig httpPierceConfig;
 
     public static void main(String[] args) {
-        SpringApplication.run(HttpPierceApplication.class, args);
-
+        Setting setting = new Setting("web.setting");
+        final String web = setting.getStr("server.type", "web");
+        System.out.println(web);
+        SpringApplication app = new SpringApplication(HttpPierceApplication.class);
+        if (web.equals("none")){
+            app.setWebApplicationType(WebApplicationType.NONE);
+        }
+        app.run(args);
     }
 
     @Override
     public void run(String... args) throws SSLException {
-        initTable();
         if (httpPierceConfig.isLogger()){
             LoggerUtil.setLogPath(httpPierceConfig.getLogPath());
         }
@@ -64,6 +71,7 @@ public class HttpPierceApplication implements CommandLineRunner{
 
         }
         if (httpPierceConfig.getBootType() == BootType.client){
+            initTable();
             final ClientBoot clientBoot = new ClientBoot(httpPierceClientConfig);
             clientBoot.start();
             final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();

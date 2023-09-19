@@ -6,6 +6,7 @@ import com.github.fishlikewater.httppierce.api.Result;
 import jakarta.security.auth.message.AuthException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * 统一处理异常
  */
+@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "client")
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {

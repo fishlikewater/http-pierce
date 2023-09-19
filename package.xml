@@ -12,9 +12,6 @@
     <fileSets>
         <fileSet>
             <directory>src/main/resources/</directory>
-            <includes>
-                <include>application*.properties</include>
-            </includes>
             <outputDirectory>${file.separator}resources</outputDirectory>
         </fileSet>
         <fileSet>
