@@ -58,14 +58,14 @@ public class HttpPierceServerConfig {
      *
      * 每一帧最大字节
      */
-    private DataSize maxFrameLength = DataSize.ofBytes(5*1024 * 1024);
+    private DataSize maxFrameLength;
 
 
     /**
      *
      * HttpObjectAggregator 大小
      */
-    private DataSize httpObjectSize = DataSize.ofBytes(5*1024 * 1024);
+    private DataSize httpObjectSize;
 
     /**
      *

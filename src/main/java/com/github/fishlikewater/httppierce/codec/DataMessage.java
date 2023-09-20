@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,7 +52,7 @@ public class DataMessage implements Message, Serializable {
      *
      * 请求头
      */
-    private Map<String, String> heads;
+    private Map<String, String> heads = new HashMap<>();
 
     /**
      *
@@ -78,7 +79,7 @@ public class DataMessage implements Message, Serializable {
      *
      * 消息类容
      **/
-    private byte[] bytes;
+    private byte[] bytes = new byte[0];
 
 
 }
