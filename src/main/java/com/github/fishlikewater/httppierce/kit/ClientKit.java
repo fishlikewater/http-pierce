@@ -1,11 +1,14 @@
 package com.github.fishlikewater.httppierce.kit;
 
 import cn.hutool.core.util.IdUtil;
+import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import io.netty.channel.Channel;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 import java.util.Objects;
@@ -21,6 +24,10 @@ import java.util.Objects;
 public class ClientKit {
 
     private static Channel channel;
+
+    @Setter
+    @Getter
+    private static ClientBoot  clientBoot;
 
 
     public static void setChannel(Channel channel){

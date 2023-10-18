@@ -5,6 +5,7 @@ import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.ClientKit;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
 import io.github.linpeilie.Converter;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +64,13 @@ public class ClientConfigApi {
     @DeleteMapping("/{id}")
     public Result<?> del(@PathVariable("id")Integer id){
         serviceMappingService.delById(id);
+        return Result.of("ok");
+    }
+
+    @PostMapping("/reboot")
+    public Result<?> reboot(){
+        ClientKit.getClientBoot().stop();
+        ClientKit.getClientBoot().start();
         return Result.of("ok");
     }
 
