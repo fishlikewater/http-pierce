@@ -4,7 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.setting.Setting;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
-import com.github.fishlikewater.httppierce.config.BootType;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
@@ -36,18 +35,17 @@ import java.io.File;
 @RequiredArgsConstructor
 @EnableTransactionManagement
 @MapperScan("com.github.fishlikewater.httppierce.mapper")
-public class HttpPierceApplication implements CommandLineRunner{
+public class HttpPierceApplication implements CommandLineRunner {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceClientConfig httpPierceClientConfig;
     private final HttpPierceConfig httpPierceConfig;
 
     public static void main(String[] args) {
-        Setting setting = new Setting("web.setting");
-        final String web = setting.getStr("server.type", "web");
+        final String web = new Setting("web.setting").getStr("server.type", "web");
         System.out.println(web);
         SpringApplication app = new SpringApplication(HttpPierceApplication.class);
-        if (web.equals("none")){
+        if ("none".equals(web)) {
             app.setWebApplicationType(WebApplicationType.NONE);
         }
         app.run(args);
@@ -55,38 +53,42 @@ public class HttpPierceApplication implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws SSLException {
-        if (httpPierceConfig.isLogger()){
+        if (httpPierceConfig.isLogger()) {
             LoggerUtil.setLogPath(httpPierceConfig.getLogPath());
         }
-        if (httpPierceConfig.getBootType() == BootType.server){
-            if (httpPierceServerConfig.getSslConfig().isEnable()){
-                SslUtil.init(httpPierceServerConfig.getSslConfig());
-            }
-            final ServerBoot serverBoot = new ServerBoot(httpPierceServerConfig, httpPierceConfig);
-            serverBoot.start();
-            final HttpBoot httpBoot = new HttpBoot(httpPierceServerConfig, httpPierceConfig);
-            httpBoot.start();
-            final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
-            shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
-            shutDownSignalHandler.registerSignal("INT", serverBoot, httpBoot);
+        final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
 
-        }
-        if (httpPierceConfig.getBootType() == BootType.client){
-            initTable();
-            final ClientBoot clientBoot = new ClientBoot(httpPierceClientConfig);
-            ClientKit.setClientBoot(clientBoot);
-            clientBoot.start();
-            final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
-            shutDownSignalHandler.registerSignal("TERM", clientBoot);
-            shutDownSignalHandler.registerSignal("INT", clientBoot);
+        switch (httpPierceConfig.getBootType()) {
+            case server:
+                if (httpPierceServerConfig.getSslConfig().isEnable()) {
+                    SslUtil.init(httpPierceServerConfig.getSslConfig());
+                }
+                final ServerBoot serverBoot = new ServerBoot(httpPierceServerConfig, httpPierceConfig);
+                serverBoot.start();
+                final HttpBoot httpBoot = new HttpBoot(httpPierceServerConfig, httpPierceConfig);
+                httpBoot.start();
+                shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
+                shutDownSignalHandler.registerSignal("INT", serverBoot, httpBoot);
+                break;
+            case client:
+                initTable();
+                final ClientBoot clientBoot = new ClientBoot(httpPierceClientConfig);
+                ClientKit.setClientBoot(clientBoot);
+                clientBoot.start();
+                shutDownSignalHandler.registerSignal("TERM", clientBoot);
+                shutDownSignalHandler.registerSignal("INT", clientBoot);
+                break;
+            default:
+                log.error("未知启动类型");
+                break;
         }
     }
 
-    private void initTable(){
+    private void initTable() {
         String tableName = "'service_mapping'";
-        String sql =  "SELECT name FROM sqlite_master WHERE type='table' AND name= " + tableName;
+        String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name= " + tableName;
         final Row row = Db.selectOneBySql(sql);
-        if (row == null || row.isEmpty()){
+        if (row == null || row.isEmpty()) {
             final File file = FileUtil.file("db/init.sql");
             FileReader fileReader = new FileReader(file);
             final String initSql = fileReader.readString();

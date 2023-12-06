@@ -38,77 +38,93 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
     protected void channelRead0(ChannelHandlerContext ctx, SysMessage msg) {
         final Command command = msg.getCommand();
         if (command == Command.REGISTER) {
-            final SysMessage.Register register = msg.getRegister();
-            final boolean newServerPort = register.isNewServerPort();
-            if (newServerPort){
-                final Map<String, DynamicTcpBoot> dynamicHttpBootMap = ChannelUtil.DYNAMIC_BOOT;
-                final DynamicTcpBoot dynamicHttpBoot1 = dynamicHttpBootMap.get("port" + register.getNewPort());
-                final SysMessage returnMsg = new SysMessage();
-                returnMsg.setCommand(Command.REGISTER);
-                returnMsg.setId(IdUtil.getSnowflakeNextId());
-                returnMsg.setRegister(register);
-                if (ObjectUtil.isNull(dynamicHttpBoot1)){
-                    if (register.getProtocol() == ProtocolEnum.tcp){
-                        final DynamicTcpBoot dynamicTcpBoot = new DynamicTcpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
-                        dynamicTcpBoot.start();
-                        dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicTcpBoot);
-                        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicTcpBoot);
-                    }else {
-                        final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(),
-                                ctx.channel(), httpPierceServerConfig, httpPierceConfig, register.getProtocol());
-                        dynamicHttpBoot.start();
-                        dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
-                        ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicHttpBoot);
-                    }
-                    returnMsg.setState(1);
-                }else {
-                    if (!dynamicHttpBoot1.getChannel().isActive() || dynamicHttpBoot1.getChannel().isWritable()){
-                        ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicHttpBoot1.getPort());
-                        dynamicHttpBoot1.stop();
-                        dynamicHttpBoot1.getChannel().close();
-                    }
-                    returnMsg.setState(2);
-                }
-                ctx.channel().writeAndFlush(returnMsg);
-            }else {
-                final SysMessage returnMsg = new SysMessage();
-                returnMsg.setCommand(Command.REGISTER);
-                returnMsg.setId(IdUtil.getSnowflakeNextId());
-                final String registerName = register.getRegisterName();
-                final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
-                if (Objects.nonNull(channel)){
-                    returnMsg.setState(0);
-                    if (!channel.isActive() || !channel.isWritable()){
-                        channel.close();
-                    }
-                }else {
-                    ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
-                    returnMsg.setState(1);
-                    register.setNewPort(httpPierceServerConfig.getHttpServerPort());
-                    ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
-                }
-                returnMsg.setRegister(register);
-                ctx.channel().writeAndFlush(returnMsg);
-            }
+            handlerRegister(ctx, msg);
 
         }else if (command == Command.CANCEL_REGISTER){
-            final String registerName = msg.getRegister().getRegisterName();
-            final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
-            if (Objects.nonNull(channel)){
-                ChannelUtil.ROUTE_MAPPING.remove(registerName);
-            }else {
-                final List<DynamicTcpBoot> dynamicTcpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get();
-                for (DynamicTcpBoot dynamicTcpBoot : dynamicTcpBoots) {
-                    if (dynamicTcpBoot.getRegisterName().equals(registerName)){
-                        ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicTcpBoot.getPort());
-                        dynamicTcpBoot.stop();
-                        break;
-                    }
-                }
-            }
-            ctx.channel().writeAndFlush(msg);
+            handlerCancelRegister(ctx, msg);
         }
         ctx.fireChannelRead(msg);
+    }
+
+    private static void handlerCancelRegister(ChannelHandlerContext ctx, SysMessage msg) {
+        final String registerName = msg.getRegister().getRegisterName();
+        final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
+        if (Objects.nonNull(channel)){
+            ChannelUtil.ROUTE_MAPPING.remove(registerName);
+        }else {
+            final List<DynamicTcpBoot> dynamicTcpBoots = ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get();
+            for (DynamicTcpBoot dynamicTcpBoot : dynamicTcpBoots) {
+                if (dynamicTcpBoot.getRegisterName().equals(registerName)){
+                    ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicTcpBoot.getPort());
+                    dynamicTcpBoot.stop();
+                    break;
+                }
+            }
+        }
+        ctx.channel().writeAndFlush(msg);
+    }
+
+    private void handlerRegister(ChannelHandlerContext ctx, SysMessage msg) {
+        final SysMessage.Register register = msg.getRegister();
+        final boolean newServerPort = register.isNewServerPort();
+        if (newServerPort){
+            registerNewPort(ctx, register);
+        }else {
+            registerDefaultPort(ctx, register);
+        }
+    }
+
+    private void registerDefaultPort(ChannelHandlerContext ctx, SysMessage.Register register) {
+        final SysMessage returnMsg = new SysMessage();
+        returnMsg.setCommand(Command.REGISTER);
+        returnMsg.setId(IdUtil.getSnowflakeNextId());
+        final String registerName = register.getRegisterName();
+        final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
+        if (Objects.nonNull(channel)){
+            returnMsg.setState(0);
+            if (!channel.isActive() || !channel.isWritable()){
+                channel.close();
+            }
+        }else {
+            ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
+            returnMsg.setState(1);
+            register.setNewPort(httpPierceServerConfig.getHttpServerPort());
+            ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
+        }
+        returnMsg.setRegister(register);
+        ctx.channel().writeAndFlush(returnMsg);
+    }
+
+    private void registerNewPort(ChannelHandlerContext ctx, SysMessage.Register register) {
+        final Map<String, DynamicTcpBoot> dynamicHttpBootMap = ChannelUtil.DYNAMIC_BOOT;
+        final DynamicTcpBoot dynamicHttpBoot1 = dynamicHttpBootMap.get("port" + register.getNewPort());
+        final SysMessage returnMsg = new SysMessage();
+        returnMsg.setCommand(Command.REGISTER);
+        returnMsg.setId(IdUtil.getSnowflakeNextId());
+        returnMsg.setRegister(register);
+        if (ObjectUtil.isNull(dynamicHttpBoot1)){
+            if (register.getProtocol() == ProtocolEnum.tcp){
+                final DynamicTcpBoot dynamicTcpBoot = new DynamicTcpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
+                dynamicTcpBoot.start();
+                dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicTcpBoot);
+                ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicTcpBoot);
+            }else {
+                final DynamicHttpBoot dynamicHttpBoot = new DynamicHttpBoot(register.getNewPort(), register.getRegisterName(),
+                        ctx.channel(), httpPierceServerConfig, httpPierceConfig, register.getProtocol());
+                dynamicHttpBoot.start();
+                dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
+                ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicHttpBoot);
+            }
+            returnMsg.setState(1);
+        }else {
+            if (!dynamicHttpBoot1.getChannel().isActive() || dynamicHttpBoot1.getChannel().isWritable()){
+                ChannelUtil.DYNAMIC_BOOT.remove("port"+dynamicHttpBoot1.getPort());
+                dynamicHttpBoot1.stop();
+                dynamicHttpBoot1.getChannel().close();
+            }
+            returnMsg.setState(2);
+        }
+        ctx.channel().writeAndFlush(returnMsg);
     }
 
     @Override
