@@ -20,6 +20,4 @@ public class ConnectionStateInfo {
     private int state;
 
 
-
-
 }

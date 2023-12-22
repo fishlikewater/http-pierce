@@ -38,18 +38,18 @@ public class KryoTest {
     @Test
     public void testRand() {
         Set<Integer> set = new TreeSet<>();
-        SecureRandom random =  RandomUtil.getSecureRandom();
+        SecureRandom random = RandomUtil.getSecureRandom();
         for (int i = 0; i < 100; i++) {
-            int a = random.nextInt(1,34);
+            int a = random.nextInt(1, 34);
             set.add(a);
-            if (set.size() == 6){
+            if (set.size() == 6) {
                 break;
             }
         }
-        set.forEach(a->{
+        set.forEach(a -> {
             System.out.print(a + "--");
         });
-        System.out.print(random.nextInt(1,17));
+        System.out.print(random.nextInt(1, 17));
     }
 
 }

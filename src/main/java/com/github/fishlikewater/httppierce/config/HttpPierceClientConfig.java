@@ -10,7 +10,7 @@ import java.time.Duration;
 
 /**
  * <p>
- *  配置文件
+ * 配置文件
  * </p>
  *
  * @author fishlikewater@126.com
@@ -56,10 +56,9 @@ public class HttpPierceClientConfig {
     private Duration retryTime = Duration.ofSeconds(30);
 
     /**
-     *
      * 每一帧最大字节
      */
-    private DataSize maxFrameLength = DataSize.ofBytes(5*1024 * 1024);
+    private DataSize maxFrameLength = DataSize.ofBytes(5 * 1024 * 1024);
 
 
     /**
@@ -68,9 +67,8 @@ public class HttpPierceClientConfig {
     private HttpMapping[] httpMappings;
 
 
-
     @Data
-    public static class HttpMapping{
+    public static class HttpMapping {
 
         /**
          * 客户端映射地址

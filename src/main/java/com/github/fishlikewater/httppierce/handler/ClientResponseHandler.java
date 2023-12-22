@@ -17,6 +17,7 @@ import java.util.Objects;
 
 /**
  * 客户端处理实际服务器响应
+ *
  * @author <p><a>fishlikewater@126.com</a></p>
  * @since 2019年07月13日 13:57
  **/
@@ -33,10 +34,10 @@ public class ClientResponseHandler extends SimpleChannelInboundHandler<byte[]> {
         dataMessage.setCommand(Command.RESPONSE);
         dataMessage.setBytes(bytes);
         dataMessage.setId(requested);
-        channel.writeAndFlush(dataMessage).addListener(t-> {
+        channel.writeAndFlush(dataMessage).addListener(t -> {
             log.debug("response message");
             final Boolean aBoolean = ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).get();
-            if (Objects.nonNull(aBoolean) && aBoolean){
+            if (Objects.nonNull(aBoolean) && aBoolean) {
                 ctx.channel().pipeline().remove(HttpRequestEncoder.class);
                 ctx.channel().pipeline().remove(HttpObjectAggregator.class);
                 ctx.channel().pipeline().addFirst(new ByteArrayEncoder());

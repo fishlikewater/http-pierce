@@ -2,7 +2,7 @@ package com.github.fishlikewater.httppierce.codec;
 
 /**
  * <p>
- *  消息统一接口
+ * 消息统一接口
  * </p>
  *
  * @author fishlikewater@126.com

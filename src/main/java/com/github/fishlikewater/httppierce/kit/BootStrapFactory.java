@@ -18,12 +18,12 @@ public class BootStrapFactory {
 
     private static Bootstrap bootstrap = null;
 
-    public static Bootstrap bootstrapConfig(){
+    public static Bootstrap bootstrapConfig() {
         return bootstrapConfig(new Bootstrap());
     }
 
-    public static Bootstrap bootstrapConfig(ChannelHandlerContext ctx){
-        if(bootstrap != null){
+    public static Bootstrap bootstrapConfig(ChannelHandlerContext ctx) {
+        if (bootstrap != null) {
             return bootstrap;
 
         }
@@ -33,7 +33,7 @@ public class BootStrapFactory {
         return bootstrap;
     }
 
-    public static Bootstrap bootstrapConfig(Bootstrap bootstrap){
+    public static Bootstrap bootstrapConfig(Bootstrap bootstrap) {
         bootstrap.option(ChannelOption.SO_REUSEADDR, true);
         bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
@@ -46,7 +46,7 @@ public class BootStrapFactory {
         return bootstrap;
     }
 
-    public static ServerBootstrap getServerBootstrap(){
+    public static ServerBootstrap getServerBootstrap() {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.option(ChannelOption.SO_REUSEADDR, true);
         bootstrap.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
@@ -63,10 +63,10 @@ public class BootStrapFactory {
     public static Promise<Channel> createPromise(String host, int port, ChannelHandlerContext ctx) {
         Bootstrap bootstrap = BootStrapFactory.bootstrapConfig(ctx);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        bootstrap.handler(new ChannelInitializer<>(){
+        bootstrap.handler(new ChannelInitializer<>() {
 
             @Override
-            protected void initChannel(Channel ch){
+            protected void initChannel(Channel ch) {
 
             }
         });

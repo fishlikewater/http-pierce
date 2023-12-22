@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  服务端启动器
+ * 服务端启动器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Slf4j
 @RequiredArgsConstructor
-public class ServerBoot implements Boot{
+public class ServerBoot implements Boot {
 
     /**
      * 处理连接

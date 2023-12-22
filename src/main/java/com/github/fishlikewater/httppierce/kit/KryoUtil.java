@@ -21,7 +21,7 @@ public class KryoUtil {
 
     private static final String DEFAULT_ENCODING = "UTF-8";
 
-    private static final ThreadLocal<Kryo> KRYO_LOCAL = ThreadLocal.withInitial(()->{
+    private static final ThreadLocal<Kryo> KRYO_LOCAL = ThreadLocal.withInitial(() -> {
         Kryo kryo = new Kryo();
         kryo.setReferences(true);
         kryo.setRegistrationRequired(false);
@@ -30,6 +30,7 @@ public class KryoUtil {
 
     /**
      * 获取kryo对象
+     *
      * @return com.esotericsoftware.kryo.Kryo
      * @author fishlikewater@126.com
      * @since 2023/2/16 16:02
@@ -40,6 +41,7 @@ public class KryoUtil {
 
     /**
      * 序列化对象 包含类信息
+     *
      * @param obj 序列化对象
      * @return byte[]
      * @author fishlikewater@126.com
@@ -57,11 +59,12 @@ public class KryoUtil {
     }
 
     /**
-     *  对象序列化为字符串
-     * @author fishlikewater@126.com
+     * 对象序列化为字符串
+     *
      * @param obj 序列化对象
-     * @since 2023/2/16 16:05
      * @return java.lang.String
+     * @author fishlikewater@126.com
+     * @since 2023/2/16 16:05
      */
     public static <T> String writeToString(T obj) {
         try {
@@ -73,7 +76,8 @@ public class KryoUtil {
 
 
     /**
-     *  将字节数组反序列化为原对象
+     * 将字节数组反序列化为原对象
+     *
      * @param byteArray writeToByteArray 方法序列化后的字节数组
      * @return 原对象
      */
@@ -122,8 +126,9 @@ public class KryoUtil {
     }
 
     /**
-     *  将对象序列化为 String
-     *  利用了 Base64 编码
+     * 将对象序列化为 String
+     * 利用了 Base64 编码
+     *
      * @param obj 任意对象
      * @param <T> 对象的类型
      * @return 序列化后的字符串
@@ -137,7 +142,8 @@ public class KryoUtil {
     }
 
     /**
-     *  将字节数组反序列化为原对象
+     * 将字节数组反序列化为原对象
+     *
      * @param byteArray writeToByteArray 方法序列化后的字节数组
      * @param clazz     原对象的 Class
      * @param <T>       原对象的类型
@@ -154,6 +160,7 @@ public class KryoUtil {
     /**
      * 将 String 反序列化为原对象
      * 利用了 Base64 编码
+     *
      * @param str   writeToString 方法序列化后的字符串
      * @param clazz 原对象的 Class
      * @param <T>   原对象的类型

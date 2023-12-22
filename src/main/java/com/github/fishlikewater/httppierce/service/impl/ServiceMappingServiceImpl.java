@@ -15,7 +15,7 @@ import java.util.Objects;
 import static com.github.fishlikewater.httppierce.entity.table.ServiceMappingTableDef.SERVICE_MAPPING;
 
 /**
- *  服务层实现。
+ * 服务层实现。
  *
  * @author fishl
  * @since 2023-09-01
@@ -26,18 +26,18 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void edit(ServiceMapping serviceMapping) {
-        if (Objects.isNull(serviceMapping.getId())){
+        if (Objects.isNull(serviceMapping.getId())) {
             this.save(serviceMapping);
-            if (serviceMapping.getEnable() == 1){
+            if (serviceMapping.getEnable() == 1) {
                 ClientKit.addMapping(serviceMapping);
             }
-        }else {
+        } else {
             final ServiceMapping mapping = this.getById(serviceMapping.getId());
             this.updateById(serviceMapping);
-            if (!Objects.equals(mapping.getEnable(), serviceMapping.getEnable())){
-                if (serviceMapping.getEnable() == 1){
+            if (!Objects.equals(mapping.getEnable(), serviceMapping.getEnable())) {
+                if (serviceMapping.getEnable() == 1) {
                     ClientKit.addMapping(serviceMapping);
-                }else {
+                } else {
                     ClientKit.cancelRegister(serviceMapping.getRegisterName());
                 }
             }
@@ -49,10 +49,10 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
     @Transactional(rollbackFor = Throwable.class)
     public void delById(Integer id) {
         final ServiceMapping mapping = this.getById(id);
-        if (Objects.nonNull(mapping)){
+        if (Objects.nonNull(mapping)) {
             this.removeById(id);
             ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(mapping.getRegisterName());
-            if (Objects.nonNull(stateInfo) && stateInfo.getState() == 1){
+            if (Objects.nonNull(stateInfo) && stateInfo.getState() == 1) {
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
         }
@@ -61,13 +61,13 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
     @Override
     public void enable(Integer id) {
         final ServiceMapping mapping = this.getById(id);
-        if (mapping.getEnable() == 1){
+        if (mapping.getEnable() == 1) {
             this.updateChain().set(SERVICE_MAPPING.ENABLE, 0).where(SERVICE_MAPPING.ID.eq(id)).update();
             ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(mapping.getRegisterName());
-            if (stateInfo.getState() == 1){
+            if (stateInfo.getState() == 1) {
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
-        }else {
+        } else {
             this.updateChain().set(SERVICE_MAPPING.ENABLE, 1).where(SERVICE_MAPPING.ID.eq(id)).update();
             mapping.setEnable(1);
             ClientKit.addMapping(mapping);

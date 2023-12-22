@@ -11,7 +11,7 @@ import java.util.Objects;
 
 /**
  * <p>
- *  消息传输处理器
+ * 消息传输处理器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -22,10 +22,10 @@ public class MessageTransferHandler extends SimpleChannelInboundHandler<DataMess
     protected void channelRead0(ChannelHandlerContext ctx, DataMessage msg) {
 
         final Command command = msg.getCommand();
-        if (command == Command.RESPONSE){
+        if (command == Command.RESPONSE) {
             final long id = msg.getId();
             final Channel channel = ChannelUtil.REQUEST_MAPPING.get(id);
-            if (Objects.nonNull(channel)){
+            if (Objects.nonNull(channel)) {
                 channel.writeAndFlush(msg.getBytes());
             }
         }

@@ -47,21 +47,21 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Message msg){
+    protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof SysMessage sysMessage) {
             handlerSysMsg(ctx, sysMessage);
         }
-        if (msg instanceof DataMessage dataMessage){
-            if (dataMessage.getCommand() == Command.REQUEST){
+        if (msg instanceof DataMessage dataMessage) {
+            if (dataMessage.getCommand() == Command.REQUEST) {
                 final Channel channel = ChannelUtil.REQUEST_MAPPING.get(dataMessage.getId());
-                if (Objects.nonNull(channel)){
+                if (Objects.nonNull(channel)) {
                     channel.writeAndFlush(dataMessage.getBytes());
-                }else {
+                } else {
                     final String dstServer = dataMessage.getDstServer();
                     final ServiceMapping serviceMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
-                    if (serviceMapping.getProtocol().equals(ProtocolEnum.tcp.name())){
+                    if (serviceMapping.getProtocol().equals(ProtocolEnum.tcp.name())) {
                         handlerTcp(ctx, dataMessage, serviceMapping);
-                    }else {
+                    } else {
                         handlerHttp(ctx, dataMessage, serviceMapping);
                     }
                 }
@@ -100,21 +100,21 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 final ConnectionStateInfo connectionStateInfo = new ConnectionStateInfo();
                 connectionStateInfo.setRegisterName(registerName);
                 connectionStateInfo.setServicePort(register.getNewPort());
-                if (sysMessage.getState() == 1){
+                if (sysMessage.getState() == 1) {
                     log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
                             registerName,
-                            httpPierceClientConfig.getServerAddress()+":"+ register.getNewPort());
+                            httpPierceClientConfig.getServerAddress() + ":" + register.getNewPort());
                     connectionStateInfo.setState(1);
                     ChannelUtil.stateMap.put(registerName, connectionStateInfo);
-                }else if (sysMessage.getState() == 2){
+                } else if (sysMessage.getState() == 2) {
                     log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
                             registerName, register.getNewPort());
-                    ctx.channel().eventLoop().schedule(()-> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
+                    ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
                     connectionStateInfo.setState(0);
                     ChannelUtil.stateMap.put(registerName, connectionStateInfo);
-                }else {
+                } else {
                     log.info("Failed to register  the route name 【{}】", registerName);
-                    ctx.channel().eventLoop().schedule(()-> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
+                    ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
                     connectionStateInfo.setState(0);
                     ChannelUtil.stateMap.put(registerName, connectionStateInfo);
                 }
@@ -132,24 +132,24 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
     private static void handlerHttp(ChannelHandlerContext ctx, DataMessage dataMessage, ServiceMapping serviceMapping) {
         String url = dataMessage.getUrl();
-        if (serviceMapping.getDelRegisterName()==1){
+        if (serviceMapping.getDelRegisterName() == 1) {
             url = url.replaceAll("/" + serviceMapping.getRegisterName(), "");
         }
         FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.valueOf(dataMessage.getVersion()), HttpMethod.valueOf(dataMessage.getMethod()), url);
-        dataMessage.getHeads().forEach((k, v)-> req.headers().add(k, v));
+        dataMessage.getHeads().forEach((k, v) -> req.headers().add(k, v));
         req.headers().set("Host", (serviceMapping.getAddress() + ":" + serviceMapping.getLocalPort()));
         req.content().writeBytes(dataMessage.getBytes());
         final String upgrade = req.headers().get(Constant.UPGRADE);
         Promise<Channel> promise = BootStrapFactory.createPromise(serviceMapping.getAddress(), serviceMapping.getLocalPort(), ctx);
         promise.addListener((FutureListener<Channel>) channelFuture -> {
             if (channelFuture.isSuccess()) {
-                if (StrUtil.isNotBlank(upgrade)){
+                if (StrUtil.isNotBlank(upgrade)) {
                     channelFuture.get().attr(ChannelUtil.HTTP_UPGRADE).set(true);
                 }
                 ChannelUtil.REQUEST_MAPPING.put(dataMessage.getId(), channelFuture.get());
                 ChannelPipeline p = channelFuture.get().pipeline();
                 p.addLast("http", new HttpRequestEncoder());
-                p.addLast("aggregator", new HttpObjectAggregator(1024*1024*10));
+                p.addLast("aggregator", new HttpObjectAggregator(1024 * 1024 * 10));
                 p.addLast("byte", new ByteArrayDecoder());
                 p.addLast(new ClientResponseHandler(dataMessage.getId(), ctx.channel()));
                 channelFuture.get().writeAndFlush(req);

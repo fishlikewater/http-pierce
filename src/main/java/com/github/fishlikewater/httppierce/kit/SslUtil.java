@@ -21,10 +21,10 @@ public class SslUtil {
 
     private static SslContext sslContext;
 
-    public static SslContext getSslContext(){
-        if (Objects.nonNull(sslContext)){
+    public static SslContext getSslContext() {
+        if (Objects.nonNull(sslContext)) {
             return sslContext;
-        }else {
+        } else {
             throw new RuntimeException("请先配置ssl参数");
         }
     }

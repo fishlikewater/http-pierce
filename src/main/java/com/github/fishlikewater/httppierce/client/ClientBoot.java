@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  客户端启动器
+ * 客户端启动器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -59,10 +59,11 @@ public class ClientBoot implements Boot {
 
     /**
      * 将连接及其后续操作单独提炼出来，方便重连操作
-     * @since 2023/2/16 19:33
+     *
      * @author fishlikewater@126.com
+     * @since 2023/2/16 19:33
      */
-    public void connection(){
+    public void connection() {
         try {
             final ChannelFuture channelFuture = bootstrap
                     .connect(httpPierceClientConfig.getServerAddress(), httpPierceClientConfig.getServerPort())
@@ -70,7 +71,7 @@ public class ClientBoot implements Boot {
                     .sync();
             channelFuture.channel().closeFuture().addListener(t -> log.info("⬢  client server closed"));
             ClientKit.setChannel(channelFuture.channel());
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("start client fail", e);
         }
 

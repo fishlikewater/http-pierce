@@ -11,5 +11,5 @@ create table main.service_mapping
     new_server_port   INTEGER default 0 not null,
     new_port          INTEGER,
     protocol          TEXT              not null,
-    enable   INTEGER default 0 not null
+    enable            INTEGER default 0 not null
 );

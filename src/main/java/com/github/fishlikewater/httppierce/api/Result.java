@@ -9,13 +9,14 @@ import java.util.UUID;
 
 /**
  * <p>
- *     返回基本结构
+ * 返回基本结构
  * </p>
+ *
  * @author fishlikewater@126.com
  */
 @Data
 @Accessors(chain = true)
-public class Result<T> implements Serializable{
+public class Result<T> implements Serializable {
 
 
     @Serial
@@ -43,6 +44,7 @@ public class Result<T> implements Serializable{
         setMessage(DEFAULT_CODE.message());
         requestId = uuid();
     }
+
     public Result(CodeEnum code) {
         setCode(code);
         setMessage(code.message());
@@ -77,7 +79,7 @@ public class Result<T> implements Serializable{
      *
      * @param code    请求状态码
      * @param message 消息
-     * @param data  请求结果
+     * @param data    请求结果
      */
     public void setContent(CodeEnum code, String message, T data) {
         this.code = code.code();

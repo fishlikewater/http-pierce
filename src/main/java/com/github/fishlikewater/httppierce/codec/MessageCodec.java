@@ -13,7 +13,7 @@ import java.util.Objects;
 
 /**
  * <p>
- *  统一消息编解码器
+ * 统一消息编解码器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -26,89 +26,89 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) {
-        if (out.isWritable()){
+        if (out.isWritable()) {
             encode(msg, out);
         }
     }
 
-    public void encode(Message msg, ByteBuf out){
+    public void encode(Message msg, ByteBuf out) {
         out.writeInt(0);
-        if (msg instanceof DataMessage dataMessage){
+        if (msg instanceof DataMessage dataMessage) {
             out.writeByte(DATA_MSG);
             out.writeLong(dataMessage.getId());
             out.writeByte(dataMessage.getCommand().getCode());
             final String dstServer = dataMessage.getDstServer();
-            if (StrUtil.isBlankIfStr(dstServer)){
+            if (StrUtil.isBlankIfStr(dstServer)) {
                 out.writeInt(0);
-            }else {
+            } else {
                 final byte[] dstServerBytes = dstServer.getBytes();
                 out.writeInt(dstServerBytes.length);
                 out.writeBytes(dstServerBytes);
             }
             final String url = dataMessage.getUrl();
-            if (StrUtil.isBlankIfStr(url)){
+            if (StrUtil.isBlankIfStr(url)) {
                 out.writeInt(0);
-            }else {
+            } else {
                 final byte[] urlBytes = url.getBytes();
                 out.writeInt(urlBytes.length);
                 out.writeBytes(urlBytes);
             }
             final String method = dataMessage.getMethod();
-            if (StrUtil.isBlankIfStr(method)){
+            if (StrUtil.isBlankIfStr(method)) {
                 out.writeByte(0);
-            }else {
+            } else {
                 final byte[] methodBytes = method.getBytes();
                 out.writeByte(methodBytes.length);
                 out.writeBytes(methodBytes);
             }
             final String version = dataMessage.getVersion();
-            if (StrUtil.isBlankIfStr(version)){
+            if (StrUtil.isBlankIfStr(version)) {
                 out.writeByte(0);
-            }else {
+            } else {
                 final byte[] versionBytes = version.getBytes();
                 out.writeByte(versionBytes.length);
                 out.writeBytes(versionBytes);
             }
             final Map<String, String> heads = dataMessage.getHeads();
-            if (Objects.nonNull(heads)){
+            if (Objects.nonNull(heads)) {
                 final byte[] headsBytes = KryoUtil.writeObjectToByteArray(heads);
                 out.writeInt(headsBytes.length);
                 out.writeBytes(headsBytes);
-            }else {
+            } else {
                 out.writeInt(0);
             }
             final byte[] bytes = dataMessage.getBytes();
-            if (Objects.nonNull(bytes)){
+            if (Objects.nonNull(bytes)) {
                 out.writeInt(bytes.length);
                 out.writeBytes(bytes);
-            }else {
+            } else {
                 out.writeInt(0);
             }
 
         }
-        if (msg instanceof SysMessage){
+        if (msg instanceof SysMessage) {
             out.writeByte(SYS_MSG);
             final byte[] bytes = KryoUtil.writeObjectToByteArray(msg);
             out.writeBytes(bytes);
 
         }
         final int length = out.readableBytes();
-        out.setInt(0, length-4);
+        out.setInt(0, length - 4);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        if (in.isReadable()){
+        if (in.isReadable()) {
             in.readInt();
             final byte msgType = in.readByte();
-            if (msgType == SYS_MSG){
+            if (msgType == SYS_MSG) {
                 final int readableBytes = in.readableBytes();
                 final byte[] bytes = new byte[readableBytes];
                 in.readBytes(bytes);
                 out.add(KryoUtil.readObjectFromByteArray(bytes, SysMessage.class));
             }
-            if (msgType == DATA_MSG){
+            if (msgType == DATA_MSG) {
                 final DataMessage dataMessage = new DataMessage();
                 final long id = in.readLong();
                 dataMessage.setId(id);
@@ -116,7 +116,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                 final Command command = Command.getInstance(commandCode);
                 dataMessage.setCommand(command);
                 final int dstServerLen = in.readInt();
-                if (dstServerLen != 0){
+                if (dstServerLen != 0) {
                     final ByteBuf byteBuf = in.readBytes(dstServerLen);
                     final byte[] bytes = new byte[byteBuf.readableBytes()];
                     byteBuf.readBytes(bytes);
@@ -125,7 +125,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                     byteBuf.release();
                 }
                 final int urlLen = in.readInt();
-                if (urlLen != 0){
+                if (urlLen != 0) {
                     final ByteBuf byteBuf = in.readBytes(urlLen);
                     final byte[] bytes = new byte[byteBuf.readableBytes()];
                     byteBuf.readBytes(bytes);
@@ -134,7 +134,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                     byteBuf.release();
                 }
                 final int methodLen = in.readByte();
-                if (methodLen != 0){
+                if (methodLen != 0) {
                     final ByteBuf byteBuf = in.readBytes(methodLen);
                     final byte[] bytes = new byte[byteBuf.readableBytes()];
                     byteBuf.readBytes(bytes);
@@ -143,7 +143,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                     byteBuf.release();
                 }
                 final int versionLen = in.readByte();
-                if (versionLen != 0){
+                if (versionLen != 0) {
                     final ByteBuf byteBuf = in.readBytes(versionLen);
                     final byte[] bytes = new byte[byteBuf.readableBytes()];
                     byteBuf.readBytes(bytes);
@@ -152,7 +152,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                     byteBuf.release();
                 }
                 final int headsLen = in.readInt();
-                if (headsLen != 0){
+                if (headsLen != 0) {
                     final ByteBuf byteBuf = in.readBytes(headsLen);
                     final byte[] bytes = new byte[byteBuf.readableBytes()];
                     byteBuf.readBytes(bytes);
@@ -161,7 +161,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                     byteBuf.release();
                 }
                 final int bytesLen = in.readInt();
-                if (bytesLen != 0){
+                if (bytesLen != 0) {
                     final ByteBuf byteBuf = in.readBytes(bytesLen);
                     final byte[] bytes = new byte[byteBuf.readableBytes()];
                     byteBuf.readBytes(bytes);

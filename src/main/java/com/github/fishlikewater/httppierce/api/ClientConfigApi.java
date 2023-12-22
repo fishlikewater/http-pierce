@@ -35,13 +35,13 @@ public class ClientConfigApi {
     private final HttpPierceClientConfig httpPierceClientConfig;
 
     @GetMapping
-    public Result<List<ServiceMapping>> getList(){
+    public Result<List<ServiceMapping>> getList() {
         final List<ServiceMapping> list = serviceMappingService.list();
         for (ServiceMapping serviceMapping : list) {
             final ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(serviceMapping.getRegisterName());
-            if (Objects.nonNull(stateInfo)){
+            if (Objects.nonNull(stateInfo)) {
                 serviceMapping.setState(stateInfo.getState());
-                if (stateInfo.getState() == 1){
+                if (stateInfo.getState() == 1) {
                     serviceMapping.setRemoteAddress(httpPierceClientConfig.getServerAddress() + ":" + stateInfo.getServicePort());
                 }
             }
@@ -50,30 +50,29 @@ public class ClientConfigApi {
     }
 
     @PutMapping("/{id}")
-    public Result<?> enable(@PathVariable("id")Integer id){
+    public Result<?> enable(@PathVariable("id") Integer id) {
         serviceMappingService.enable(id);
         return Result.of("ok");
     }
 
     @PostMapping
-    public Result<?> edit(@RequestBody @Validated ServiceMappingBo serviceMappingBo){
+    public Result<?> edit(@RequestBody @Validated ServiceMappingBo serviceMappingBo) {
         serviceMappingService.edit(converter.convert(serviceMappingBo, ServiceMapping.class));
         return Result.of("ok");
     }
 
     @DeleteMapping("/{id}")
-    public Result<?> del(@PathVariable("id")Integer id){
+    public Result<?> del(@PathVariable("id") Integer id) {
         serviceMappingService.delById(id);
         return Result.of("ok");
     }
 
     @PostMapping("/reboot")
-    public Result<?> reboot(){
+    public Result<?> reboot() {
         ClientKit.getClientBoot().stop();
         ClientKit.getClientBoot().start();
         return Result.of("ok");
     }
-
 
 
 }

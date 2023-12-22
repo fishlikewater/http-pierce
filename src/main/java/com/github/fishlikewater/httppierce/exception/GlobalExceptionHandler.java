@@ -26,19 +26,19 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
-    public Result<Object> processMethod(MissingServletRequestParameterException ex){
+    public Result<Object> processMethod(MissingServletRequestParameterException ex) {
         log.error("异常信息：", ex);
         return new Result<>(CodeEnum.PARAMETER_ERROR, "参数[" + ex.getParameterName() + "]不能为空");
     }
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
-    public Result<Object> processMethod(HttpMessageNotReadableException ex){
+    public Result<Object> processMethod(HttpMessageNotReadableException ex) {
         log.error("异常信息：", ex);
-        return new Result<>(CodeEnum.PARAMETER_ERROR,"请求参数不合法");
+        return new Result<>(CodeEnum.PARAMETER_ERROR, "请求参数不合法");
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public Result<Object> processMethod(MethodArgumentNotValidException ex){
+    public Result<Object> processMethod(MethodArgumentNotValidException ex) {
         log.error("异常信息：", ex);
         return new Result<>(CodeEnum.PARAMETER_ERROR, ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
     }
@@ -46,21 +46,21 @@ public class GlobalExceptionHandler {
 
     //参数校验
     @ExceptionHandler(value = ConstraintViolationException.class)
-    public Result<Object> processMethod(ConstraintViolationException ex){
+    public Result<Object> processMethod(ConstraintViolationException ex) {
         log.error("异常信息：", ex);
         return new Result<>(CodeEnum.PARAMETER_ERROR, ex.getMessage());
     }
 
     //参数校验
     @ExceptionHandler(value = BindException.class)
-    public Result<Object> processMethod(BindException ex){
+    public Result<Object> processMethod(BindException ex) {
         log.error("异常信息：", ex);
         return new Result<>(CodeEnum.PARAMETER_ERROR, ex.getMessage());
     }
 
     //认证异常
     @ExceptionHandler(value = AuthException.class)
-    public Result<Object> processMethod(AuthException ex){
+    public Result<Object> processMethod(AuthException ex) {
         log.error("异常信息：", ex);
         return new Result<>(CodeEnum.TOKEN_OVERDUE, ex.getMessage());
     }
@@ -68,7 +68,7 @@ public class GlobalExceptionHandler {
 
     //其他异常
     @ExceptionHandler(value = Exception.class)
-    public Result<Object> processMethod(Exception ex){
+    public Result<Object> processMethod(Exception ex) {
         log.error("异常信息：", ex);
         return new Result<>(CodeEnum.SYSTEM_ERROR, "服务访问异常");
     }

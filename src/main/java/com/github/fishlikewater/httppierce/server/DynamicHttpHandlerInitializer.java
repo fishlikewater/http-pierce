@@ -23,7 +23,7 @@ import java.io.File;
 
 /**
  * <p>
- *  http 服务端 处理器初始化
+ * http 服务端 处理器初始化
  * </p>
  *
  * @author fishlikewater@126.com
@@ -46,15 +46,15 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) throws SSLException {
         ChannelPipeline p = channel.pipeline();
-        if (protocolEnum == ProtocolEnum.https){
+        if (protocolEnum == ProtocolEnum.https) {
             p.addLast("ssl", SslUtil.getSslContext().newHandler(channel.alloc()));
         }
         p.addLast("httpCode", new HttpRequestDecoder());
         p.addLast(new ChunkedWriteHandler());
-        p.addLast("aggregator", new HttpObjectAggregator((int)httpPierceServerConfig.getHttpObjectSize().toBytes()));
+        p.addLast("aggregator", new HttpObjectAggregator((int) httpPierceServerConfig.getHttpObjectSize().toBytes()));
         p.addLast("byte", new ByteArrayEncoder());
         p.addLast("httpServerHandler", new DynamicHttpServerHandler(clientChannel, registerName, httpPierceConfig));
-        if(httpPierceServerConfig.getSslConfig().isEnable()){
+        if (httpPierceServerConfig.getSslConfig().isEnable()) {
             final File cerFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getCaPath());
             final File keyFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getPkPath());
             final SslContext sslContext = SslContextBuilder.forServer(cerFile, keyFile).build();

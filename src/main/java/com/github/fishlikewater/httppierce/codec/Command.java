@@ -31,13 +31,13 @@ public enum Command implements Serializable {
     CANCEL_REGISTER(6);
     private final int code;
 
-    Command(int code){
+    Command(int code) {
         this.code = code;
     }
 
-    public static Command getInstance(int code){
+    public static Command getInstance(int code) {
         for (Command value : Command.values()) {
-            if (value.code == code){
+            if (value.code == code) {
                 return value;
             }
         }

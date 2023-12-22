@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
- *  ssl 配置
+ * ssl 配置
  * </p>
  *
  * @author fishlikewater@126.com
@@ -16,14 +16,24 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties("proxy.ssl")
 public class SslConfig {
-    /**是否开启ssl*/
+    /**
+     * 是否开启ssl
+     */
     private boolean enable = false;
-    /**是否开启双向验证*/
+    /**
+     * 是否开启双向验证
+     */
     private boolean needClientAuth = false;
-    /**密匙库地址*/
+    /**
+     * 密匙库地址
+     */
     private String pkPath;
-    /** 签名证书地址*/
+    /**
+     * 签名证书地址
+     */
     private String caPath;
-    /**证书密码*/
+    /**
+     * 证书密码
+     */
     private String passwd;
 }

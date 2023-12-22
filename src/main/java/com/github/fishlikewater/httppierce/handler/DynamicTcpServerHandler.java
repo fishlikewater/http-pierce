@@ -33,7 +33,7 @@ public class DynamicTcpServerHandler extends SimpleChannelInboundHandler<byte[]>
     protected void channelRead0(ChannelHandlerContext ctx, byte[] msg) {
 
         Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
-        if (Objects.isNull(requestId)){
+        if (Objects.isNull(requestId)) {
             requestId = IdUtil.getSnowflakeNextId();
             ctx.channel().attr(ChannelUtil.TCP_FLAG).set(requestId);
         }
@@ -54,7 +54,7 @@ public class DynamicTcpServerHandler extends SimpleChannelInboundHandler<byte[]>
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
-        if (Objects.nonNull(requestId)){
+        if (Objects.nonNull(requestId)) {
             ChannelUtil.REQUEST_MAPPING.remove(requestId);
         }
         super.channelInactive(ctx);

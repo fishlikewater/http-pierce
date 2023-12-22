@@ -27,15 +27,15 @@ public class ClientKit {
 
     @Setter
     @Getter
-    private static ClientBoot  clientBoot;
+    private static ClientBoot clientBoot;
 
 
-    public static void setChannel(Channel channel){
+    public static void setChannel(Channel channel) {
 
         ClientKit.channel = channel;
     }
 
-    public static void registerService(ServiceMapping serviceMapping){
+    public static void registerService(ServiceMapping serviceMapping) {
         final SysMessage registerMsg = new SysMessage();
         registerMsg.setCommand(Command.REGISTER)
                 .setId(IdUtil.getSnowflakeNextId())
@@ -47,7 +47,7 @@ public class ClientKit {
         channel.writeAndFlush(registerMsg);
     }
 
-    public static void  reRegister(String registerName){
+    public static void reRegister(String registerName) {
         final Map<String, ServiceMapping> mappingMap = channel.attr(ChannelUtil.CLIENT_FORWARD).get();
         for (Map.Entry<String, ServiceMapping> mappingEntry : mappingMap.entrySet()) {
             final String key = mappingEntry.getKey();
@@ -59,16 +59,16 @@ public class ClientKit {
         }
     }
 
-    public static void addMapping(ServiceMapping serviceMapping){
+    public static void addMapping(ServiceMapping serviceMapping) {
         final Map<String, ServiceMapping> stringServiceMappingMap = channel.attr(ChannelUtil.CLIENT_FORWARD).get();
         final ServiceMapping serviceMapping1 = stringServiceMappingMap.get(serviceMapping.getRegisterName());
-        if(Objects.isNull(serviceMapping1)){
+        if (Objects.isNull(serviceMapping1)) {
             stringServiceMappingMap.put(serviceMapping.getRegisterName(), serviceMapping);
             registerService(serviceMapping);
         }
     }
 
-    public static void cancelRegister(String registerName){
+    public static void cancelRegister(String registerName) {
         final Map<String, ServiceMapping> mappingMap = channel.attr(ChannelUtil.CLIENT_FORWARD).get();
         for (Map.Entry<String, ServiceMapping> mappingEntry : mappingMap.entrySet()) {
             final String key = mappingEntry.getKey();
@@ -83,7 +83,6 @@ public class ClientKit {
             }
         }
     }
-
 
 
 }

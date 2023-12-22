@@ -25,7 +25,7 @@ import java.util.Objects;
 
 /**
  * <p>
- *  http 服务器处理器
+ * http 服务器处理器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -39,11 +39,11 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg){
+    protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if (msg instanceof FullHttpRequest req) {
             HttpHeaders headers = req.headers();
             String uri = req.uri();
-            if (StrUtil.isBlank(uri) || Constant.URL_SEPARATOR.equals(uri)){
+            if (StrUtil.isBlank(uri) || Constant.URL_SEPARATOR.equals(uri)) {
                 final ByteBuf buf = getBadResponse("No routing path, unable to map to client");
                 ctx.channel().writeAndFlush(buf);
                 return;
@@ -56,11 +56,11 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
             Long requestId = IdUtil.getSnowflakeNextId();
             Channel channel = ChannelUtil.ROUTE_MAPPING.get(path);
             if (channel == null) {
-                final ByteBuf buf  = getBadResponse("No client connection, please check the url");
+                final ByteBuf buf = getBadResponse("No client connection, please check the url");
                 ctx.channel().writeAndFlush(buf);
             } else {
                 final String connection = headers.get(Constant.CONNECTION);
-                if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)){
+                if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)) {
                     HandlerKit.upWebSocket(ctx.channel(), channel, requestId);
                 }
                 final DataMessage dataMessage = new DataMessage();
@@ -76,7 +76,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                     content.readBytes(bytes);
                     dataMessage.setBytes(bytes);
                 }
-                req.headers().forEach(entry-> heads.put(entry.getKey(), entry.getValue()));
+                req.headers().forEach(entry -> heads.put(entry.getKey(), entry.getValue()));
                 dataMessage.setHeads(heads);
                 dataMessage.setUrl(uri);
                 dataMessage.setMethod(req.method().name());
@@ -85,7 +85,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                 channel.writeAndFlush(dataMessage).addListener((f) -> {
                     if (f.isSuccess()) {
                         ChannelUtil.REQUEST_MAPPING.put(requestId, ctx.channel());
-                        if (httpPierceConfig.isLogger()){
+                        if (httpPierceConfig.isLogger()) {
                             LoggerUtil.info(req.uri() + "---->" + channel.remoteAddress().toString());
                         }
                     } else {
@@ -109,7 +109,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
-        if (Objects.nonNull(requestId)){
+        if (Objects.nonNull(requestId)) {
             ChannelUtil.REQUEST_MAPPING.remove(requestId);
         }
         super.channelInactive(ctx);
@@ -125,7 +125,7 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
         }
     }
 
-    private ByteBuf getBadResponse(String message){
+    private ByteBuf getBadResponse(String message) {
         byte[] bytes = message.getBytes(Charset.defaultCharset());
         FullHttpResponse resp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
         resp.content().writeBytes(bytes);

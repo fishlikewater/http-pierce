@@ -43,7 +43,7 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
         if (msg instanceof FullHttpRequest req) {
             Long requestId = IdUtil.getSnowflakeNextId();
             final String connection = req.headers().get(Constant.CONNECTION);
-            if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)){
+            if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)) {
                 HandlerKit.upWebSocket(ctx.channel(), channel, requestId);
             }
             final Map<String, String> heads = new HashMap<>(8);
@@ -67,7 +67,7 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             ctx.channel().attr(ChannelUtil.TCP_FLAG).set(requestId);
             channel.writeAndFlush(dataMessage).addListener((f) -> {
                 if (f.isSuccess()) {
-                    if (httpPierceConfig.isLogger()){
+                    if (httpPierceConfig.isLogger()) {
                         LoggerUtil.info(req.uri() + "---->" + channel.remoteAddress().toString());
                     }
                     ChannelUtil.REQUEST_MAPPING.put(requestId, ctx.channel());
@@ -91,7 +91,7 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
-        if (Objects.nonNull(requestId)){
+        if (Objects.nonNull(requestId)) {
             ChannelUtil.REQUEST_MAPPING.remove(requestId);
         }
         super.channelInactive(ctx);

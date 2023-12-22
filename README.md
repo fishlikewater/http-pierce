@@ -1,8 +1,9 @@
 ### http 内网穿透工具
-  
+
 ![jdk](https://img.shields.io/badge/jdk21-blue) ![spring boot](https://img.shields.io/badge/spring%20boot-3.1.2-blue)  ![netty](https://img.shields.io/badge/netty-4.1.89.Final-blue "netty")  ![kryo](https://img.shields.io/badge/kryo-5.4.0-blue)  ![GitHub](https://img.shields.io/github/license/fishlikewater/http-pierce)
 
-***通过公网服务器将内网http服务映射到公网，可实现服务端通过统一端口，根据注册名称路由到各客户端，也可实现服务端动态创建http服务与客户端注册服务一一映射***
+***通过公网服务器将内网http服务映射到公网，可实现服务端通过统一端口，根据注册名称路由到各客户端，也可实现服务端动态创建http服务与客户端注册服务一一映射
+***
 
 * 使用方式
 
@@ -28,7 +29,9 @@ http.pierce.server.keep-time-out=120s
 http.pierce.server.http-object-size=5MB
 http.pierce.server.max-frame-length=5MB
 ```
+
 ***<font color=red>配置src/main/resources/web.setting</font>***
+
 ```properties
 server.type = none
 ```
@@ -56,7 +59,9 @@ http.pierce.client.token=123456
 http.pierce.client.retry-time=30s
 http.pierce.client.max-frame-length=5MB
 ```
+
 ***<font color=red>配置src/main/resources/web.setting</font>***
+
 ```properties
 server.type = web
 ```

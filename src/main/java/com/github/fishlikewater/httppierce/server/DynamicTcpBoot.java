@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Getter
 @Slf4j
-public class DynamicTcpBoot extends HttpBoot{
+public class DynamicTcpBoot extends HttpBoot {
 
     private final int port;
     private final String registerName;
@@ -24,8 +24,7 @@ public class DynamicTcpBoot extends HttpBoot{
     private final Channel channel;
 
 
-
-    public DynamicTcpBoot(int port, String registerName, Channel channel){
+    public DynamicTcpBoot(int port, String registerName, Channel channel) {
         this.port = port;
         this.registerName = registerName;
         this.channel = channel;

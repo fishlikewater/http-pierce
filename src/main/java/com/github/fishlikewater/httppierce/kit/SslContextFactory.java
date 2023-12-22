@@ -55,7 +55,7 @@ public class SslContextFactory {
             assert kmf != null;
             SERVER_CONTEXT.init(kmf.getKeyManagers(), null, null);
             return SERVER_CONTEXT;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Error("Failed to initialize the server-side SSLContext", e);
         }
     }
@@ -70,7 +70,7 @@ public class SslContextFactory {
             openSslContext = SslContextBuilder.forServer(kmf)
                     .sslProvider(SslProvider.OPENSSL).build();
             return openSslContext;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Error("Failed to initialize the server-side SslContext", e);
         }
     }
@@ -86,7 +86,7 @@ public class SslContextFactory {
             // 设置信任证书
             CLIENT_CONTEXT.init(null, tf == null ? null : tf.getTrustManagers(), null);
             return CLIENT_CONTEXT;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Error("Failed to initialize the client-side SSLContext");
         }
     }
@@ -101,7 +101,7 @@ public class SslContextFactory {
             assert tf != null;
             openSslClientContext = SslContextBuilder.forClient().sslProvider(SslProvider.OPENSSL).trustManager(tf).build();
             return openSslClientContext;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new Error("Failed to initialize the client-side SSLContext");
         }
 
@@ -274,7 +274,7 @@ public class SslContextFactory {
         }
     }
 
-    public static SslHandler getOpenSslClientHandler(SslConfig sslConfig,  ByteBufAllocator alloc) {
+    public static SslHandler getOpenSslClientHandler(SslConfig sslConfig, ByteBufAllocator alloc) {
         if (sslConfig != null && sslConfig.isEnable()) {
             return new SslHandler(getOpenSslClientEngine(sslConfig.getPkPath(), sslConfig.getCaPath(), sslConfig.getPasswd(), alloc, sslConfig.isNeedClientAuth()));
         } else {

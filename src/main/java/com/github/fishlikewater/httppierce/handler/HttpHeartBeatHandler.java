@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  用于检测channel的心跳handler 继承ChannelInboundHandlerAdapter，从而不需要实现channelRead0方法
+ * 用于检测channel的心跳handler 继承ChannelInboundHandlerAdapter，从而不需要实现channelRead0方法
  * </p>
  *
  * @author fishlikewater@126.com

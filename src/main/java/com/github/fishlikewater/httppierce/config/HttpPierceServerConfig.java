@@ -10,7 +10,7 @@ import java.time.Duration;
 
 /**
  * <p>
- *  配置文件
+ * 配置文件
  * </p>
  *
  * @author fishlikewater@126.com
@@ -55,31 +55,34 @@ public class HttpPierceServerConfig {
     private String token;
 
     /**
-     *
      * 每一帧最大字节
      */
     private DataSize maxFrameLength;
 
 
     /**
-     *
      * HttpObjectAggregator 大小
      */
     private DataSize httpObjectSize;
 
     /**
-     *
-     *是否开启ssl
+     * 是否开启ssl
      */
     private SslConfig sslConfig = new SslConfig();
 
     @Data
     public static class SslConfig {
-        /**是否开启ssl*/
+        /**
+         * 是否开启ssl
+         */
         private boolean enable = false;
-        /**密匙库地址*/
+        /**
+         * 密匙库地址
+         */
         private String pkPath;
-        /** 签名证书地址*/
+        /**
+         * 签名证书地址
+         */
         private String caPath;
     }
 

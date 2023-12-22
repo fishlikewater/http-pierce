@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * <p>
- *  配置文件
+ * 配置文件
  * </p>
  *
  * @author fishlikewater@126.com

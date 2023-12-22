@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- *  系统通用消息
+ * 系统通用消息
  * </p>
  *
  * @author fishlikewater@126.com
@@ -21,33 +21,28 @@ import java.io.Serializable;
 public class SysMessage implements Message, Serializable {
 
     /**
-     *
      * 消息id
      */
     private Long id;
 
     /**
-     *
      * 验证类容
      */
     private String token;
 
     /**
-     *
      * 状态
      */
     private int state;
 
 
     /**
-     *
      * 客户端注册信息
      */
     private Register register;
 
 
     /**
-     *
      * 消息类型
      */
     private Command command;
@@ -55,7 +50,7 @@ public class SysMessage implements Message, Serializable {
     @Data
     @Accessors(chain = true)
     @EqualsAndHashCode
-    public static class Register implements Serializable{
+    public static class Register implements Serializable {
 
         private Integer id;
         /**

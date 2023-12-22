@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- *  http服务端启动器
+ * http服务端启动器
  * </p>
  *
  * @author fishlikewater@126.com
@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 @NoArgsConstructor
-public class HttpBoot implements Boot{
+public class HttpBoot implements Boot {
 
     /**
      * 处理连接
@@ -45,7 +45,7 @@ public class HttpBoot implements Boot{
 
     private HttpPierceConfig httpPierceConfig;
 
-    public HttpBoot(HttpPierceServerConfig httpPierceServerConfig, HttpPierceConfig httpPierceConfig){
+    public HttpBoot(HttpPierceServerConfig httpPierceServerConfig, HttpPierceConfig httpPierceConfig) {
         this.httpPierceServerConfig = httpPierceServerConfig;
         this.httpPierceConfig = httpPierceConfig;
     }
@@ -67,7 +67,7 @@ public class HttpBoot implements Boot{
         run(serverBootstrap);
     }
 
-    public void run(ServerBootstrap serverBootstrap){
+    public void run(ServerBootstrap serverBootstrap) {
         serverBootstrap.childHandler(new HttpHandlerInitializer(httpPierceServerConfig, httpPierceConfig));
         try {
             Channel ch = serverBootstrap.bind(httpPierceServerConfig.getAddress(), httpPierceServerConfig.getHttpServerPort()).sync().channel();

@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  **/
 @Getter
 @Slf4j
-public class DynamicHttpBoot extends DynamicTcpBoot{
+public class DynamicHttpBoot extends DynamicTcpBoot {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;
@@ -27,7 +27,7 @@ public class DynamicHttpBoot extends DynamicTcpBoot{
 
 
     public DynamicHttpBoot(int port, String registerName, Channel channel, HttpPierceServerConfig httpPierceServerConfig,
-                           HttpPierceConfig httpPierceConfig, ProtocolEnum protocolEnum){
+                           HttpPierceConfig httpPierceConfig, ProtocolEnum protocolEnum) {
         super(port, registerName, channel);
         this.httpPierceServerConfig = httpPierceServerConfig;
         this.httpPierceConfig = httpPierceConfig;

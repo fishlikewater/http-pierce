@@ -21,7 +21,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<SysMessage> {
     private final String token;
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SysMessage msg){
+    protected void channelRead0(ChannelHandlerContext ctx, SysMessage msg) {
         final Command command = msg.getCommand();
         if (command == Command.AUTH) {
             final String tokenStr = msg.getToken();

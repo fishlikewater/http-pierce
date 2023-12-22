@@ -2,7 +2,7 @@ package com.github.fishlikewater.httppierce.config;
 
 /**
  * <p>
- *     常量
+ * 常量
  * </p>
  *
  * @author fishlikewater@126.com

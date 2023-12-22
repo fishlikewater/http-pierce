@@ -38,7 +38,7 @@ public class Codegen {
     public static GlobalConfig createGlobalConfigUseStyle1() {
         //创建配置内容
         GlobalConfig globalConfig = new GlobalConfig();
-        JdbcTypeMapping.registerMapping(Timestamp.class,LocalDateTime.class);
+        JdbcTypeMapping.registerMapping(Timestamp.class, LocalDateTime.class);
         //设置根包
         globalConfig.getPackageConfig()
                 .setSourceDir("E:\\IdeaProjects2\\http-pierce\\src\\main\\java")

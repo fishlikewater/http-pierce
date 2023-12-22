@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
- *  http 服务端 处理器初始化
+ * http 服务端 处理器初始化
  * </p>
  *
  * @author fishlikewater@126.com
@@ -36,7 +36,7 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
     private final HttpPierceServerConfig httpPierceServerConfig;
     private final HttpPierceConfig httpPierceConfig;
 
-    public HttpHandlerInitializer(HttpPierceServerConfig httpPierceServerConfig,  HttpPierceConfig httpPierceConfig) {
+    public HttpHandlerInitializer(HttpPierceServerConfig httpPierceServerConfig, HttpPierceConfig httpPierceConfig) {
         log.info("init http handler");
         this.httpPierceServerConfig = httpPierceServerConfig;
         this.httpPierceConfig = httpPierceConfig;
@@ -56,7 +56,7 @@ public class HttpHandlerInitializer extends ChannelInitializer<Channel> {
         p.addLast("aggregator", new HttpObjectAggregator((int) httpPierceServerConfig.getHttpObjectSize().toBytes()));
         p.addLast("byte", new ByteArrayEncoder());
         p.addLast("httpServerHandler", new HttpServerHandler(httpPierceConfig));
-        if(httpPierceServerConfig.getSslConfig().isEnable()){
+        if (httpPierceServerConfig.getSslConfig().isEnable()) {
             final File keyFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getPkPath());
             final File cerFile = FileUtil.file(httpPierceServerConfig.getSslConfig().getCaPath());
             final SslContext sslContext = SslContextBuilder.forServer(cerFile, keyFile).build();

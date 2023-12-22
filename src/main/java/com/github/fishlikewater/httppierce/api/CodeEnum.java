@@ -53,7 +53,7 @@ public enum CodeEnum {
     /**
      * 构造一个<code>DomainResultCodeEnum</code>枚举对象
      *
-     * @param code 状态码
+     * @param code    状态码
      * @param message 消息
      */
     CodeEnum(String code, String message) {
