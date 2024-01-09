@@ -27,6 +27,8 @@ import java.util.logging.Logger;
 @Slf4j
 public class LoggerUtil {
 
+    private LoggerUtil() {}
+
     private static final Logger logger = Logger.getLogger(LoggerUtil.class.getName());
 
     @Setter

@@ -71,8 +71,9 @@ public class ClientBoot implements Boot {
                     .sync();
             channelFuture.channel().closeFuture().addListener(t -> log.info("⬢  client server closed"));
             ClientKit.setChannel(channelFuture.channel());
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("start client fail", e);
+            Thread.currentThread().interrupt();
         }
 
     }
@@ -84,8 +85,9 @@ public class ClientBoot implements Boot {
             if (this.bossGroup != null) {
                 this.bossGroup.shutdownGracefully().sync();
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("⬢ client shutdown error", e);
+            Thread.currentThread().interrupt();
         }
     }
 }

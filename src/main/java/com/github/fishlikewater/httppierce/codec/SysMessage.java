@@ -3,6 +3,7 @@ package com.github.fishlikewater.httppierce.codec;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import java.io.Serializable;
  * @since 2023年02月09日 10:17
  **/
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode
 @Accessors(chain = true)
 public class SysMessage implements Message, Serializable {
@@ -48,6 +50,7 @@ public class SysMessage implements Message, Serializable {
     private Command command;
 
     @Data
+    @NoArgsConstructor
     @Accessors(chain = true)
     @EqualsAndHashCode
     public static class Register implements Serializable {
@@ -71,12 +74,8 @@ public class SysMessage implements Message, Serializable {
         /**
          * 外网开放协议 http https
          **/
-        private ProtocolEnum protocol = ProtocolEnum.http;
+        private ProtocolEnum protocol = ProtocolEnum.HTTP;
 
-        public Register() {
-        }
-    }
 
-    public SysMessage() {
     }
 }

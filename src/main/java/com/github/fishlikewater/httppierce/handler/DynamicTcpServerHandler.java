@@ -47,11 +47,6 @@ public class DynamicTcpServerHandler extends SimpleChannelInboundHandler<byte[]>
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        super.handlerAdded(ctx);
-    }
-
-    @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
         if (Objects.nonNull(requestId)) {

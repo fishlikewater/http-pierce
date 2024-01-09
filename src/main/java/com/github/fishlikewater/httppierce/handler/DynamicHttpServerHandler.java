@@ -1,7 +1,7 @@
 package com.github.fishlikewater.httppierce.handler;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.config.Constant;
@@ -18,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -43,10 +45,10 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
         if (msg instanceof FullHttpRequest req) {
             Long requestId = IdUtil.getSnowflakeNextId();
             final String connection = req.headers().get(Constant.CONNECTION);
-            if (StrUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)) {
+            if (CharSequenceUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)) {
                 HandlerKit.upWebSocket(ctx.channel(), channel, requestId);
             }
-            final Map<String, String> heads = new HashMap<>(8);
+            final Map<String, String> heads = HashMap.newHashMap(8);
             final DataMessage dataMessage = new DataMessage();
             dataMessage.setCommand(Command.REQUEST);
             dataMessage.setDstServer(registerName);
@@ -65,7 +67,7 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
             dataMessage.setVersion(req.protocolVersion().text());
             dataMessage.setUrl(req.uri());
             ctx.channel().attr(ChannelUtil.TCP_FLAG).set(requestId);
-            channel.writeAndFlush(dataMessage).addListener((f) -> {
+            channel.writeAndFlush(dataMessage).addListener(f -> {
                 if (f.isSuccess()) {
                     if (httpPierceConfig.isLogger()) {
                         LoggerUtil.info(req.uri() + "---->" + channel.remoteAddress().toString());
@@ -76,16 +78,10 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
                 }
 
             });
-
         } else {
             log.info("not found http or https request, will close this channel");
             ctx.close();
         }
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        super.handlerAdded(ctx);
     }
 
     @Override

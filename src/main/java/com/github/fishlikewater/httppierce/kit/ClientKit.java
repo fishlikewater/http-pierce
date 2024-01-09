@@ -23,6 +23,8 @@ import java.util.Objects;
  **/
 public class ClientKit {
 
+    private ClientKit() {}
+
     private static Channel channel;
 
     @Setter

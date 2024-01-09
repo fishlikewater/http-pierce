@@ -103,7 +103,7 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         returnMsg.setId(IdUtil.getSnowflakeNextId());
         returnMsg.setRegister(register);
         if (ObjectUtil.isNull(dynamicHttpBoot1)) {
-            if (register.getProtocol() == ProtocolEnum.tcp) {
+            if (register.getProtocol() == ProtocolEnum.TCP) {
                 final DynamicTcpBoot dynamicTcpBoot = new DynamicTcpBoot(register.getNewPort(), register.getRegisterName(), ctx.channel());
                 dynamicTcpBoot.start();
                 dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicTcpBoot);

@@ -19,6 +19,8 @@ import java.util.Base64;
  **/
 public class KryoUtil {
 
+    private KryoUtil() {}
+
     private static final String DEFAULT_ENCODING = "UTF-8";
 
     private static final ThreadLocal<Kryo> KRYO_LOCAL = ThreadLocal.withInitial(() -> {

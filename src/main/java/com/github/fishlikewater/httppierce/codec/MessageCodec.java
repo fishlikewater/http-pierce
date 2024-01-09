@@ -21,8 +21,8 @@ import java.util.Objects;
  **/
 public class MessageCodec extends ByteToMessageCodec<Message> {
 
-    private final static byte SYS_MSG = 0;
-    private final static byte DATA_MSG = 1;
+    private static final byte SYS_MSG = 0;
+    private static final byte DATA_MSG = 1;
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Message msg, ByteBuf out) {
@@ -33,71 +33,73 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
 
     public void encode(Message msg, ByteBuf out) {
         out.writeInt(0);
-        if (msg instanceof DataMessage dataMessage) {
-            out.writeByte(DATA_MSG);
-            out.writeLong(dataMessage.getId());
-            out.writeByte(dataMessage.getCommand().getCode());
-            final String dstServer = dataMessage.getDstServer();
-            if (StrUtil.isBlankIfStr(dstServer)) {
-                out.writeInt(0);
-            } else {
-                final byte[] dstServerBytes = dstServer.getBytes();
-                out.writeInt(dstServerBytes.length);
-                out.writeBytes(dstServerBytes);
-            }
-            final String url = dataMessage.getUrl();
-            if (StrUtil.isBlankIfStr(url)) {
-                out.writeInt(0);
-            } else {
-                final byte[] urlBytes = url.getBytes();
-                out.writeInt(urlBytes.length);
-                out.writeBytes(urlBytes);
-            }
-            final String method = dataMessage.getMethod();
-            if (StrUtil.isBlankIfStr(method)) {
-                out.writeByte(0);
-            } else {
-                final byte[] methodBytes = method.getBytes();
-                out.writeByte(methodBytes.length);
-                out.writeBytes(methodBytes);
-            }
-            final String version = dataMessage.getVersion();
-            if (StrUtil.isBlankIfStr(version)) {
-                out.writeByte(0);
-            } else {
-                final byte[] versionBytes = version.getBytes();
-                out.writeByte(versionBytes.length);
-                out.writeBytes(versionBytes);
-            }
-            final Map<String, String> heads = dataMessage.getHeads();
-            if (Objects.nonNull(heads)) {
-                final byte[] headsBytes = KryoUtil.writeObjectToByteArray(heads);
-                out.writeInt(headsBytes.length);
-                out.writeBytes(headsBytes);
-            } else {
-                out.writeInt(0);
-            }
-            final byte[] bytes = dataMessage.getBytes();
-            if (Objects.nonNull(bytes)) {
-                out.writeInt(bytes.length);
-                out.writeBytes(bytes);
-            } else {
-                out.writeInt(0);
-            }
 
-        }
         if (msg instanceof SysMessage) {
             out.writeByte(SYS_MSG);
             final byte[] bytes = KryoUtil.writeObjectToByteArray(msg);
             out.writeBytes(bytes);
+        }
 
+        if (msg instanceof DataMessage dataMessage) {
+            out.writeByte(DATA_MSG);
+            out.writeLong(dataMessage.getId());
+            out.writeByte(dataMessage.getCommand().getCode());
+
+            this.writeInt(dataMessage.getDstServer(), out);
+            this.writeInt(dataMessage.getUrl(), out);
+
+            this.writeByte(dataMessage.getMethod(), out);
+            this.writeByte(dataMessage.getVersion(), out);
+
+            this.writeHeads(out, dataMessage);
+            this.writeData(out, dataMessage);
         }
         final int length = out.readableBytes();
         out.setInt(0, length - 4);
     }
 
+    private void writeData(ByteBuf out, DataMessage dataMessage) {
+        final byte[] bytes = dataMessage.getBytes();
+        if (Objects.nonNull(bytes)) {
+            out.writeInt(bytes.length);
+            out.writeBytes(bytes);
+        } else {
+            out.writeInt(0);
+        }
+    }
+
+    private void writeHeads(ByteBuf out, DataMessage dataMessage) {
+        final Map<String, String> heads = dataMessage.getHeads();
+        if (Objects.nonNull(heads)) {
+            final byte[] headsBytes = KryoUtil.writeObjectToByteArray(heads);
+            out.writeInt(headsBytes.length);
+            out.writeBytes(headsBytes);
+        } else {
+            out.writeInt(0);
+        }
+    }
+
+    private void writeByte(String dataMessage, ByteBuf out) {
+        if (StrUtil.isBlankIfStr(dataMessage)) {
+            out.writeByte(0);
+        } else {
+            final byte[] methodBytes = dataMessage.getBytes();
+            out.writeByte(methodBytes.length);
+            out.writeBytes(methodBytes);
+        }
+    }
+
+    private void writeInt(String dataMessage, ByteBuf out) {
+        if (StrUtil.isBlankIfStr(dataMessage)) {
+            out.writeInt(0);
+        } else {
+            final byte[] dataMessageBytes = dataMessage.getBytes();
+            out.writeInt(dataMessageBytes.length);
+            out.writeBytes(dataMessageBytes);
+        }
+    }
+
     @Override
-    @SuppressWarnings("unchecked")
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         if (in.isReadable()) {
             in.readInt();
@@ -115,62 +117,87 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
                 final byte commandCode = in.readByte();
                 final Command command = Command.getInstance(commandCode);
                 dataMessage.setCommand(command);
-                final int dstServerLen = in.readInt();
-                if (dstServerLen != 0) {
-                    final ByteBuf byteBuf = in.readBytes(dstServerLen);
-                    final byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.readBytes(bytes);
-                    final String dstServer = new String(bytes);
-                    dataMessage.setDstServer(dstServer);
-                    byteBuf.release();
-                }
-                final int urlLen = in.readInt();
-                if (urlLen != 0) {
-                    final ByteBuf byteBuf = in.readBytes(urlLen);
-                    final byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.readBytes(bytes);
-                    final String url = new String(bytes);
-                    dataMessage.setUrl(url);
-                    byteBuf.release();
-                }
-                final int methodLen = in.readByte();
-                if (methodLen != 0) {
-                    final ByteBuf byteBuf = in.readBytes(methodLen);
-                    final byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.readBytes(bytes);
-                    final String method = new String(bytes);
-                    dataMessage.setMethod(method);
-                    byteBuf.release();
-                }
-                final int versionLen = in.readByte();
-                if (versionLen != 0) {
-                    final ByteBuf byteBuf = in.readBytes(versionLen);
-                    final byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.readBytes(bytes);
-                    final String version = new String(bytes);
-                    dataMessage.setVersion(version);
-                    byteBuf.release();
-                }
-                final int headsLen = in.readInt();
-                if (headsLen != 0) {
-                    final ByteBuf byteBuf = in.readBytes(headsLen);
-                    final byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.readBytes(bytes);
-                    final HashMap<String, String> hashMap = KryoUtil.readObjectFromByteArray(bytes, HashMap.class);
-                    dataMessage.setHeads(hashMap);
-                    byteBuf.release();
-                }
-                final int bytesLen = in.readInt();
-                if (bytesLen != 0) {
-                    final ByteBuf byteBuf = in.readBytes(bytesLen);
-                    final byte[] bytes = new byte[byteBuf.readableBytes()];
-                    byteBuf.readBytes(bytes);
-                    dataMessage.setBytes(bytes);
-                    byteBuf.release();
-                }
+
+                this.readDstServer(in, dataMessage);
+                this.readUrl(in, dataMessage);
+                this.readMethod(in, dataMessage);
+                this.readVersion(in, dataMessage);
+                this.readHeads(in, dataMessage);
+                this.readData(in, dataMessage);
                 out.add(dataMessage);
             }
         }
     }
 
+    private void readData(ByteBuf in, DataMessage dataMessage) {
+        final int bytesLen = in.readInt();
+        if (bytesLen != 0) {
+            final ByteBuf byteBuf = in.readBytes(bytesLen);
+            final byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            dataMessage.setBytes(bytes);
+            byteBuf.release();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void readHeads(ByteBuf in, DataMessage dataMessage) {
+        final int headsLen = in.readInt();
+        if (headsLen != 0) {
+            final ByteBuf byteBuf = in.readBytes(headsLen);
+            final byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            final HashMap<String, String> hashMap = KryoUtil.readObjectFromByteArray(bytes, HashMap.class);
+            dataMessage.setHeads(hashMap);
+            byteBuf.release();
+        }
+    }
+
+    private void readVersion(ByteBuf in, DataMessage dataMessage) {
+        final int versionLen = in.readByte();
+        if (versionLen != 0) {
+            final ByteBuf byteBuf = in.readBytes(versionLen);
+            final byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            final String version = new String(bytes);
+            dataMessage.setVersion(version);
+            byteBuf.release();
+        }
+    }
+
+    private void readMethod(ByteBuf in, DataMessage dataMessage) {
+        final int methodLen = in.readByte();
+        if (methodLen != 0) {
+            final ByteBuf byteBuf = in.readBytes(methodLen);
+            final byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            final String method = new String(bytes);
+            dataMessage.setMethod(method);
+            byteBuf.release();
+        }
+    }
+
+    private void readUrl(ByteBuf in, DataMessage dataMessage) {
+        final int urlLen = in.readInt();
+        if (urlLen != 0) {
+            final ByteBuf byteBuf = in.readBytes(urlLen);
+            final byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            final String url = new String(bytes);
+            dataMessage.setUrl(url);
+            byteBuf.release();
+        }
+    }
+
+    private void readDstServer(ByteBuf in, DataMessage dataMessage) {
+        final int dstServerLen = in.readInt();
+        if (dstServerLen != 0) {
+            final ByteBuf byteBuf = in.readBytes(dstServerLen);
+            final byte[] bytes = new byte[byteBuf.readableBytes()];
+            byteBuf.readBytes(bytes);
+            final String dstServer = new String(bytes);
+            dataMessage.setDstServer(dstServer);
+            byteBuf.release();
+        }
+    }
 }

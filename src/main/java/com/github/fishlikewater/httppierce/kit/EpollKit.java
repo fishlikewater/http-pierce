@@ -8,6 +8,9 @@ import io.netty.channel.epoll.Epoll;
  **/
 public class EpollKit {
 
+    private EpollKit() {
+    }
+
     /**
      * 判断当前系统是否支持epoll
      *

@@ -46,7 +46,7 @@ public class DynamicHttpHandlerInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) throws SSLException {
         ChannelPipeline p = channel.pipeline();
-        if (protocolEnum == ProtocolEnum.https) {
+        if (protocolEnum == ProtocolEnum.HTTPS) {
             p.addLast("ssl", SslUtil.getSslContext().newHandler(channel.alloc()));
         }
         p.addLast("httpCode", new HttpRequestDecoder());

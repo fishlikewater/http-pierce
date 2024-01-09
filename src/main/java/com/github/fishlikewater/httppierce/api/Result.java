@@ -3,7 +3,6 @@ package com.github.fishlikewater.httppierce.api;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -16,13 +15,10 @@ import java.util.UUID;
  */
 @Data
 @Accessors(chain = true)
+@SuppressWarnings("unused")
 public class Result<T> implements Serializable {
 
-
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    private final static CodeEnum DEFAULT_CODE = CodeEnum.SUCCESS;
+    private static final CodeEnum DEFAULT_CODE = CodeEnum.SUCCESS;
 
     protected String code;
 
@@ -94,7 +90,7 @@ public class Result<T> implements Serializable {
      * @return UUID
      */
     public String uuid() {
-        return UUID.randomUUID().toString().replaceAll("-", "").toLowerCase();
+        return UUID.randomUUID().toString().replace("-", "").toLowerCase();
     }
 
     public Result<T> setCode(CodeEnum code) {

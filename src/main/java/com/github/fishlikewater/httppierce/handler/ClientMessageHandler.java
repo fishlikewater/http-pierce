@@ -1,7 +1,7 @@
 package com.github.fishlikewater.httppierce.handler;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.*;
@@ -51,21 +51,20 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         if (msg instanceof SysMessage sysMessage) {
             handlerSysMsg(ctx, sysMessage);
         }
-        if (msg instanceof DataMessage dataMessage) {
-            if (dataMessage.getCommand() == Command.REQUEST) {
+        if (msg instanceof DataMessage dataMessage && (dataMessage.getCommand() == Command.REQUEST)) {
                 final Channel channel = ChannelUtil.REQUEST_MAPPING.get(dataMessage.getId());
                 if (Objects.nonNull(channel)) {
                     channel.writeAndFlush(dataMessage.getBytes());
                 } else {
                     final String dstServer = dataMessage.getDstServer();
                     final ServiceMapping serviceMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
-                    if (serviceMapping.getProtocol().equals(ProtocolEnum.tcp.name())) {
+                    if (serviceMapping.getProtocol().equals(ProtocolEnum.TCP.name())) {
                         handlerTcp(ctx, dataMessage, serviceMapping);
                     } else {
                         handlerHttp(ctx, dataMessage, serviceMapping);
                     }
                 }
-            }
+
         }
     }
 
@@ -125,8 +124,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 ChannelUtil.stateMap.remove(register.getRegisterName());
                 ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().remove(register.getRegisterName());
             }
-            default -> {
-            }
+            default -> log.warn("Unknown command received");
         }
     }
 
@@ -143,7 +141,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         Promise<Channel> promise = BootStrapFactory.createPromise(serviceMapping.getAddress(), serviceMapping.getLocalPort(), ctx);
         promise.addListener((FutureListener<Channel>) channelFuture -> {
             if (channelFuture.isSuccess()) {
-                if (StrUtil.isNotBlank(upgrade)) {
+                if (CharSequenceUtil.isNotBlank(upgrade)) {
                     channelFuture.get().attr(ChannelUtil.HTTP_UPGRADE).set(true);
                 }
                 ChannelUtil.REQUEST_MAPPING.put(dataMessage.getId(), channelFuture.get());

@@ -37,7 +37,7 @@ public class ClientResponseHandler extends SimpleChannelInboundHandler<byte[]> {
         channel.writeAndFlush(dataMessage).addListener(t -> {
             log.debug("response message");
             final Boolean aBoolean = ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).get();
-            if (Objects.nonNull(aBoolean) && aBoolean) {
+            if (Objects.nonNull(aBoolean) && Boolean.TRUE.equals(aBoolean)) {
                 ctx.channel().pipeline().remove(HttpRequestEncoder.class);
                 ctx.channel().pipeline().remove(HttpObjectAggregator.class);
                 ctx.channel().pipeline().addFirst(new ByteArrayEncoder());

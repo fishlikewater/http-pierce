@@ -13,9 +13,9 @@ public enum BootType {
     /**
      * 客户端
      */
-    client,
+    CLIENT,
     /**
      * 服务端
      */
-    server;
+    SERVER
 }

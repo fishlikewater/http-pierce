@@ -4,9 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-
-import java.io.Serializable;
-
 import com.mybatisflex.core.activerecord.Model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,8 +15,8 @@ import lombok.experimental.Accessors;
  * @author fishl
  * @since 2023-09-01
  */
-@Accessors(chain = true)
 @Data()
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 @Table(value = "service_mapping")
 public class ServiceMapping extends Model<ServiceMapping> {

@@ -8,14 +8,14 @@ package com.github.fishlikewater.httppierce.config;
  * @author fishlikewater@126.com
  * @since 2023年02月20日 10:18
  **/
-public class Constant {
+public interface Constant {
 
-    public final static String REQUEST_ROUTE = "path";
+    String REQUEST_ROUTE = "path";
 
-    public final static String CONNECTION = "Connection";
+    String CONNECTION = "Connection";
 
-    public final static String UPGRADE = "Upgrade";
+    String UPGRADE = "Upgrade";
 
-    public final static String URL_SEPARATOR = "/";
+    String URL_SEPARATOR = "/";
 
 }

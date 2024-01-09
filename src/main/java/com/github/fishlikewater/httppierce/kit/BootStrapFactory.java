@@ -16,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BootStrapFactory {
 
+    private BootStrapFactory() {
+
+    }
+
     private static Bootstrap bootstrap = null;
 
     public static Bootstrap bootstrapConfig() {

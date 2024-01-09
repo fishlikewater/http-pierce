@@ -25,7 +25,7 @@ import java.util.Objects;
  * @since 2023年09月01日 13:00
  **/
 @RestController
-@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "client")
+@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "CLIENT")
 @RequiredArgsConstructor
 @RequestMapping("/client/api")
 public class ClientConfigApi {
@@ -49,26 +49,32 @@ public class ClientConfigApi {
         return Result.of(list, CodeEnum.SUCCESS);
     }
 
+    /**
+     * 启用
+     *
+     * @param id id
+     * @return {@link Result<String>}
+     */
     @PutMapping("/{id}")
-    public Result<?> enable(@PathVariable("id") Integer id) {
+    public Result<String> enable(@PathVariable("id") Integer id) {
         serviceMappingService.enable(id);
         return Result.of("ok");
     }
 
     @PostMapping
-    public Result<?> edit(@RequestBody @Validated ServiceMappingBo serviceMappingBo) {
+    public Result<String> edit(@RequestBody @Validated ServiceMappingBo serviceMappingBo) {
         serviceMappingService.edit(converter.convert(serviceMappingBo, ServiceMapping.class));
         return Result.of("ok");
     }
 
     @DeleteMapping("/{id}")
-    public Result<?> del(@PathVariable("id") Integer id) {
+    public Result<String> del(@PathVariable("id") Integer id) {
         serviceMappingService.delById(id);
         return Result.of("ok");
     }
 
     @PostMapping("/reboot")
-    public Result<?> reboot() {
+    public Result<String> reboot() {
         ClientKit.getClientBoot().stop();
         ClientKit.getClientBoot().start();
         return Result.of("ok");

@@ -1,5 +1,7 @@
 package com.github.fishlikewater.httppierce.api;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +11,8 @@ import java.util.List;
  * @author fishlikewater@126.com
  */
 
+@Getter
+@SuppressWarnings("unused")
 public enum CodeEnum {
     /**
      * 200-表示业务执行通畅，执行成功
@@ -42,11 +46,17 @@ public enum CodeEnum {
 
     /**
      * 枚举值
+     * -- GETTER --
+     *
+
      */
     private final String code;
 
     /**
      * 枚举描述
+     * -- GETTER --
+     *
+
      */
     private final String message;
 
@@ -59,20 +69,6 @@ public enum CodeEnum {
     CodeEnum(String code, String message) {
         this.code = code;
         this.message = message;
-    }
-
-    /**
-     * @return Returns the code.
-     */
-    public String getCode() {
-        return code;
-    }
-
-    /**
-     * @return Returns the message.
-     */
-    public String getMessage() {
-        return message;
     }
 
     /**

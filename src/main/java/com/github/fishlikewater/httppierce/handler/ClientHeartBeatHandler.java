@@ -27,12 +27,12 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             //IdleStateEvent event = (IdleStateEvent) evt;        // 强制类型转换
             ctx.channel().writeAndFlush(HEARTBEAT_SEQUENCE)
-                    .addListener((future) -> {
+                    .addListener(future -> {
                         if (!future.isSuccess()) {
                             log.warn("failed to send heartbeat packet...");
                         }
 
-                    });//(ChannelFutureListener.CLOSE_ON_FAILURE);
+                    });
         } else {
             super.userEventTriggered(ctx, evt);
         }

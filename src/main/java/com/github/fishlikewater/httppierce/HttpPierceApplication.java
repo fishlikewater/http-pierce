@@ -59,7 +59,7 @@ public class HttpPierceApplication implements CommandLineRunner {
         final ShutDownSignalHandler shutDownSignalHandler = new ShutDownSignalHandler();
 
         switch (httpPierceConfig.getBootType()) {
-            case server:
+            case SERVER:
                 if (httpPierceServerConfig.getSslConfig().isEnable()) {
                     SslUtil.init(httpPierceServerConfig.getSslConfig());
                 }
@@ -70,7 +70,7 @@ public class HttpPierceApplication implements CommandLineRunner {
                 shutDownSignalHandler.registerSignal("TERM", serverBoot, httpBoot);
                 shutDownSignalHandler.registerSignal("INT", serverBoot, httpBoot);
                 break;
-            case client:
+            case CLIENT:
                 initTable();
                 final ClientBoot clientBoot = new ClientBoot(httpPierceClientConfig);
                 ClientKit.setClientBoot(clientBoot);

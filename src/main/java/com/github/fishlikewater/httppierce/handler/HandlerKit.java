@@ -18,6 +18,11 @@ import io.netty.handler.stream.ChunkedWriteHandler;
  **/
 public class HandlerKit {
 
+
+    private HandlerKit() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static void upWebSocket(Channel channel, Channel clientChannel, Long id) {
         //协议升级处理
         channel.pipeline().remove(HttpRequestDecoder.class);
