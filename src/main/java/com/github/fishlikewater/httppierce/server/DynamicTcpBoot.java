@@ -41,6 +41,7 @@ public class DynamicTcpBoot extends HttpBoot {
             ch.closeFuture().addListener(t -> log.info("⬢ dynamic tcp server【{}】 closed", port));
         } catch (InterruptedException e) {
             log.error("⬢ start dynamic tcp server fail", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -55,8 +56,9 @@ public class DynamicTcpBoot extends HttpBoot {
             if (super.getWorkerGroup() != null) {
                 super.getWorkerGroup().shutdownGracefully().sync();
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("⬢ dynamic tcp server【{}】 shutdown error", port, e);
+            Thread.currentThread().interrupt();
         }
     }
 }

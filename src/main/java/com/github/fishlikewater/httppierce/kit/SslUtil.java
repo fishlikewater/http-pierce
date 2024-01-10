@@ -1,9 +1,10 @@
 package com.github.fishlikewater.httppierce.kit;
 
-import cn.hutool.core.lang.Singleton;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import javax.net.ssl.SSLException;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.util.Objects;
  * @author fishlikewater@126.com
  * @since 2023年07月11日 21:02
  **/
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SslUtil {
 
     private static SslContext sslContext;

@@ -13,7 +13,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Objects;
@@ -29,6 +28,8 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 @Slf4j
 public class SslContextFactory {
+
+    private SslContextFactory() {}
 
     private static final String PROTOCOL = "TLS";
 
@@ -284,58 +285,36 @@ public class SslContextFactory {
 
     private static KeyManagerFactory handlerKmf(String pkPath, String passwd) {
         KeyManagerFactory kmf = null;
-        InputStream in = null;
-        try {
-            if (pkPath != null) {
+        if (pkPath != null) {
+            try (InputStream in = new FileInputStream(FileUtil.file(pkPath))) {
                 // 密钥库KeyStore
                 KeyStore ks = KeyStore.getInstance("JKS");
-                // 加载服务端证书
-                in = new FileInputStream(FileUtil.file(pkPath));
                 // 加载服务端的KeyStore ；sNetty是生成仓库时设置的密码，用于检查密钥库完整性的密码
                 ks.load(in, passwd.toCharArray());
-
                 kmf = KeyManagerFactory.getInstance("SunX509");
                 // 初始化密钥管理器
                 kmf.init(ks, passwd.toCharArray());
-            }
-        } catch (Exception e) {
-            throw new Error("Failed to initialize the server-side SSLContext", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    log.error("ssl加载错误", e);
-                }
+
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to initialize the server-side SSLContext", e);
             }
         }
         return kmf;
     }
 
     private static TrustManagerFactory handlerTf(String pkPath, String passwd) {
-        InputStream tIn = null;
         TrustManagerFactory tf = null;
-        try {
-            // 信任库
-            if (pkPath != null) {
+        if (pkPath != null) {
+            try (InputStream tIn = new FileInputStream(FileUtil.file(pkPath))) {
+                // 信任库
                 // 密钥库KeyStore
                 KeyStore tks = KeyStore.getInstance("JKS");
-                // 加载客户端证书
-                tIn = new FileInputStream(FileUtil.file(pkPath));
                 tks.load(tIn, passwd.toCharArray());
                 tf = TrustManagerFactory.getInstance("SunX509");
                 // 初始化信任库
                 tf.init(tks);
-            }
-        } catch (Exception e) {
-            throw new Error("Failed to initialize the client-side SSLContext");
-        } finally {
-            if (tIn != null) {
-                try {
-                    tIn.close();
-                } catch (IOException e) {
-                    log.error("ssl加载错误", e);
-                }
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to initialize the client-side SSLContext");
             }
         }
         return tf;

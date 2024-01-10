@@ -75,6 +75,7 @@ public class HttpBoot implements Boot {
             ch.closeFuture().addListener(t -> log.info("⬢  http server【{}】 closed", httpPierceServerConfig.getHttpServerPort()));
         } catch (InterruptedException e) {
             log.error("⬢ start http server【{}】 fail", httpPierceServerConfig.getHttpServerPort(), e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -91,8 +92,9 @@ public class HttpBoot implements Boot {
             if (this.workerGroup != null) {
                 this.workerGroup.shutdownGracefully().sync();
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("⬢ http server【{}】 shutdown error", httpPierceServerConfig.getHttpServerPort(), e);
+            Thread.currentThread().interrupt();
         }
     }
 

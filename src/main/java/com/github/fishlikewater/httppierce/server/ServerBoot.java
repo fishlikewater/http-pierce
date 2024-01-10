@@ -60,6 +60,7 @@ public class ServerBoot implements Boot {
             ch.closeFuture().addListener(t -> log.info("⬢  transfer server closed"));
         } catch (InterruptedException e) {
             log.error("⬢ start transfer server fail", e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -76,8 +77,9 @@ public class ServerBoot implements Boot {
             if (this.workerGroup != null) {
                 this.workerGroup.shutdownGracefully().sync();
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             log.error("⬢ transfer server shutdown error", e);
+            Thread.currentThread().interrupt();
         }
     }
 

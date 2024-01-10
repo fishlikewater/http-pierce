@@ -5,7 +5,6 @@ import com.github.fishlikewater.httppierce.handler.DynamicTcpServerHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -43,7 +43,6 @@ public class HttpPierceApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         final String web = new Setting("web.setting").getStr("server.type", "web");
-        System.out.println(web);
         SpringApplication app = new SpringApplication(HttpPierceApplication.class);
         if ("none".equals(web)) {
             app.setWebApplicationType(WebApplicationType.NONE);
