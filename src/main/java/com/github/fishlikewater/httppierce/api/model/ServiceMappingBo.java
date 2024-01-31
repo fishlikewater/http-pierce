@@ -53,4 +53,7 @@ public class ServiceMappingBo {
     private Integer enable = 1;
 
 
+    public String getProtocol() {
+        return protocol.toUpperCase();
+    }
 }
