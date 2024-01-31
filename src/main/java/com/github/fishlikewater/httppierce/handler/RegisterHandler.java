@@ -1,6 +1,5 @@
 package com.github.fishlikewater.httppierce.handler;
 
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
@@ -68,16 +67,17 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         final SysMessage.Register register = msg.getRegister();
         final boolean newServerPort = register.isNewServerPort();
         if (newServerPort) {
-            registerNewPort(ctx, register);
+            registerNewPort(ctx, msg);
         } else {
-            registerDefaultPort(ctx, register);
+            registerDefaultPort(ctx, msg);
         }
     }
 
-    private void registerDefaultPort(ChannelHandlerContext ctx, SysMessage.Register register) {
+    private void registerDefaultPort(ChannelHandlerContext ctx, SysMessage msg) {
+        SysMessage.Register register = msg.getRegister();
         final SysMessage returnMsg = new SysMessage();
         returnMsg.setCommand(Command.REGISTER);
-        returnMsg.setId(IdUtil.getSnowflakeNextId());
+        returnMsg.setId(msg.getId());
         final String registerName = register.getRegisterName();
         final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
         if (Objects.nonNull(channel)) {
@@ -95,12 +95,13 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         ctx.channel().writeAndFlush(returnMsg);
     }
 
-    private void registerNewPort(ChannelHandlerContext ctx, SysMessage.Register register) {
+    private void registerNewPort(ChannelHandlerContext ctx, SysMessage msg) {
+        SysMessage.Register register = msg.getRegister();
         final Map<String, DynamicTcpBoot> dynamicHttpBootMap = ChannelUtil.DYNAMIC_BOOT;
         final DynamicTcpBoot dynamicHttpBoot1 = dynamicHttpBootMap.get("port" + register.getNewPort());
         final SysMessage returnMsg = new SysMessage();
         returnMsg.setCommand(Command.REGISTER);
-        returnMsg.setId(IdUtil.getSnowflakeNextId());
+        returnMsg.setId(msg.getId());
         returnMsg.setRegister(register);
         if (ObjectUtil.isNull(dynamicHttpBoot1)) {
             if (register.getProtocol() == ProtocolEnum.TCP) {

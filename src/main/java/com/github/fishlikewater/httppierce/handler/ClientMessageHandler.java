@@ -49,22 +49,34 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) {
         if (msg instanceof SysMessage sysMessage) {
-            handlerSysMsg(ctx, sysMessage);
+            this.handleSysMsg(ctx, sysMessage);
         }
         if (msg instanceof DataMessage dataMessage && (dataMessage.getCommand() == Command.REQUEST)) {
-                final Channel channel = ChannelUtil.REQUEST_MAPPING.get(dataMessage.getId());
-                if (Objects.nonNull(channel)) {
-                    channel.writeAndFlush(dataMessage.getBytes());
-                } else {
-                    final String dstServer = dataMessage.getDstServer();
-                    final ServiceMapping serviceMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
-                    if (serviceMapping.getProtocol().equals(ProtocolEnum.TCP.name())) {
-                        handlerTcp(ctx, dataMessage, serviceMapping);
-                    } else {
-                        handlerHttp(ctx, dataMessage, serviceMapping);
-                    }
-                }
+            this.handleDataMsg(ctx, dataMessage);
+        }
+        // 处理等待中的请求
+        this.handleWaitingRequest(msg);
+    }
 
+    private void handleDataMsg(ChannelHandlerContext ctx, DataMessage dataMessage) {
+        final Channel channel = ChannelUtil.REQUEST_MAPPING.get(dataMessage.getId());
+        if (Objects.nonNull(channel)) {
+            channel.writeAndFlush(dataMessage.getBytes());
+        } else {
+            final String dstServer = dataMessage.getDstServer();
+            final ServiceMapping serviceMapping = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().get(dstServer);
+            if (serviceMapping.getProtocol().equals(ProtocolEnum.TCP.name())) {
+                handlerTcp(ctx, dataMessage, serviceMapping);
+            } else {
+                handlerHttp(ctx, dataMessage, serviceMapping);
+            }
+        }
+    }
+
+    private void handleWaitingRequest(Message msg) {
+        ChannelPromise channelPromise = ClientKit.getPROMISE_MAP().remove(msg.getId());
+        if (Objects.nonNull(channelPromise)) {
+            channelPromise.setSuccess();
         }
     }
 
@@ -81,50 +93,56 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         });
     }
 
-    private void handlerSysMsg(ChannelHandlerContext ctx, SysMessage sysMessage) {
+    private void handleSysMsg(ChannelHandlerContext ctx, SysMessage sysMessage) {
         final SysMessage.Register register = sysMessage.getRegister();
         switch (sysMessage.getCommand()) {
-            case AUTH -> {
-                final int state = sysMessage.getState();
-                if (state == 1) {
-                    /*  Verification successful, start registering service*/
-                    final Map<String, ServiceMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
-                    mappingMap.forEach((k, v) -> ClientKit.registerService(v));
-                } else {
-                    log.error("Token verification failed. Please check the configuration");
-                }
-            }
-            case REGISTER -> {
-                final String registerName = register.getRegisterName();
-                final ConnectionStateInfo connectionStateInfo = new ConnectionStateInfo();
-                connectionStateInfo.setRegisterName(registerName);
-                connectionStateInfo.setServicePort(register.getNewPort());
-                if (sysMessage.getState() == 1) {
-                    log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
-                            registerName,
-                            httpPierceClientConfig.getServerAddress() + ":" + register.getNewPort());
-                    connectionStateInfo.setState(1);
-                    ChannelUtil.stateMap.put(registerName, connectionStateInfo);
-                } else if (sysMessage.getState() == 2) {
-                    log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
-                            registerName, register.getNewPort());
-                    ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
-                    connectionStateInfo.setState(0);
-                    ChannelUtil.stateMap.put(registerName, connectionStateInfo);
-                } else {
-                    log.info("Failed to register  the route name 【{}】", registerName);
-                    ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
-                    connectionStateInfo.setState(0);
-                    ChannelUtil.stateMap.put(registerName, connectionStateInfo);
-                }
-            }
+            case AUTH -> this.handleAuth(ctx, sysMessage);
+            case REGISTER -> this.handleRegister(ctx, sysMessage, register);
             case HEALTH -> log.debug("Heartbeat packet received");
-            case CANCEL_REGISTER -> {
-                log.info("cancel register {}", register.getRegisterName());
-                ChannelUtil.stateMap.remove(register.getRegisterName());
-                ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().remove(register.getRegisterName());
-            }
+            case CANCEL_REGISTER -> this.handleCancelRegister(ctx, register);
             default -> log.warn("Unknown command received");
+        }
+    }
+
+    private void handleCancelRegister(ChannelHandlerContext ctx, SysMessage.Register register) {
+        log.info("cancel register {}", register.getRegisterName());
+        ChannelUtil.stateMap.remove(register.getRegisterName());
+        ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get().remove(register.getRegisterName());
+    }
+
+    private void handleRegister(ChannelHandlerContext ctx, SysMessage sysMessage, SysMessage.Register register) {
+        final String registerName = register.getRegisterName();
+        final ConnectionStateInfo connectionStateInfo = new ConnectionStateInfo();
+        connectionStateInfo.setRegisterName(registerName);
+        connectionStateInfo.setServicePort(register.getNewPort());
+        if (sysMessage.getState() == 1) {
+            log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
+                    registerName,
+                    httpPierceClientConfig.getServerAddress() + ":" + register.getNewPort());
+            connectionStateInfo.setState(1);
+            ChannelUtil.stateMap.put(registerName, connectionStateInfo);
+        } else if (sysMessage.getState() == 2) {
+            log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
+                    registerName, register.getNewPort());
+            ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
+            connectionStateInfo.setState(0);
+            ChannelUtil.stateMap.put(registerName, connectionStateInfo);
+        } else {
+            log.info("Failed to register  the route name 【{}】", registerName);
+            ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
+            connectionStateInfo.setState(0);
+            ChannelUtil.stateMap.put(registerName, connectionStateInfo);
+        }
+    }
+
+    private void handleAuth(ChannelHandlerContext ctx, SysMessage sysMessage) {
+        final int state = sysMessage.getState();
+        if (state == 1) {
+            /*  Verification successful, start registering service*/
+            final Map<String, ServiceMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
+            mappingMap.forEach((k, v) -> ClientKit.registerService(v, false));
+        } else {
+            log.error("Token verification failed. Please check the configuration");
         }
     }
 

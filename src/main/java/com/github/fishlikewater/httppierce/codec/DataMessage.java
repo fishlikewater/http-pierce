@@ -26,7 +26,7 @@ public class DataMessage implements Message, Serializable {
     /**
      * 每次传输消息的id
      **/
-    private long id;
+    private Long id;
 
     /**
      * 消息类型

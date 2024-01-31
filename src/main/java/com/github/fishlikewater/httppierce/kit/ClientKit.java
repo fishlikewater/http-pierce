@@ -3,15 +3,19 @@ package com.github.fishlikewater.httppierce.kit;
 import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.Command;
+import com.github.fishlikewater.httppierce.codec.Message;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelPromise;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -27,6 +31,9 @@ public class ClientKit {
 
     private static Channel channel;
 
+    @Getter
+    private static final Map<Long, ChannelPromise> PROMISE_MAP = new ConcurrentHashMap<>();
+
     @Setter
     @Getter
     private static ClientBoot clientBoot;
@@ -37,7 +44,7 @@ public class ClientKit {
         ClientKit.channel = channel;
     }
 
-    public static void registerService(ServiceMapping serviceMapping) {
+    public static void registerService(ServiceMapping serviceMapping, boolean sync) {
         final SysMessage registerMsg = new SysMessage();
         registerMsg.setCommand(Command.REGISTER)
                 .setId(IdUtil.getSnowflakeNextId())
@@ -46,7 +53,11 @@ public class ClientKit {
                         .setProtocol(ProtocolEnum.valueOf(serviceMapping.getProtocol()))
                         .setNewServerPort(serviceMapping.getNewServerPort() == 1)
                         .setNewPort(serviceMapping.getNewPort()));
-        channel.writeAndFlush(registerMsg);
+        if (sync) {
+            syncWaitWriteAndFlush(registerMsg);
+        } else {
+            channel.writeAndFlush(registerMsg);
+        }
     }
 
     public static void reRegister(String registerName) {
@@ -55,7 +66,7 @@ public class ClientKit {
             final String key = mappingEntry.getKey();
             if (key.equals(registerName)) {
                 final ServiceMapping value = mappingEntry.getValue();
-                registerService(value);
+                registerService(value, false);
                 break;
             }
         }
@@ -66,7 +77,7 @@ public class ClientKit {
         final ServiceMapping serviceMapping1 = stringServiceMappingMap.get(serviceMapping.getRegisterName());
         if (Objects.isNull(serviceMapping1)) {
             stringServiceMappingMap.put(serviceMapping.getRegisterName(), serviceMapping);
-            registerService(serviceMapping);
+            registerService(serviceMapping, true);
         }
     }
 
@@ -76,16 +87,30 @@ public class ClientKit {
             final String key = mappingEntry.getKey();
             if (key.equals(registerName)) {
                 final SysMessage cancel = new SysMessage();
+                SysMessage.Register register = new SysMessage.Register().setRegisterName(registerName);
                 cancel.setCommand(Command.CANCEL_REGISTER);
                 cancel.setId(IdUtil.getSnowflakeNextId());
-                cancel.setRegister(new SysMessage.Register()
-                        .setRegisterName(registerName));
-                channel.writeAndFlush(cancel);
+                cancel.setRegister(register);
+                syncWaitWriteAndFlush(cancel);
                 break;
             }
         }
     }
 
-
+    /**
+     * 同步发送消息 并等待响应
+     *
+     * @param msg 消息
+     */
+    public static void syncWaitWriteAndFlush(Message msg) {
+        ChannelPromise promise = channel.newPromise();
+        PROMISE_MAP.put(msg.getId(), promise);
+        channel.writeAndFlush(msg);
+        try {
+            promise.await(10, TimeUnit.SECONDS);
+            PROMISE_MAP.remove(msg.getId());
+        } catch (InterruptedException ignored) {
+        }
+    }
 }
 

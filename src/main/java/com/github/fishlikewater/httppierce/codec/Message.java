@@ -9,4 +9,14 @@ package com.github.fishlikewater.httppierce.codec;
  * @since 2023年02月09日 10:32
  **/
 public interface Message {
+
+    /**
+     * 获取消息id
+     *
+     * @return {@code Long}
+     */
+    default Long getId() {
+        return 0L;
+    }
+
 }
