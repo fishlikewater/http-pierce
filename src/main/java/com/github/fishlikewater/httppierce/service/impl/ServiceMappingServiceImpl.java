@@ -1,12 +1,12 @@
 package com.github.fishlikewater.httppierce.service.impl;
 
 import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
+import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.ClientKit;
-import com.mybatisflex.spring.service.impl.ServiceImpl;
-import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.mapper.ServiceMappingMapper;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +59,7 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public void enable(Integer id) {
         final ServiceMapping mapping = this.getById(id);
         if (mapping.getEnable() == 1) {
