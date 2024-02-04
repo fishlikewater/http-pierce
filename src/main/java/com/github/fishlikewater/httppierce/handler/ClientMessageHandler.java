@@ -1,7 +1,6 @@
 package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.*;
@@ -13,6 +12,7 @@ import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.BootStrapFactory;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.ClientKit;
+import com.github.fishlikewater.httppierce.kit.IdUtil;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
 import io.netty.channel.*;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
@@ -115,17 +115,17 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         final ConnectionStateInfo connectionStateInfo = new ConnectionStateInfo();
         connectionStateInfo.setRegisterName(registerName);
         connectionStateInfo.setServicePort(register.getNewPort());
-        if (sysMessage.getState() == 1) {
+        if (sysMessage.getState() == Constant.INT_ONE) {
             log.info("Successfully registered the route name 【{}】,the url prefix is 【{}】",
                     registerName,
                     httpPierceClientConfig.getServerAddress() + ":" + register.getNewPort());
-            connectionStateInfo.setState(1);
+            connectionStateInfo.setState(Constant.INT_ONE);
             ChannelUtil.stateMap.put(registerName, connectionStateInfo);
-        } else if (sysMessage.getState() == 2) {
+        } else if (sysMessage.getState() == Constant.INT_TWO) {
             log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
                     registerName, register.getNewPort());
             ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
-            connectionStateInfo.setState(0);
+            connectionStateInfo.setState(Constant.INT_ZERO);
             ChannelUtil.stateMap.put(registerName, connectionStateInfo);
         } else {
             log.info("Failed to register  the route name 【{}】", registerName);
@@ -137,7 +137,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
     private void handleAuth(ChannelHandlerContext ctx, SysMessage sysMessage) {
         final int state = sysMessage.getState();
-        if (state == 1) {
+        if (state == Constant.INT_ONE) {
             /*  Verification successful, start registering service*/
             final Map<String, ServiceMapping> mappingMap = ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).get();
             mappingMap.forEach((k, v) -> ClientKit.registerService(v, false));
@@ -148,8 +148,8 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
 
     private static void handlerHttp(ChannelHandlerContext ctx, DataMessage dataMessage, ServiceMapping serviceMapping) {
         String url = dataMessage.getUrl();
-        if (serviceMapping.getDelRegisterName() == 1) {
-            url = url.replaceAll("/" + serviceMapping.getRegisterName(), "");
+        if (serviceMapping.getDelRegisterName() == Constant.INT_ONE) {
+            url = url.replaceAll(Constant.URL_SEPARATOR + serviceMapping.getRegisterName(), "");
         }
         FullHttpRequest req = new DefaultFullHttpRequest(HttpVersion.valueOf(dataMessage.getVersion()), HttpMethod.valueOf(dataMessage.getMethod()), url);
         dataMessage.getHeads().forEach((k, v) -> req.headers().add(k, v));
@@ -186,7 +186,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         final SysMessage sysMessage = new SysMessage();
         sysMessage.setCommand(Command.AUTH)
                 .setToken(httpPierceClientConfig.getToken())
-                .setId(IdUtil.getSnowflakeNextId());
+                .setId(IdUtil.generateId());
         ctx.channel().writeAndFlush(sysMessage);
 
     }
@@ -195,7 +195,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
     public void channelInactive(ChannelHandlerContext ctx) {
         final EventLoop loop = ctx.channel().eventLoop();
         ChannelUtil.stateMap.clear();
-        loop.schedule(clientBoot::connection, 30, TimeUnit.SECONDS);
+        loop.schedule(clientBoot::connection, httpPierceClientConfig.getRetryTime().getSeconds(), TimeUnit.SECONDS);
     }
 
 }

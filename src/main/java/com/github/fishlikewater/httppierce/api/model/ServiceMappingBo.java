@@ -18,8 +18,8 @@ import lombok.experimental.Accessors;
  * @since 2023年09月01日 15:25
  **/
 @Data
-@Accessors(chain = true)
 @EqualsAndHashCode
+@Accessors(chain = true)
 @AutoMapper(target = ServiceMapping.class, reverseConvertGenerate = false)
 public class ServiceMappingBo {
 

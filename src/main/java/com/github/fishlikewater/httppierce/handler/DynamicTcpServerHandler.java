@@ -1,9 +1,9 @@
 package com.github.fishlikewater.httppierce.handler;
 
-import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.IdUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -34,7 +34,7 @@ public class DynamicTcpServerHandler extends SimpleChannelInboundHandler<byte[]>
 
         Long requestId = ctx.channel().attr(ChannelUtil.TCP_FLAG).get();
         if (Objects.isNull(requestId)) {
-            requestId = IdUtil.getSnowflakeNextId();
+            requestId = IdUtil.generateId();
             ctx.channel().attr(ChannelUtil.TCP_FLAG).set(requestId);
         }
         ChannelUtil.REQUEST_MAPPING.put(requestId, ctx.channel());

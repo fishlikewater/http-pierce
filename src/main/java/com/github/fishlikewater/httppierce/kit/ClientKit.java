@@ -1,6 +1,5 @@
 package com.github.fishlikewater.httppierce.kit;
 
-import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.Message;
@@ -47,7 +46,7 @@ public class ClientKit {
     public static void registerService(ServiceMapping serviceMapping, boolean sync) {
         final SysMessage registerMsg = new SysMessage();
         registerMsg.setCommand(Command.REGISTER)
-                .setId(IdUtil.getSnowflakeNextId())
+                .setId(IdUtil.generateId())
                 .setRegister(new SysMessage.Register()
                         .setRegisterName(serviceMapping.getRegisterName())
                         .setProtocol(ProtocolEnum.valueOf(serviceMapping.getProtocol()))
@@ -89,7 +88,7 @@ public class ClientKit {
                 final SysMessage cancel = new SysMessage();
                 SysMessage.Register register = new SysMessage.Register().setRegisterName(registerName);
                 cancel.setCommand(Command.CANCEL_REGISTER);
-                cancel.setId(IdUtil.getSnowflakeNextId());
+                cancel.setId(IdUtil.generateId());
                 cancel.setRegister(register);
                 syncWaitWriteAndFlush(cancel);
                 break;

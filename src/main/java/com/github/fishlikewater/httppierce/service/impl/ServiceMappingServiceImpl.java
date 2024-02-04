@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.service.impl;
 
+import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
@@ -7,9 +8,11 @@ import com.github.fishlikewater.httppierce.kit.ClientKit;
 import com.github.fishlikewater.httppierce.mapper.ServiceMappingMapper;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 
 import static com.github.fishlikewater.httppierce.entity.table.ServiceMappingTableDef.SERVICE_MAPPING;
@@ -21,7 +24,10 @@ import static com.github.fishlikewater.httppierce.entity.table.ServiceMappingTab
  * @since 2023-09-01
  */
 @Service
+@RequiredArgsConstructor
 public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper, ServiceMapping> implements ServiceMappingService {
+
+    private final HttpPierceClientConfig httpPierceClientConfig;
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -73,5 +79,26 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
             mapping.setEnable(1);
             ClientKit.addMapping(mapping);
         }
+    }
+
+    @Override
+    public List<ServiceMapping> querylist() {
+        List<ServiceMapping> list = this.list();
+        for (ServiceMapping serviceMapping : list) {
+            final ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(serviceMapping.getRegisterName());
+            if (Objects.isNull(stateInfo)) {
+                serviceMapping.setState(0);
+                continue;
+            }
+            serviceMapping.setState(stateInfo.getState());
+            if (stateInfo.getState() == 1) {
+                serviceMapping.setRemoteAddress(this.getRemoteAddress(stateInfo));
+            }
+        }
+        return list;
+    }
+
+    private String getRemoteAddress(ConnectionStateInfo stateInfo) {
+        return httpPierceClientConfig.getServerAddress() + ":" + stateInfo.getServicePort();
     }
 }

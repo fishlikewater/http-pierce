@@ -2,7 +2,7 @@ package com.github.fishlikewater.httppierce.config;
 
 /**
  * <p>
- *
+ *  协议
  * </p>
  *
  * @author fishlikewater@126.com
@@ -10,6 +10,9 @@ package com.github.fishlikewater.httppierce.config;
  **/
 public enum ProtocolEnum {
 
+    /**
+     * TCP协议
+     */
     TCP,
 
     HTTP,

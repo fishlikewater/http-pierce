@@ -69,6 +69,10 @@ public class Result<T> implements Serializable {
         return new Result<>(DEFAULT_CODE, message);
     }
 
+    public static <T> Result<T> of(T data) {
+        return new Result<>(data);
+    }
+
 
     /**
      * 设置响应消息

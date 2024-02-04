@@ -17,8 +17,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * 统一处理异常
+ * @author fish
  */
-@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "CLIENT")
+@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "${http.pierce.boot-type:client}")
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -44,30 +45,24 @@ public class GlobalExceptionHandler {
         return new Result<>(CodeEnum.PARAMETER_ERROR, ex.getBindingResult().getAllErrors().getFirst().getDefaultMessage());
     }
 
-
-    //参数校验
     @ExceptionHandler(value = ConstraintViolationException.class)
     public Result<Object> processMethod(ConstraintViolationException ex) {
         log.error(ERROR_TEXT + "：", ex);
         return new Result<>(CodeEnum.PARAMETER_ERROR, ex.getMessage());
     }
 
-    //参数校验
     @ExceptionHandler(value = BindException.class)
     public Result<Object> processMethod(BindException ex) {
         log.error(ERROR_TEXT + "：", ex);
         return new Result<>(CodeEnum.PARAMETER_ERROR, ex.getMessage());
     }
 
-    //认证异常
     @ExceptionHandler(value = AuthException.class)
     public Result<Object> processMethod(AuthException ex) {
         log.error(ERROR_TEXT + "：", ex);
         return new Result<>(CodeEnum.TOKEN_OVERDUE, ex.getMessage());
     }
 
-
-    //其他异常
     @ExceptionHandler(value = Exception.class)
     public Result<Object> processMethod(Exception ex) {
         log.error(ERROR_TEXT + "：", ex);

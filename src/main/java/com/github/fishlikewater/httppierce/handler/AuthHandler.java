@@ -1,8 +1,9 @@
 package com.github.fishlikewater.httppierce.handler;
 
-import cn.hutool.core.util.IdUtil;
+
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
+import com.github.fishlikewater.httppierce.kit.IdUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.RequiredArgsConstructor;
@@ -25,23 +26,23 @@ public class AuthHandler extends SimpleChannelInboundHandler<SysMessage> {
         final Command command = msg.getCommand();
         if (command == Command.AUTH) {
             final String tokenStr = msg.getToken();
-            if (token.equals(tokenStr)) {
-                final SysMessage successMsg = new SysMessage();
-                successMsg
-                        .setCommand(Command.AUTH)
-                        .setState(1)
-                        .setId(IdUtil.getSnowflakeNextId());
-                ctx.writeAndFlush(successMsg);
-                ctx.pipeline().remove(this);
+            if (!token.equals(tokenStr)) {
                 return;
             }
-
+            final SysMessage successMsg = new SysMessage();
+            successMsg
+                    .setCommand(Command.AUTH)
+                    .setState(1)
+                    .setId(IdUtil.generateId());
+            ctx.writeAndFlush(successMsg);
+            ctx.pipeline().remove(this);
+            return;
         }
         final SysMessage failMsg = new SysMessage();
         failMsg
                 .setCommand(Command.AUTH)
                 .setState(0)
-                .setId(IdUtil.getSnowflakeNextId());
+                .setId(IdUtil.generateId());
         ctx.writeAndFlush(failMsg);
     }
 }

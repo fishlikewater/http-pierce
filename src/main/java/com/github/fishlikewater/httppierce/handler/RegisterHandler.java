@@ -3,6 +3,7 @@ package com.github.fishlikewater.httppierce.handler;
 import cn.hutool.core.util.ObjectUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
+import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
 import com.github.fishlikewater.httppierce.config.ProtocolEnum;
@@ -81,13 +82,13 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         final String registerName = register.getRegisterName();
         final Channel channel = ChannelUtil.ROUTE_MAPPING.get(registerName);
         if (Objects.nonNull(channel)) {
-            returnMsg.setState(0);
+            returnMsg.setState(Constant.INT_ZERO);
             if (!channel.isActive() || !channel.isWritable()) {
                 channel.close();
             }
         } else {
             ChannelUtil.ROUTE_MAPPING.put(registerName, ctx.channel());
-            returnMsg.setState(1);
+            returnMsg.setState(Constant.INT_ONE);
             register.setNewPort(httpPierceServerConfig.getHttpServerPort());
             ctx.channel().attr(ChannelUtil.REGISTER_CHANNEL).get().add(registerName);
         }
@@ -116,14 +117,14 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
                 dynamicHttpBootMap.put("port" + register.getNewPort(), dynamicHttpBoot);
                 ctx.channel().attr(ChannelUtil.CHANNEL_DYNAMIC_BOOT).get().add(dynamicHttpBoot);
             }
-            returnMsg.setState(1);
+            returnMsg.setState(Constant.INT_ONE);
         } else {
             if (!dynamicHttpBoot1.getChannel().isActive() || dynamicHttpBoot1.getChannel().isWritable()) {
                 ChannelUtil.DYNAMIC_BOOT.remove("port" + dynamicHttpBoot1.getPort());
                 dynamicHttpBoot1.stop();
                 dynamicHttpBoot1.getChannel().close();
             }
-            returnMsg.setState(2);
+            returnMsg.setState(Constant.INT_TWO);
         }
         ctx.channel().writeAndFlush(returnMsg);
     }

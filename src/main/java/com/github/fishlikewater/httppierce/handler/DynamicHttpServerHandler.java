@@ -1,12 +1,12 @@
 package com.github.fishlikewater.httppierce.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.IdUtil;
 import com.github.fishlikewater.httppierce.kit.LoggerUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -43,12 +43,12 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if (msg instanceof FullHttpRequest req) {
-            Long requestId = IdUtil.getSnowflakeNextId();
+            Long requestId = IdUtil.generateId();
             final String connection = req.headers().get(Constant.CONNECTION);
             if (CharSequenceUtil.isNotBlank(connection) && connection.contains(Constant.UPGRADE)) {
                 HandlerKit.upWebSocket(ctx.channel(), channel, requestId);
             }
-            final Map<String, String> heads = HashMap.newHashMap(8);
+            final Map<String, String> heads = HashMap.newHashMap(16);
             final DataMessage dataMessage = new DataMessage();
             dataMessage.setCommand(Command.REQUEST);
             dataMessage.setDstServer(registerName);

@@ -1,9 +1,9 @@
 package com.github.fishlikewater.httppierce.handler;
 
 
-import cn.hutool.core.util.IdUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.SysMessage;
+import com.github.fishlikewater.httppierce.kit.IdUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -12,12 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 用于检测channel的心跳handler
  * 继承ChannelInboundHandlerAdapter，从而不需要实现channelRead0方法
+ * @author fish
  */
 @Slf4j
 public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
 
     public static final SysMessage HEARTBEAT_SEQUENCE = new SysMessage()
-            .setId(IdUtil.getSnowflakeNextId())
+            .setId(IdUtil.generateId())
             .setCommand(Command.HEALTH);
 
     @Override

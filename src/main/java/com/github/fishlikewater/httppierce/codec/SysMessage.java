@@ -51,8 +51,8 @@ public class SysMessage implements Message, Serializable {
 
     @Data
     @NoArgsConstructor
-    @Accessors(chain = true)
     @EqualsAndHashCode
+    @Accessors(chain = true)
     public static class Register implements Serializable {
 
         private Integer id;

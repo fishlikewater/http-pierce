@@ -15,10 +15,10 @@ import lombok.experimental.Accessors;
  * @author fishl
  * @since 2023-09-01
  */
-@Data()
+@Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
 @Table(value = "service_mapping")
+@EqualsAndHashCode(callSuper = true)
 public class ServiceMapping extends Model<ServiceMapping> {
 
     @Id(keyType = KeyType.Auto)

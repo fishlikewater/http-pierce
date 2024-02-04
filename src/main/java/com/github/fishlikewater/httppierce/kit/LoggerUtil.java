@@ -1,5 +1,6 @@
 package com.github.fishlikewater.httppierce.kit;
 
+import com.github.fishlikewater.httppierce.config.Constant;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.logging.java.SimpleFormatter;
@@ -37,7 +38,7 @@ public class LoggerUtil {
     public static Logger getLogger() {
         String day = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String logPath = LoggerUtil.logPath + "-" + day;
-        if (!Files.exists(Paths.get(logPath)) || logger.getHandlers().length == 0) {
+        if (!Files.exists(Paths.get(logPath)) || logger.getHandlers().length == Constant.INT_ZERO) {
             init(logPath);
         }
         return logger;

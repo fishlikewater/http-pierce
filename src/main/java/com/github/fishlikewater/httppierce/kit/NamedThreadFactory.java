@@ -1,8 +1,13 @@
 package com.github.fishlikewater.httppierce.kit;
 
+import org.springframework.lang.NonNull;
+
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.LongAdder;
 
+/**
+ * @author fish
+ */
 public class NamedThreadFactory implements ThreadFactory {
 
     private final String prefix;
@@ -13,7 +18,7 @@ public class NamedThreadFactory implements ThreadFactory {
     }
 
     @Override
-    public Thread newThread(Runnable runnable) {
+    public Thread newThread(@NonNull Runnable runnable) {
         threadNumber.add(1);
         return new Thread(runnable, prefix + " thread-" + threadNumber.intValue());
     }

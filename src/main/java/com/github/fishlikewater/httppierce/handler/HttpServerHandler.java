@@ -1,12 +1,12 @@
 package com.github.fishlikewater.httppierce.handler;
 
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.fishlikewater.httppierce.codec.Command;
 import com.github.fishlikewater.httppierce.codec.DataMessage;
 import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.kit.ChannelUtil;
+import com.github.fishlikewater.httppierce.kit.IdUtil;
 import com.github.fishlikewater.httppierce.kit.LoggerUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -50,10 +50,10 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
             }
             String path = headers.get(Constant.REQUEST_ROUTE);
             if (StrUtil.isBlank(path)) {
-                final String[] split = uri.split("/");
+                final String[] split = uri.split(Constant.URL_SEPARATOR);
                 path = split[1];
             }
-            Long requestId = IdUtil.getSnowflakeNextId();
+            Long requestId = IdUtil.generateId();
             Channel channel = ChannelUtil.ROUTE_MAPPING.get(path);
             if (channel == null) {
                 final ByteBuf buf = getBadResponse("No client connection, please check the url");

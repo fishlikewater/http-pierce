@@ -1,10 +1,7 @@
 package com.github.fishlikewater.httppierce.api;
 
 import com.github.fishlikewater.httppierce.api.model.ServiceMappingBo;
-import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
-import com.github.fishlikewater.httppierce.entity.ConnectionStateInfo;
 import com.github.fishlikewater.httppierce.entity.ServiceMapping;
-import com.github.fishlikewater.httppierce.kit.ChannelUtil;
 import com.github.fishlikewater.httppierce.kit.ClientKit;
 import com.github.fishlikewater.httppierce.service.ServiceMappingService;
 import io.github.linpeilie.Converter;
@@ -14,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * <p>
@@ -25,28 +21,18 @@ import java.util.Objects;
  * @since 2023年09月01日 13:00
  **/
 @RestController
-@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "CLIENT")
 @RequiredArgsConstructor
 @RequestMapping("/client/api")
+@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "${http.pierce.boot-type:client}")
 public class ClientConfigApi {
 
     private final ServiceMappingService serviceMappingService;
     private final Converter converter;
-    private final HttpPierceClientConfig httpPierceClientConfig;
 
     @GetMapping
     public Result<List<ServiceMapping>> getList() {
-        final List<ServiceMapping> list = serviceMappingService.list();
-        for (ServiceMapping serviceMapping : list) {
-            final ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(serviceMapping.getRegisterName());
-            if (Objects.nonNull(stateInfo)) {
-                serviceMapping.setState(stateInfo.getState());
-                if (stateInfo.getState() == 1) {
-                    serviceMapping.setRemoteAddress(httpPierceClientConfig.getServerAddress() + ":" + stateInfo.getServicePort());
-                }
-            }
-        }
-        return Result.of(list, CodeEnum.SUCCESS);
+        final List<ServiceMapping> list = serviceMappingService.querylist();
+        return Result.of(list);
     }
 
     /**
@@ -82,3 +68,4 @@ public class ClientConfigApi {
 
 
 }
+

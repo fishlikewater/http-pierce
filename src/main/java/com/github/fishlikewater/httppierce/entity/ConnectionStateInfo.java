@@ -3,6 +3,8 @@ package com.github.fishlikewater.httppierce.entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+
 /**
  * 连接状态
  *
@@ -11,7 +13,7 @@ import lombok.EqualsAndHashCode;
  **/
 @Data
 @EqualsAndHashCode
-public class ConnectionStateInfo {
+public class ConnectionStateInfo implements Serializable {
 
     private String registerName;
 

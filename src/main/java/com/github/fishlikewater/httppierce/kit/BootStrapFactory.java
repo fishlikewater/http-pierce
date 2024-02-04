@@ -81,6 +81,7 @@ public class BootStrapFactory {
                     if (channelFuture.isSuccess()) {
                         promise.setSuccess(channelFuture.channel());
                     } else {
+                        promise.setFailure(channelFuture.cause());
                         log.debug("connection fail address {}, port {}", host, port);
                         channelFuture.cancel(true);
                     }

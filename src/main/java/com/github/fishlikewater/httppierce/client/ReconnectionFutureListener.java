@@ -21,11 +21,12 @@ public record ReconnectionFutureListener(
 
     @Override
     public void operationComplete(ChannelFuture future) {
-        if (!future.isSuccess()) {
+        if (future.isSuccess()) {
+            log.info("Connection successful...");
+        } else {
             log.info("Connection failed, will initiate reconnection after 30s");
             final EventLoop loop = future.channel().eventLoop();
             loop.schedule(clientBoot::connection, clientBoot.getHttpPierceClientConfig().getRetryTime().toSeconds(), TimeUnit.SECONDS);
-
         }
     }
 }

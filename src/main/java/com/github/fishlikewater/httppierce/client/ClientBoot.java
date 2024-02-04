@@ -67,7 +67,7 @@ public class ClientBoot implements Boot {
         try {
             final ChannelFuture channelFuture = bootstrap
                     .connect(httpPierceClientConfig.getServerAddress(), httpPierceClientConfig.getServerPort())
-                    .addListener(new ReconnectionFutureListener(this))
+                    .addListener(this.getListener())
                     .sync();
             channelFuture.channel().closeFuture().addListener(t -> log.info("⬢  client server closed"));
             ClientKit.setChannel(channelFuture.channel());
@@ -76,6 +76,10 @@ public class ClientBoot implements Boot {
             Thread.currentThread().interrupt();
         }
 
+    }
+
+    private ReconnectionFutureListener getListener() {
+        return new ReconnectionFutureListener(this);
     }
 
     @Override
