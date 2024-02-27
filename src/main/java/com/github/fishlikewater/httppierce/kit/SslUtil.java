@@ -34,7 +34,8 @@ public class SslUtil {
     public static void init(HttpPierceServerConfig.SslConfig sslConfig) throws SSLException {
         sslContext = SslContextBuilder.forServer(
                 new File(sslConfig.getCaPath()),
-                new File(sslConfig.getPkPath())).build();
+                new File(sslConfig.getPkPath())
+        ).build();
     }
 
 }

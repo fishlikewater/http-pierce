@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.setting.Setting;
 import com.github.fishlikewater.httppierce.client.ClientBoot;
+import com.github.fishlikewater.httppierce.config.Constant;
 import com.github.fishlikewater.httppierce.config.HttpPierceClientConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceConfig;
 import com.github.fishlikewater.httppierce.config.HttpPierceServerConfig;
@@ -44,7 +45,7 @@ public class HttpPierceApplication implements CommandLineRunner {
     public static void main(String[] args) {
         final String web = new Setting("web.setting").getStr("server.type", "web");
         SpringApplication app = new SpringApplication(HttpPierceApplication.class);
-        if ("none".equals(web)) {
+        if (Constant.NONE.equals(web)) {
             app.setWebApplicationType(WebApplicationType.NONE);
         }
         app.run(args);

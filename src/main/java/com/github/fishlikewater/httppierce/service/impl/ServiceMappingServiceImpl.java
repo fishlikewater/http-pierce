@@ -37,15 +37,15 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
             if (serviceMapping.getEnable() == 1) {
                 ClientKit.addMapping(serviceMapping);
             }
-        } else {
-            final ServiceMapping mapping = this.getById(serviceMapping.getId());
-            this.updateById(serviceMapping);
-            if (!Objects.equals(mapping.getEnable(), serviceMapping.getEnable())) {
-                if (serviceMapping.getEnable() == 1) {
-                    ClientKit.addMapping(serviceMapping);
-                } else {
-                    ClientKit.cancelRegister(serviceMapping.getRegisterName());
-                }
+            return;
+        }
+        final ServiceMapping mapping = this.getById(serviceMapping.getId());
+        this.updateById(serviceMapping);
+        if (!Objects.equals(mapping.getEnable(), serviceMapping.getEnable())) {
+            if (serviceMapping.getEnable() == 1) {
+                ClientKit.addMapping(serviceMapping);
+            } else {
+                ClientKit.cancelRegister(serviceMapping.getRegisterName());
             }
         }
 
@@ -74,11 +74,11 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
             if (stateInfo.getState() == 1) {
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
-        } else {
-            this.updateChain().set(SERVICE_MAPPING.ENABLE, 1).where(SERVICE_MAPPING.ID.eq(id)).update();
-            mapping.setEnable(1);
-            ClientKit.addMapping(mapping);
+            return;
         }
+        this.updateChain().set(SERVICE_MAPPING.ENABLE, 1).where(SERVICE_MAPPING.ID.eq(id)).update();
+        mapping.setEnable(1);
+        ClientKit.addMapping(mapping);
     }
 
     @Override

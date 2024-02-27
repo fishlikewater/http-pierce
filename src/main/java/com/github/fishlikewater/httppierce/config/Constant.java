@@ -18,6 +18,8 @@ public interface Constant {
 
     String URL_SEPARATOR = "/";
 
+    String NONE = "none";
+
     int INT_ZERO = 0;
 
     int INT_ONE = 1;
