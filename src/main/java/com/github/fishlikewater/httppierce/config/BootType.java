@@ -27,5 +27,4 @@ public enum BootType {
     BootType(String value) {
         this.value = value;
     }
-
 }

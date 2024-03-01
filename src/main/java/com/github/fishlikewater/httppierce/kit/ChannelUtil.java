@@ -41,6 +41,4 @@ public class ChannelUtil {
     public static final AttributeKey<List<String>> REGISTER_CHANNEL = AttributeKey.newInstance("REGISTER_CHANNEL");
 
     public static final Map<String, DynamicTcpBoot> DYNAMIC_BOOT = new ConcurrentHashMap<>();
-
-
 }

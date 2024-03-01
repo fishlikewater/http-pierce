@@ -65,7 +65,5 @@ public class ClientConfigApi {
         ClientKit.getClientBoot().start();
         return Result.of("ok");
     }
-
-
 }
 

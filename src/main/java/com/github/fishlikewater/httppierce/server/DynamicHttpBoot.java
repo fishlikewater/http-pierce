@@ -22,9 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 public class DynamicHttpBoot extends DynamicTcpBoot {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
-    private final HttpPierceConfig httpPierceConfig;
-    private final ProtocolEnum protocolEnum;
 
+    private final HttpPierceConfig httpPierceConfig;
+
+    private final ProtocolEnum protocolEnum;
 
     public DynamicHttpBoot(int port, String registerName, Channel channel, HttpPierceServerConfig httpPierceServerConfig,
                            HttpPierceConfig httpPierceConfig, ProtocolEnum protocolEnum) {
@@ -34,10 +35,8 @@ public class DynamicHttpBoot extends DynamicTcpBoot {
         this.protocolEnum = protocolEnum;
     }
 
-
     @Override
     public void run(ServerBootstrap serverBootstrap) {
-
         serverBootstrap.childHandler(new DynamicHttpHandlerInitializer(this.getChannel(), this.getRegisterName(), httpPierceServerConfig, httpPierceConfig, protocolEnum));
         try {
             Channel ch = serverBootstrap.bind(this.getPort()).sync().channel();
@@ -48,7 +47,6 @@ public class DynamicHttpBoot extends DynamicTcpBoot {
             Thread.currentThread().interrupt();
         }
     }
-
 
     @Override
     public void stop() {

@@ -33,7 +33,6 @@ public class DataMessage implements Message, Serializable {
      **/
     private Command command;
 
-
     /**
      * 目标服务名
      */
@@ -54,23 +53,18 @@ public class DataMessage implements Message, Serializable {
      */
     private String method;
 
-
     /**
      * http版本
      */
     private String version;
-
 
     /**
      * 响应码
      */
     private int code;
 
-
     /**
      * 消息类容
      **/
     private byte[] bytes = new byte[0];
-
-
 }

@@ -75,7 +75,6 @@ public class ClientBoot implements Boot {
             log.error("start client fail", e);
             Thread.currentThread().interrupt();
         }
-
     }
 
     private ReconnectionFutureListener getListener() {

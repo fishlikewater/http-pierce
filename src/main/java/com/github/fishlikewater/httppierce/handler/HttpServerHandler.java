@@ -37,7 +37,6 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
 
     private final HttpPierceConfig httpPierceConfig;
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) {
         if (msg instanceof FullHttpRequest req) {
@@ -91,13 +90,11 @@ public class HttpServerHandler extends SimpleChannelInboundHandler<HttpObject> {
                     } else {
                         log.info("Forwarding failed");
                     }
-
                 });
             }
         } else {
             log.info("not found http or https request, will close this channel");
             ctx.close();
-
         }
     }
 

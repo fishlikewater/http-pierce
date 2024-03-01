@@ -85,8 +85,6 @@ public class HttpPierceServerConfig {
          */
         private String caPath;
     }
-
-
 }
 
 

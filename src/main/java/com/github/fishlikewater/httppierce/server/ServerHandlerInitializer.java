@@ -52,7 +52,5 @@ public class ServerHandlerInitializer extends ChannelInitializer<Channel> {
                 .addLast(new AuthHandler(httpPierceServerConfig.getToken()))
                 .addLast(new RegisterHandler(httpPierceServerConfig, httpPierceConfig))
                 .addLast(new MessageTransferHandler());
-
-
     }
 }

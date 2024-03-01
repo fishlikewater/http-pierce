@@ -76,7 +76,6 @@ public class DynamicHttpServerHandler extends SimpleChannelInboundHandler<HttpOb
                 } else {
                     log.info("Forwarding failed");
                 }
-
             });
         } else {
             log.info("not found http or https request, will close this channel");

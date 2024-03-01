@@ -29,8 +29,6 @@ public class WebSocketHandler extends SimpleChannelInboundHandler<byte[]> {
         dataMessage.setBytes(bytes);
         dataMessage.setId(requestId);
         channel.writeAndFlush(dataMessage);
-
-
     }
 
     @Override

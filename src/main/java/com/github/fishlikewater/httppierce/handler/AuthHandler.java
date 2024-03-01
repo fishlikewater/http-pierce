@@ -29,20 +29,19 @@ public class AuthHandler extends SimpleChannelInboundHandler<SysMessage> {
             if (!token.equals(tokenStr)) {
                 return;
             }
-            final SysMessage successMsg = new SysMessage();
-            successMsg
-                    .setCommand(Command.AUTH)
-                    .setState(1)
-                    .setId(IdUtil.generateId());
-            ctx.writeAndFlush(successMsg);
+            this.sendAuthMsg(1, ctx);
             ctx.pipeline().remove(this);
             return;
         }
-        final SysMessage failMsg = new SysMessage();
-        failMsg
+        this.sendAuthMsg(0, ctx);
+    }
+
+    private void sendAuthMsg(int state, ChannelHandlerContext ctx) {
+        final SysMessage successMsg = new SysMessage();
+        successMsg
                 .setCommand(Command.AUTH)
-                .setState(0)
+                .setState(state)
                 .setId(IdUtil.generateId());
-        ctx.writeAndFlush(failMsg);
+        ctx.writeAndFlush(successMsg);
     }
 }

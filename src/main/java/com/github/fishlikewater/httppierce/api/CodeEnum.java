@@ -48,7 +48,6 @@ public enum CodeEnum {
      * 枚举值
      * -- GETTER --
      *
-
      */
     private final String code;
 
@@ -56,7 +55,6 @@ public enum CodeEnum {
      * 枚举描述
      * -- GETTER --
      *
-
      */
     private final String message;
 

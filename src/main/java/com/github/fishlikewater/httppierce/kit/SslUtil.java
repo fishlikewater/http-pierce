@@ -37,5 +37,4 @@ public class SslUtil {
                 new File(sslConfig.getPkPath())
         ).build();
     }
-
 }

@@ -13,5 +13,4 @@ public class IdUtil {
     public static long generateId() {
         return cn.hutool.core.util.IdUtil.getSnowflakeNextId();
     }
-
 }

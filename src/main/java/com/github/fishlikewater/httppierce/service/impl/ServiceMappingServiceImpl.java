@@ -48,7 +48,6 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
                 ClientKit.cancelRegister(serviceMapping.getRegisterName());
             }
         }
-
     }
 
     @Override

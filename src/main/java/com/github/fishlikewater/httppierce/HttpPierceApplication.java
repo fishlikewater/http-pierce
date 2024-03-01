@@ -39,7 +39,9 @@ import java.io.File;
 public class HttpPierceApplication implements CommandLineRunner {
 
     private final HttpPierceServerConfig httpPierceServerConfig;
+
     private final HttpPierceClientConfig httpPierceClientConfig;
+
     private final HttpPierceConfig httpPierceConfig;
 
     public static void main(String[] args) {

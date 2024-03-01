@@ -37,12 +37,10 @@ public class SysMessage implements Message, Serializable {
      */
     private int state;
 
-
     /**
      * 客户端注册信息
      */
     private Register register;
-
 
     /**
      * 消息类型
@@ -75,7 +73,5 @@ public class SysMessage implements Message, Serializable {
          * 外网开放协议 http https
          **/
         private ProtocolEnum protocol = ProtocolEnum.HTTP;
-
-
     }
 }

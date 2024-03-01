@@ -19,17 +19,17 @@ import lombok.extern.slf4j.Slf4j;
 public class DynamicTcpBoot extends HttpBoot {
 
     private final int port;
+
     private final String registerName;
+
     @Getter
     private final Channel channel;
-
 
     public DynamicTcpBoot(int port, String registerName, Channel channel) {
         this.port = port;
         this.registerName = registerName;
         this.channel = channel;
     }
-
 
     @Override
     public void run(ServerBootstrap serverBootstrap) {
@@ -44,7 +44,6 @@ public class DynamicTcpBoot extends HttpBoot {
             Thread.currentThread().interrupt();
         }
     }
-
 
     @Override
     public void stop() {

@@ -39,7 +39,6 @@ public class RegisterHandler extends SimpleChannelInboundHandler<SysMessage> {
         final Command command = msg.getCommand();
         if (command == Command.REGISTER) {
             handlerRegister(ctx, msg);
-
         } else if (command == Command.CANCEL_REGISTER) {
             handlerCancelRegister(ctx, msg);
         }

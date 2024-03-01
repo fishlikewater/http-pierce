@@ -37,9 +37,7 @@ public class ClientKit {
     @Getter
     private static ClientBoot clientBoot;
 
-
     public static void setChannel(Channel channel) {
-
         ClientKit.channel = channel;
     }
 

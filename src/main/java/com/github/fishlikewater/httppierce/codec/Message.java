@@ -18,5 +18,4 @@ public interface Message {
     default Long getId() {
         return 0L;
     }
-
 }

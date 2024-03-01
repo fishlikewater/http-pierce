@@ -44,7 +44,6 @@ public class ClientResponseHandler extends SimpleChannelInboundHandler<byte[]> {
                 ctx.channel().attr(ChannelUtil.HTTP_UPGRADE).set(null);
             }
         });
-
     }
 
     @Override

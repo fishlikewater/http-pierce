@@ -33,8 +33,6 @@ public class HttpPierceConfig {
      * 访问记录日志路劲
      **/
     private String logPath;
-
-
 }
 
 

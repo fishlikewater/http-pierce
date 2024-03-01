@@ -175,5 +175,4 @@ public class KryoUtil {
             throw new IllegalStateException(e);
         }
     }
-
 }

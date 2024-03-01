@@ -50,7 +50,6 @@ public class HttpBoot implements Boot {
         this.httpPierceConfig = httpPierceConfig;
     }
 
-
     @Override
     public void start() {
 
@@ -97,5 +96,4 @@ public class HttpBoot implements Boot {
             Thread.currentThread().interrupt();
         }
     }
-
 }

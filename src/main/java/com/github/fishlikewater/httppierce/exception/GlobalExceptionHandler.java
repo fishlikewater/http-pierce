@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
-
     public static final String ERROR_TEXT = "异常信息";
 
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
@@ -68,6 +67,5 @@ public class GlobalExceptionHandler {
         log.error(ERROR_TEXT + "：", ex);
         return new Result<>(CodeEnum.SYSTEM_ERROR, "服务访问异常");
     }
-
 }
 

@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.fishlikewater.httppierce.entity.table.ServiceMappingTableDef.SERVICE_MAPPING;
 
+
 /**
  * <p>
  * 客户端消息处理处理器
@@ -173,7 +174,6 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         });
     }
 
-
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         ctx.channel().attr(ChannelUtil.CLIENT_FORWARD).set(new ConcurrentHashMap<>(16));
@@ -188,7 +188,6 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
                 .setToken(httpPierceClientConfig.getToken())
                 .setId(IdUtil.generateId());
         ctx.channel().writeAndFlush(sysMessage);
-
     }
 
     @Override
@@ -197,5 +196,4 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
         ChannelUtil.stateMap.clear();
         loop.schedule(clientBoot::connection, httpPierceClientConfig.getRetryTime().getSeconds(), TimeUnit.SECONDS);
     }
-
 }

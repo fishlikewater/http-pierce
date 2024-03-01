@@ -29,6 +29,7 @@ public enum Command implements Serializable {
     CLOSE(5),
 
     CANCEL_REGISTER(6);
+
     private final int code;
 
     Command(int code) {

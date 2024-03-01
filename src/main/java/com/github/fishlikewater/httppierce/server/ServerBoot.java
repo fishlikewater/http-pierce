@@ -82,5 +82,4 @@ public class ServerBoot implements Boot {
             Thread.currentThread().interrupt();
         }
     }
-
 }

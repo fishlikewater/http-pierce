@@ -73,7 +73,6 @@ public class Result<T> implements Serializable {
         return new Result<>(data);
     }
 
-
     /**
      * 设置响应消息
      *
@@ -101,6 +100,4 @@ public class Result<T> implements Serializable {
         this.code = code.code();
         return this;
     }
-
-
 }

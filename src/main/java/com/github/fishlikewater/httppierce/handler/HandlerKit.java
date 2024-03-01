@@ -18,7 +18,6 @@ import io.netty.handler.stream.ChunkedWriteHandler;
  **/
 public class HandlerKit {
 
-
     private HandlerKit() {
         throw new IllegalStateException("Utility class");
     }
@@ -40,5 +39,4 @@ public class HandlerKit {
         channel.pipeline().addLast(new WebSocketHandler(id, clientChannel));
         channel.attr(ChannelUtil.HTTP_UPGRADE).set(null);
     }
-
 }

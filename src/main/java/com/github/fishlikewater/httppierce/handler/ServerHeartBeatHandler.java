@@ -26,7 +26,5 @@ public class ServerHeartBeatHandler extends ChannelInboundHandlerAdapter {
         } else {
             super.userEventTriggered(ctx, evt);
         }
-
     }
-
 }

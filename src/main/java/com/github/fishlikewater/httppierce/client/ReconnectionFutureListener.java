@@ -16,8 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2023年02月16日 19:25
  **/
 @Slf4j
-public record ReconnectionFutureListener(
-        ClientBoot clientBoot) implements ChannelFutureListener {
+public record ReconnectionFutureListener(ClientBoot clientBoot) implements ChannelFutureListener {
 
     @Override
     public void operationComplete(ChannelFuture future) {

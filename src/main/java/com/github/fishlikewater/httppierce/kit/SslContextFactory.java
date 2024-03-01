@@ -33,7 +33,6 @@ public class SslContextFactory {
 
     private static final String PROTOCOL = "TLS";
 
-
     private static SSLContext SERVER_CONTEXT;
 
     private static SslContext openSslContext;
@@ -149,7 +148,6 @@ public class SslContextFactory {
             log.error("ssl加载错误", e);
         }
         return null;
-
     }
 
 
@@ -171,7 +169,6 @@ public class SslContextFactory {
             throw new Error("Failed to initialize the client-side SSLContext", e);
         }
         return CLIENT_CONTEXT;
-
     }
 
     public static SslContext getOpenSslClientContext(String pkPath, String caPath, String passwd) {
@@ -188,7 +185,6 @@ public class SslContextFactory {
             log.error("ssl加载错误", e);
         }
         return null;
-
     }
 
     /**
@@ -319,5 +315,4 @@ public class SslContextFactory {
         }
         return tf;
     }
-
 }

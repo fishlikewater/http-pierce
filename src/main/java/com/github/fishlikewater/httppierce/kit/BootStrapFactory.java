@@ -29,7 +29,6 @@ public class BootStrapFactory {
     public static Bootstrap bootstrapConfig(ChannelHandlerContext ctx) {
         if (bootstrap != null) {
             return bootstrap;
-
         }
         bootstrap = new Bootstrap();
         bootstrap.group(ctx.channel().eventLoop().parent());
@@ -46,7 +45,6 @@ public class BootStrapFactory {
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
-
         return bootstrap;
     }
 
@@ -68,7 +66,6 @@ public class BootStrapFactory {
         Bootstrap bootstrap = BootStrapFactory.bootstrapConfig(ctx);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
         bootstrap.handler(new ChannelInitializer<>() {
-
             @Override
             protected void initChannel(Channel ch) {
 

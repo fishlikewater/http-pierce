@@ -27,17 +27,16 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
         // 判断evt是否是IdleStateEvent（用于触发用户事件，包含 读空闲/写空闲/读写空闲 ）
         if (evt instanceof IdleStateEvent) {
             //IdleStateEvent event = (IdleStateEvent) evt;        // 强制类型转换
-            ctx.channel().writeAndFlush(HEARTBEAT_SEQUENCE)
+            ctx.channel()
+                    .writeAndFlush(HEARTBEAT_SEQUENCE)
                     .addListener(future -> {
                         if (!future.isSuccess()) {
                             log.warn("failed to send heartbeat packet...");
                         }
-
                     });
         } else {
             super.userEventTriggered(ctx, evt);
         }
-
     }
 
 }

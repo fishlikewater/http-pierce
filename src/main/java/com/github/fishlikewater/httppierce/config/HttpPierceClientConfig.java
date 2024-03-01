@@ -22,7 +22,6 @@ import java.time.Duration;
 @ConfigurationProperties("http.pierce.client")
 public class HttpPierceClientConfig {
 
-
     /**
      * 服务端监听的地址
      **/
@@ -33,12 +32,10 @@ public class HttpPierceClientConfig {
      **/
     private int serverPort;
 
-
     /**
      * 心跳检测间隔，默认30s
      **/
     private Duration timeout = Duration.ofSeconds(30);
-
 
     /**
      * 是否开启日志
@@ -60,12 +57,10 @@ public class HttpPierceClientConfig {
      */
     private DataSize maxFrameLength = DataSize.ofBytes(5 * 1024 * 1024L);
 
-
     /**
      * 客户端映射配置
      **/
     private HttpMapping[] httpMappings;
-
 
     @Data
     public static class HttpMapping {
@@ -104,11 +99,7 @@ public class HttpPierceClientConfig {
          * 外网开放协议 http https
          **/
         private ProtocolEnum protocol;
-
-
     }
-
-
 }
 
 

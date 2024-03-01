@@ -20,6 +20,4 @@ public class ConnectionStateInfo implements Serializable {
     private int servicePort;
 
     private int state;
-
-
 }

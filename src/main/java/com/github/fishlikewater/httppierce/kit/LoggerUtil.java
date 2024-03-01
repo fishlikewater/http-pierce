@@ -71,6 +71,4 @@ public class LoggerUtil {
     public static void info(String info) {
         getLogger().info(info);
     }
-
-
 }

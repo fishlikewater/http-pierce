@@ -31,7 +31,6 @@ public class ClientResponseHandler2 extends SimpleChannelInboundHandler<byte[]> 
         dataMessage.setBytes(bytes);
         dataMessage.setId(requested);
         channel.writeAndFlush(dataMessage);
-
     }
 
     @Override
