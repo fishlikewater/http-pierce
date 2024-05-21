@@ -70,7 +70,7 @@ public class ServiceMappingServiceImpl extends ServiceImpl<ServiceMappingMapper,
         if (mapping.getEnable() == 1) {
             this.updateChain().set(SERVICE_MAPPING.ENABLE, 0).where(SERVICE_MAPPING.ID.eq(id)).update();
             ConnectionStateInfo stateInfo = ChannelUtil.stateMap.get(mapping.getRegisterName());
-            if (stateInfo.getState() == 1) {
+            if (Objects.nonNull(stateInfo) && stateInfo.getState() == 1) {
                 ClientKit.cancelRegister(mapping.getRegisterName());
             }
             return;
