@@ -23,7 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/client/api")
-@ConditionalOnProperty(prefix = "http.pierce", name = "boot-type", havingValue = "${http.pierce.boot-type:client}")
+@ConditionalOnProperty(prefix = "spring.profiles", name = "active", havingValue = "client")
 public class ClientConfigApi {
 
     private final ServiceMappingService serviceMappingService;
