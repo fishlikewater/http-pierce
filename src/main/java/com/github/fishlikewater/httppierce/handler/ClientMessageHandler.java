@@ -123,8 +123,7 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<Message> {
             connectionStateInfo.setState(Constant.INT_ONE);
             ChannelUtil.stateMap.put(registerName, connectionStateInfo);
         } else if (sysMessage.getState() == Constant.INT_TWO) {
-            log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use",
-                    registerName, register.getNewPort());
+            log.info("Failed to register the route name 【{}】,because Port【{}】  is already in use", registerName, register.getNewPort());
             ctx.channel().eventLoop().schedule(() -> ClientKit.reRegister(registerName), 10, TimeUnit.SECONDS);
             connectionStateInfo.setState(Constant.INT_ZERO);
             ChannelUtil.stateMap.put(registerName, connectionStateInfo);
